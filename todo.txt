@@ -1,14 +1,15 @@
 ####################################################
 ############## MACRO-SCALE TODO LIST ###############
 ####################################################
-	Objective				State
-- HTTP downloader			finished, but have to add https support
-- HTML lexer				finished, but have to add <!DOCTYPE>
-- HTML yaccer				finished, but have to add <!DOCTYPE>
-- CSS lexer					in progress
-- CSS yaccer				not started yet
-- CSS applyer				not started yet
-- HTML renderer				not started yet
-- JavaScript lexer			not started yet
-- JavaScript compiler		not started yet
-- JavaScript interpreter	not started yet
+ |  Objective               |  State
+-+--------------------------+-------------------------------------------
+ | HTTP downloader          | finished, but have to add https support
+ | HTML lexer               | finished, but have to add <!DOCTYPE>
+ | HTML yaccer              | finished, but have to add <!DOCTYPE>
+ | CSS lexer                | in progress
+ | CSS yaccer               | not started yet
+ | CSS applyer              | not started yet
+ | HTML renderer            | not started yet
+ | JavaScript lexer         | not started yet
+ | JavaScript compiler      | not started yet
+ | JavaScript interpreter   | not started yet
