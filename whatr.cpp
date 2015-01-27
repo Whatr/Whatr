@@ -19,6 +19,7 @@
 #include "whatr_html_lexer.h"
 #include "whatr_html_yaccer.h"
 #include "whatr_css_lexer.h"
+#include "whatr_css_yaccer.h"
 
 void update_screen();
 
@@ -61,7 +62,7 @@ std::vector<HTMLElement*> HTMLElements;
 
 //----------------------------
 pthread_t cssLexThread;
-int lexingCss = 0;
+int lexingCSS = 0;
 std::vector<CSSClass*> CSSClasses;
 //----------------------------
 
@@ -254,8 +255,27 @@ int main(int argc, char* argv[])
 	
 	///////////////////////////////////
 	////// Lex the css
-	
-	
+	{
+		// TODO make it find all styles
+		//							<html>			<head>			<style>
+		lexingCSS = 1;
+		HTMLElement* style = HTMLElements.at(0)->children.at(0)->children.at(0)->children.at(0);
+		std::vector<CSSToken> CSSTokens;
+		cssLexArgs args(&lexingCSS, &CSSTokens, &(style->text));
+		if (pthread_create(&cssLexThread, NULL, cssLexThreadFunc, &args))
+		{
+			ERROR(Failed to create CSS lex thread!);
+			return 0;
+		}
+		while(lexingCSS){};
+		PRINT(lexingCSS=0! printing CSSTokens...);
+		for (int i=0;i<CSSTokens.size();i++)
+		{
+			CSSToken t = CSSTokens.at(i);
+			std::cout << "CSSTokens[" << i << "]={"
+					<< t.type << " , " << t.text << "}\n";
+		}
+	}
 	
 	///////////////////////////////////
 	////// Create window
