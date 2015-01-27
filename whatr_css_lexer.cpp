@@ -35,23 +35,36 @@ void* cssLexThreadFunc(void* args)
 		
 		std::string buffer = std::string("");
 		
+		int count = 0;
+		
 		while
 		(
-			i<inputCSS->length()
+			i<inputCSS->length() && count < 100
 		)
 		{
+			count++;
 			char c = inputCSS->at(i);
+			std::cout << "Now at char " << c << "\n";
 			if (currentType==-1)
 			{
 				if (c==' ' || c=='\n' || c=='\t' || c=='\r')
 				{
 					// Ignore whitespaces when not inside anything
 				}
-				else if (	c==':' ||	// color: blue;
-							c==';')
+				else if (	c==':' ||	// CSS op chars that always stand alone
+							c==';' ||
+							c=='.' ||
+							c=='{' ||
+							c=='}' ||
+							c=='(' ||
+							c==')' ||
+							c=='[' ||
+							c==']')
 				{
-					currentType = 1;
-					buffer += c;
+					CSSToken t;
+					t.type = 1;
+					t.text = std::string("")+c;
+					CSSTokens->push_back(t);
 				}
 				else if (c>='a' && c<='z')
 				{
@@ -61,14 +74,29 @@ void* cssLexThreadFunc(void* args)
 			}
 			else if (currentType==0)
 			{
-				if (c==' ' || c=='\n' || c=='\t' || c=='\r')
+				if ((c>='a' && c<='z') ||
+					(c>='A' && c<='Z') ||
+					(c>='1' && c<='2') ||
+					 c=='-')
+				{
+					buffer += c;
+				}
+				else
 				{
 					CSSToken t;
 					t.type = 0;
 					t.text = buffer;
 					CSSTokens->push_back(t);
 					buffer = std::string("");
-					
+					currentType = -1;
+					if (c==' ' || c=='\n' || c=='\t' || c=='\r')
+					{
+						// Skip whitespaces
+					}
+					else
+					{
+						continue; // Rerun the loop for the current character (operator) by not incrementing i
+					}
 				}
 			}
 			i++;
