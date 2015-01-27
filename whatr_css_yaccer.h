@@ -35,3 +35,14 @@ class CSSClass
 	std::vector<std::string> ruleProperties;
 	std::vector<std::string> ruleValues;
 };
+class cssYaccArgs
+{
+public:
+	int* yaccingCSS;
+	std::vector<CSSToken>* CSSTokens;
+	cssYaccArgs(int* yaccingCSS,
+				std::vector<CSSToken>* CSSTokens):
+		yaccingCSS(yaccingCSS),
+		CSSTokens(CSSTokens){};
+};
+void* cssYaccThreadFunc(void* args);

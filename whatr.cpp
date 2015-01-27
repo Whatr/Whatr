@@ -63,6 +63,12 @@ std::vector<HTMLElement*> HTMLElements;
 //----------------------------
 pthread_t cssLexThread;
 int lexingCSS = 0;
+std::vector<CSSToken> CSSTokens;
+//----------------------------
+
+//----------------------------
+pthread_t cssYaccThread;
+int yaccingCSS = 0;
 std::vector<CSSClass*> CSSClasses;
 //----------------------------
 
@@ -260,7 +266,6 @@ int main(int argc, char* argv[])
 		//							<html>			<head>			<style>
 		lexingCSS = 1;
 		HTMLElement* style = HTMLElements.at(0)->children.at(0)->children.at(0)->children.at(0);
-		std::vector<CSSToken> CSSTokens;
 		cssLexArgs args(&lexingCSS, &CSSTokens, &(style->text));
 		if (pthread_create(&cssLexThread, NULL, cssLexThreadFunc, &args))
 		{
@@ -275,6 +280,20 @@ int main(int argc, char* argv[])
 			std::cout << "CSSTokens[" << i << "]={"
 					<< t.type << " , " << t.text << "}\n";
 		}
+	}
+	
+	///////////////////////////////////
+	////// Yacc the css
+	{
+		yaccingCSS = 1;
+		cssYaccArgs args(&yaccingCSS, &CSSTokens);
+		if (pthread_create(&cssYaccThread, NULL, cssYaccThreadFunc, &args))
+		{
+			ERROR(Failed to create CSS yacc thread!);
+			return 0;
+		}
+		while(yaccingCSS){};
+		PRINT(yaccingCSS=0!);
 	}
 	
 	///////////////////////////////////

@@ -187,7 +187,7 @@ void* cssLexThreadFunc(void* args)
 			}
 			else
 			{
-				std::cout << RED << "CSS Lexer error: Fatal error: Invalid currentType! This should never happen! Please contact the developer(s)!\n" << NOCLR;
+				std::cout << RED << "CSS Lexer error: Fatal error: Invalid currentType of " << currentType << "! This should never happen! Please contact the developer(s)!\n" << NOCLR;
 			}
 			i++;
 		}
