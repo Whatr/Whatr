@@ -37,39 +37,83 @@ void* cssLexThreadFunc(void* args)
 		
 		int count = 0;
 		
+		int inComment = 0;
+		
 		while
 		(
-			i<inputCSS->length() && count < 100
+			i<inputCSS->length() && count < 10000
 		)
 		{
 			count++;
 			char c = inputCSS->at(i);
-			std::cout << "Now at char " << c << "\n";
-			if (currentType==-1)
+			//std::cout << "Now at char " << c << "\n";
+			
+			if (inComment==2)
+			{
+				if (c=='/')
+				{
+					std::cout << GREEN << "CSS lexer notice: Ending comment...\n" << NOCLR;
+					inComment = 0;
+				}
+				else
+				{
+					inComment = 1;
+				}
+			}
+			else if (inComment==1 && c=='*')
+			{
+				inComment++;
+			}
+			else if (inComment){}
+			else if (c=='*' && i>0 && inputCSS->at(i-1)=='/')
+			{
+				std::cout << GREEN << "CSS lexer notice: Starting comment...\n" << NOCLR;
+				inComment = 1;
+			}
+			else if (currentType==-1)
 			{
 				if (c==' ' || c=='\n' || c=='\t' || c=='\r')
 				{
 					// Ignore whitespaces when not inside anything
 				}
-				else if (	c==':' ||	// CSS op chars that always stand alone
-							c==';' ||
+				else if (	c==';' || // CSS op chars that always stand alone...
 							c=='.' ||
 							c=='{' ||
 							c=='}' ||
 							c=='(' ||
 							c==')' ||
 							c=='[' ||
-							c==']')
+							c==']' ||
+							c==',' ||
+							c=='>' ||
+							c=='+' ||
+							c=='=')		// ...or never appear as the first char of a multichar op
 				{
 					CSSToken t;
 					t.type = 1;
 					t.text = std::string("")+c;
 					CSSTokens->push_back(t);
 				}
-				else if (c>='a' && c<='z')
+				else if (
+					c=='~' || // CSS op chars that may or may not be the start of a multichar op
+					c=='*' ||
+					c==':' ||
+					c=='|' || // CSS op chars that are always the start of a multichar op
+					c=='^' ||
+					c=='$')
+				{
+					currentType = 1;
+					buffer += c;
+				}
+				else if ((c>='a' && c<='z') || c=='#')
 				{
 					currentType = 0;
 					buffer += c;
+				}
+				else if (c=='/'){} // Ignore /
+				else
+				{
+					std::cout << RED << "CSS Lexer error: Unexpected character '" << c << "'\n" << NOCLR;
 				}
 			}
 			else if (currentType==0)
@@ -81,6 +125,7 @@ void* cssLexThreadFunc(void* args)
 				{
 					buffer += c;
 				}
+				else if (c=='/') {} // Ignore /
 				else
 				{
 					CSSToken t;
@@ -99,10 +144,55 @@ void* cssLexThreadFunc(void* args)
 					}
 				}
 			}
+			else if (currentType==1)
+			{
+				if (c=='/'){} // Ignore /
+				else if ((c>='a' && c<='z') ||
+					(c>='A' && c<='Z') ||
+					(c>='1' && c<='2') ||
+					 c=='-' ||
+			 		(c==';' ||
+					c=='.' ||
+					c=='{' ||
+					c=='}' ||
+					c=='(' ||
+					c==')' ||
+					c=='[' ||
+					c==']' ||
+					c==',' ||
+					c=='>' ||
+					c=='+'))
+				{
+					CSSToken t;
+					t.type = 1;
+					t.text = buffer;
+					CSSTokens->push_back(t);
+					buffer = std::string("");
+					currentType = -1;
+					continue;
+				}
+				else if (c==' ' || c=='\n' || c=='\t' || c=='\r')
+				{
+					CSSToken t;
+					t.type = 1;
+					t.text = buffer;
+					CSSTokens->push_back(t);
+					buffer = std::string("");
+					currentType = -1;
+				}
+				else
+				{
+					buffer += c;
+				}
+			}
+			else
+			{
+				std::cout << RED << "CSS Lexer error: Fatal error: Invalid currentType! This should never happen! Please contact the developer(s)!\n" << NOCLR;
+			}
 			i++;
 		}
 	}
+	PRINT(cssLexThreadFunc end);
 	*lexingCSS = 0;
-	PRINT(htmlLexThreadFunc end);
 	pthread_exit(NULL);
 }
