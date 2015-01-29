@@ -293,7 +293,22 @@ int main(int argc, char* argv[])
 			return 0;
 		}
 		while(yaccingCSS){};
-		PRINT(yaccingCSS=0!);
+		PRINT(yaccingCSS=0! printing CSS classes...);
+		for (int i=0;i<CSSClasses.size();i++)
+		{
+			std::cout << "Class selector:\n";
+			for (int j=0;j<CSSClasses.at(i).selector.subSelectors.size();j++)
+			{
+				CSSSubSelector ss = CSSClasses.at(i).selector.subSelectors.at(j);
+				std::cout << ss.str1 << " " << ss.str2 << " " << ss.type << "\n";
+			}
+			std::cout << "Class rules:\n";
+			for (int j=0;j<CSSClasses.at(i).ruleNames.size();j++)
+			{
+				std::cout	<< CSSClasses.at(i).ruleNames .at(j) << ": "
+							<< CSSClasses.at(i).ruleValues.at(j) << "\n";
+			}
+		}
 	}
 	
 	///////////////////////////////////

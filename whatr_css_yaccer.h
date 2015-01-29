@@ -6,6 +6,7 @@ public:
 	int type;
 	/*
 	type	CSS		meaning								example
+	-2				inside [] but haven't encountered operator
 	-1				operator
 	0		a		a elements							<A></A>
 	1		.a		elements with a class				<P class="a"></P>
