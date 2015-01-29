@@ -77,7 +77,6 @@ void* cssLexThreadFunc(void* args)
 					// Ignore whitespaces when not inside anything
 				}
 				else if (	c==';' || // CSS op chars that always stand alone...
-							c=='.' ||
 							c=='{' ||
 							c=='}' ||
 							c=='(' ||
@@ -105,7 +104,7 @@ void* cssLexThreadFunc(void* args)
 					currentType = 1;
 					buffer += c;
 				}
-				else if ((c>='a' && c<='z') || c=='#')
+				else if ((c>='a' && c<='z') || c=='#' || c=='.')
 				{
 					currentType = 0;
 					buffer += c;

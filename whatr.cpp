@@ -69,7 +69,7 @@ std::vector<CSSToken> CSSTokens;
 //----------------------------
 pthread_t cssYaccThread;
 int yaccingCSS = 0;
-std::vector<CSSClass*> CSSClasses;
+std::vector<CSSClass> CSSClasses;
 //----------------------------
 
 std::string url, host, path;
@@ -286,7 +286,7 @@ int main(int argc, char* argv[])
 	////// Yacc the css
 	{
 		yaccingCSS = 1;
-		cssYaccArgs args(&yaccingCSS, &CSSTokens);
+		cssYaccArgs args(&yaccingCSS, &CSSTokens, &CSSClasses);
 		if (pthread_create(&cssYaccThread, NULL, cssYaccThreadFunc, &args))
 		{
 			ERROR(Failed to create CSS yacc thread!);

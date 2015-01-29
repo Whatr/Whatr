@@ -1,38 +1,32 @@
 class CSSSubSelector
 {
+public:
 	std::string str1;
 	std::string str2;
 	int type;
 	/*
 	type	CSS		meaning								example
-	0		[a]		elements with an a attribute		<P a="hello"></P>
-	1		[a=b]	elements with a="b"					<P a="b"></p>
-	2		[a~=b]	elements where a contains "b"		<P a="grass is blue"></P>
-	3		[a|=b]	elements where a starts with "b"	<P a="blue grass exists"></P>
-	4		[a^=b]	asdkfjalksjdflkasjdflkjasdlfkjas	<P
-	5
-	6
+	-1				operator
+	0		a		a elements							<A></A>
+	1		.a		elements with a class				<P class="a"></P>
+	2		[a]		elements with an a attribute		<P a="hello"></P>
+	3		[a=b]	elements with a="b"					<P a="b"></p>
+	4		[a~=b]	elements where a contains "b"		<P a="grass is blue"></P>
+	5		[a|=b]	elements where a starts with "b"	<P a="blue grass exists"></P>
+	6		[a^=b]	asdkfjalksjdflkasjdflkjasdlfkjas	<P
 	7
-	8
 	*/
 };
 class CSSSelector
 {
+public:
 	std::vector<CSSSubSelector> subSelectors;
-	std::vector<int> operators;
-	/*
-	operator	CSS		meaning						example (upper-case selected)
-	0			a,b		union						<A></A><B></B>
-	1			a b		all b that are inside an a	<a><c><B></B></c></a>
-	2			a>b		all b whose parent is an a	<a><B></B></a>
-	3			a+b		all b directly after an a	<a></a><B></B>
-	4			a~b		all b after an a			<a></a><c></c><B></B>
-	*/
 };
 class CSSClass
 {
-	
-	std::vector<std::string> ruleProperties;
+public:
+	CSSSelector selector;
+	std::vector<std::string> ruleNames;
 	std::vector<std::string> ruleValues;
 };
 class cssYaccArgs
@@ -40,9 +34,12 @@ class cssYaccArgs
 public:
 	int* yaccingCSS;
 	std::vector<CSSToken>* CSSTokens;
+	std::vector<CSSClass>* CSSClasses;
 	cssYaccArgs(int* yaccingCSS,
-				std::vector<CSSToken>* CSSTokens):
+				std::vector<CSSToken>* CSSTokens,
+				std::vector<CSSClass>* CSSClasses):
 		yaccingCSS(yaccingCSS),
-		CSSTokens(CSSTokens){};
+		CSSTokens(CSSTokens),
+		CSSClasses(CSSClasses){};
 };
 void* cssYaccThreadFunc(void* args);
