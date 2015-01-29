@@ -358,6 +358,7 @@ int main(int argc, char* argv[])
 	<<std::chrono::duration_cast<std::chrono::microseconds>(time7).count()<<"us\n";
 	auto total = time1+time2+time3a+time3b+time4a+time4b+time5+time6+time7;
 	std::cout << "##### Total time taken: "<<std::chrono::duration_cast<std::chrono::microseconds>(total).count()<<"us\n";
+	std::cout << "##### Total time taken excluding download: "<<std::chrono::duration_cast<std::chrono::microseconds>(total-time2-time3a).count()<<"us\n";
 	
 	///////////////////////////////////
 	////// Create window
