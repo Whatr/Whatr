@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include <chrono>
 
 #include "whatr_download.h"
 #include "whatr_html_lexer.h"
@@ -82,6 +83,8 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 	
+	auto time_1 = std::chrono::high_resolution_clock::now();
+	
 	///////////////////////////////////
 	////// Get URL from arguments
 	{
@@ -119,6 +122,7 @@ int main(int argc, char* argv[])
 		if (path.length()==0) path = std::string("/");
 	}
 	
+	auto time_2 = std::chrono::high_resolution_clock::now();
 	
 	std::cout << "host=" << host << "\n";
 	std::cout << "path=" << path << "\n";
@@ -144,13 +148,13 @@ int main(int argc, char* argv[])
 		}
 	}
 	
-	for (int i=0;i<20000;i++){__asm("nop");} // TODO figure out why removing or reducing this sometimes causes a segmentation fault and fixing it for good
+	auto time_3 = std::chrono::high_resolution_clock::now();
+	while (downloadingPage){}
+	auto time_3b = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
 	////// Start thread that parses the response headers and lexes the HTML tags
 	{
-		while (downloadingPage){usleep(10000);}
-		
 		lexingPage = 1;
 		htmlLexArgs args(&downloadingPage,
 					&lexingPage,
@@ -165,12 +169,16 @@ int main(int argc, char* argv[])
 			return 0;
 		}
 	}
+	
 	PRINT(DOWNLOADED HTML:);
 	std::cout << downloadedHTML << "\n";
+	
+	auto time_4 = std::chrono::high_resolution_clock::now();
+	while (lexingPage){}
+	auto time_4b = std::chrono::high_resolution_clock::now();
 	///////////////////////////////////
 	////// Start thread that yaccs the HTML tags
 	{
-		while (lexingPage){usleep(10000);}
 		yaccingPage = 1;
 		htmlYaccArgs args(&lexingPage,
 						&yaccingPage,
@@ -183,14 +191,16 @@ int main(int argc, char* argv[])
 		}
 	}
 	
+	auto time_5 = std::chrono::high_resolution_clock::now();
+	
 	///////////////////////////////////
 	////// Wait until the downloading is done, then print the data
 	{
-		while (downloadingPage)
+		/*while (downloadingPage)
 		{
 			PRINT(Main thread is waiting for downloadingPage to be 0...);
 			usleep(100000);
-		};
+		};*/
 		//PRINT(DOWNLOADED HEADERS:);
 		//std::cout << downloadedHeaders << "\n";
 		//PRINT(DOWNLOADED HTML:);
@@ -198,14 +208,15 @@ int main(int argc, char* argv[])
 		//PRINT(DOWNLOADED DATA:);
 		//std::cout << downloadedData << "\n";
 	}
+	
 	///////////////////////////////////
 	////// Wait until the lexing is done, then print the headers and tags
 	{
-		while (lexingPage)
+		/*while (lexingPage)
 		{
 			PRINT(Main thread is waiting for lexingPage to be 0...);
 			usleep(100000);
-		};
+		};*/
 		/*PRINT(The lexer is done! Here are its results:)
 		for (int i=0;i<HTMLTags.size();i++)
 		{
@@ -249,8 +260,8 @@ int main(int argc, char* argv[])
 	{
 		while (yaccingPage)
 		{
-			PRINT(waiting for yaccingPage);
-			usleep(50000);
+			/*PRINT(waiting for yaccingPage);
+			usleep(50000);*/
 		};
 		for (int i=0;i<HTMLElements.size();i++)
 		{
@@ -258,6 +269,8 @@ int main(int argc, char* argv[])
 			printTree(currentElement, std::string("  "));
 		}
 	}
+	
+	auto time_6 = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
 	////// Lex the css
@@ -281,6 +294,8 @@ int main(int argc, char* argv[])
 					<< t.type << " , " << t.text << "}\n";
 		}
 	}
+	
+	auto time_7 = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
 	////// Yacc the css
@@ -310,6 +325,39 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
+	
+	auto time_8 = std::chrono::high_resolution_clock::now();
+	
+	auto time1 = time_2 - time_1;
+	auto time2 = time_3 - time_2;
+	auto time3a = time_3b - time_3;
+	auto time3b = time_4 - time_3b;
+	auto time4a = time_4b - time_4;
+	auto time4b = time_5 - time_4b;
+	auto time5 = time_6 - time_5;
+	auto time6 = time_7 - time_6;
+	auto time7 = time_8 - time_7;
+	std::cout << "\n\n##### Slowness report:\n";
+	std::cout <<"Parse URL: "
+	<<std::chrono::duration_cast<std::chrono::microseconds>(time1).count()<<"us\n";
+	std::cout<<"Start download thread: "
+	<<std::chrono::duration_cast<std::chrono::microseconds>(time2).count()<<"us\n";
+	std::cout<<"Download page: "
+	<<std::chrono::duration_cast<std::chrono::microseconds>(time3a).count()<<"us\n";
+	std::cout<<"Start lex thread: "
+	<<std::chrono::duration_cast<std::chrono::microseconds>(time3b).count()<<"us\n";
+	std::cout<<"Lex html: "
+	<<std::chrono::duration_cast<std::chrono::microseconds>(time4a).count()<<"us\n";
+	std::cout<<"Start yacc html thread: "
+	<<std::chrono::duration_cast<std::chrono::microseconds>(time4b).count()<<"us\n";
+	std::cout<<"Yacc html: "
+	<<std::chrono::duration_cast<std::chrono::microseconds>(time5).count()<<"us\n";
+	std::cout<<"Lex css: "
+	<<std::chrono::duration_cast<std::chrono::microseconds>(time6).count()<<"us\n";
+	std::cout<<"Yacc css: "
+	<<std::chrono::duration_cast<std::chrono::microseconds>(time7).count()<<"us\n";
+	auto total = time1+time2+time3a+time3b+time4a+time4b+time5+time6+time7;
+	std::cout << "##### Total time taken: "<<std::chrono::duration_cast<std::chrono::microseconds>(total).count()<<"us\n";
 	
 	///////////////////////////////////
 	////// Create window
