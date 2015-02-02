@@ -21,6 +21,7 @@
 #include "whatr_html_yaccer.h"
 #include "whatr_css_lexer.h"
 #include "whatr_css_yaccer.h"
+#include "whatr_css_applyer.h"
 
 void update_screen();
 
@@ -71,6 +72,11 @@ std::vector<CSSToken> CSSTokens;
 pthread_t cssYaccThread;
 int yaccingCSS = 0;
 std::vector<CSSClass> CSSClasses;
+//----------------------------
+
+//----------------------------
+pthread_t cssApplyThread;
+int applyingCSS = 0;
 //----------------------------
 
 std::string url, host, path;
@@ -320,6 +326,22 @@ int main(int argc, char* argv[])
 				std::cout	<< CSSClasses.at(i).ruleNames .at(j) << ": "
 							<< CSSClasses.at(i).ruleValues.at(j) << "\n";
 			}
+		}
+	}
+	
+	///////////////////////////////////
+	////// Apply the css
+	{
+		for (int i=0;i<HTMLElements.size();i++)
+		{
+			applyingCSS = 1;
+			cssApplyArgs args(&applyingCSS, &CSSClasses, HTMLElements.at(i));
+			if (pthread_create(&cssApplyThread, NULL, cssApplyThreadFunc, &args))
+			{
+				ERROR(Failed to create CSS yacc thread!);
+				return 0;
+			}
+			while(applyingCSS){};
 		}
 	}
 	

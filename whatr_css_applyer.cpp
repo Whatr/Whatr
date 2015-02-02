@@ -24,4 +24,6 @@ void* cssApplyThreadFunc(void* args)
 	std::cout << "Applying CSS:\n";
 	
 	
+	PRINT(Applying CSS done!\n);
+	*applyingCSS = 0;
 }
