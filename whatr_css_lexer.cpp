@@ -104,7 +104,11 @@ void* cssLexThreadFunc(void* args)
 					currentType = 1;
 					buffer += c;
 				}
-				else if ((c>='a' && c<='z') || c=='#' || c=='.')
+				else if (	(c>='a' && c<='z') ||
+							(c>='0' && c<='9') ||
+							c=='#' ||
+							c=='.'
+						)
 				{
 					currentType = 0;
 					buffer += c;
@@ -119,7 +123,7 @@ void* cssLexThreadFunc(void* args)
 			{
 				if ((c>='a' && c<='z') ||
 					(c>='A' && c<='Z') ||
-					(c>='1' && c<='2') ||
+					(c>='0' && c<='9') ||
 					 c=='-')
 				{
 					buffer += c;
@@ -148,7 +152,7 @@ void* cssLexThreadFunc(void* args)
 				if (c=='/'){} // Ignore /
 				else if ((c>='a' && c<='z') ||
 					(c>='A' && c<='Z') ||
-					(c>='1' && c<='2') ||
+					(c>='0' && c<='9') ||
 					 c=='-' ||
 			 		(c==';' ||
 					c=='.' ||

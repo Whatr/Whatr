@@ -15,7 +15,12 @@ public:
 	4		[a~=b]	elements where a contains "b"		<P a="grass is blue"></P>
 	5		[a|=b]	elements where a starts with "b"	<P a="blue grass exists"></P>
 	6		[a^=b]	asdkfjalksjdflkasjdflkjasdlfkjas	<P
-	7
+	7		:a		asdf
+	8		:a(b)	
+	9		:not(...)
+	10		*
+	11		[a$=b]
+	12		[a*=b]
 	*/
 };
 class CSSSelector

@@ -99,7 +99,15 @@ void* cssYaccThreadFunc(void* args)
 					else if (t.type==1)
 					{
 						std::cout << "Encountered Operator " << t.text << "\n";
-						if (t.text==std::string("{"))
+						if (t.text==std::string("*"))
+						{
+							std::cout << "Added Operator * to selector\n";
+							CSSSubSelector sub;
+							sub.str1 = t.text;
+							sub.type = 10;
+							curS.subSelectors.push_back(sub);
+						}
+						else if (t.text==std::string("{"))
 						{
 							std::cout << "Entered a class: Now in a rule before :\n";
 							inWhat = 1;
@@ -110,6 +118,11 @@ void* cssYaccThreadFunc(void* args)
 						{
 							std::cout << "Entered a [...] structure\n";
 							inWhatWhat = 1;
+						}
+						else if (t.text==std::string(":"))
+						{
+							std::cout << "Entered a possible :(...) structure\n";
+							inWhatWhat = 2;
 						}
 						else
 						{
@@ -169,9 +182,104 @@ void* cssYaccThreadFunc(void* args)
 						{
 							curSS.type = 6;
 						}
+						else if (t.text==std::string("$="))
+						{
+							curSS.type = 11;
+						}
+						else if (t.text==std::string("*="))
+						{
+							curSS.type = 12;
+						}
 						else
 						{
 							std::cout << RED << "CSS Yacc error: Unexpected operator token " << t.text << "\n" << NOCLR;
+						}
+					}
+					else
+					{
+						std::cout<<RED<<"CSS Yacc fatal error: t.type="<<t.type<<"\n"<<NOCLR;
+					}
+				}
+				else if (inWhatWhat==2)
+				{
+					if (t.type==0) // Current token is a string
+					{
+						if (curSS.type==8) // Inside a :lang(...) structure
+						{
+							curSS.str2 = t.text;
+						}
+						else
+						{
+							if (t.text==std::string("active") ||
+								t.text==std::string("checked") ||
+								t.text==std::string("disabled") ||
+								t.text==std::string("empty") ||
+								t.text==std::string("enabled") ||
+								t.text==std::string("first-child") ||
+								t.text==std::string("first-of-type") ||
+								t.text==std::string("focus") ||
+								t.text==std::string("hover") ||
+								t.text==std::string("in-range") ||
+								t.text==std::string("invalid") ||
+
+								t.text==std::string("last-child") ||
+								t.text==std::string("last-of-type") ||
+								t.text==std::string("link") ||
+
+								t.text==std::string("only-of-type") ||
+								t.text==std::string("only-child") ||
+								t.text==std::string("optional") ||
+								t.text==std::string("out-of-range") ||
+								t.text==std::string("read-only") ||
+								t.text==std::string("read-write") ||
+								t.text==std::string("required") ||
+								t.text==std::string("root") ||
+								t.text==std::string("target") ||
+								t.text==std::string("valid") ||
+								t.text==std::string("visited"))
+							{
+								curSS.type = 7;
+								curSS.str1 = t.text;
+								curS.subSelectors.push_back(curSS);
+								curSS = CSSSubSelector();
+								curSS.type = -2;
+								inWhatWhat = 0;
+							}
+							else if (t.text==std::string("lang") ||
+									t.text==std::string("nth-child") ||
+									t.text==std::string("nth-last-child") ||
+									t.text==std::string("nth-last-of-type") ||
+									t.text==std::string("nth-of-type"))
+							{
+								curSS.type = 8;
+								curSS.str1 = t.text;
+							}
+							else if (t.text==std::string("not"))
+							{
+								std::cout << RED << ":not is :not supported yet :(\n" << NOCLR;
+							}
+							else
+							{
+								std::cout << RED << "CSS Yacc error: Invalid CSS selector :" << t.text << "\n" << NOCLR;
+							}
+						}
+					}
+					else if (t.type==1) // The current token is an operator
+					{
+						if (t.text==std::string("("))
+						{
+							std::cout << "TODO9023845\n";
+						}
+						else if (t.text==std::string(")"))
+						{
+							curS.subSelectors.push_back(curSS);
+							curSS = CSSSubSelector();
+							curSS.type = -2;
+							inWhatWhat = 0;
+						}
+						else
+						{
+							std::cout<<RED<<"CSS Yacc error: Unexpected operator "<<t.text<<"\n"<<NOCLR;
 						}
 					}
 					else
@@ -242,6 +350,13 @@ void* cssYaccThreadFunc(void* args)
 					{
 						std::cout << "Encountered ; - now in rule before :\n";
 						inWhat = 1;
+					}
+					else if (t.text==std::string("}"))
+					{
+						std::cout << RED << "CSS Yacc error: Unexpected end of class }. Assuming you forgot a ;\n" << NOCLR;
+						inWhat = 0;
+						CSSClasses->push_back(curC);
+						curC = CSSClass();
 					}
 					else
 					{

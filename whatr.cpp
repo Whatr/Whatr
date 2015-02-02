@@ -124,9 +124,6 @@ int main(int argc, char* argv[])
 	
 	auto time_2 = std::chrono::high_resolution_clock::now();
 	
-	std::cout << "host=" << host << "\n";
-	std::cout << "path=" << path << "\n";
-	
 	///////////////////////////////////
 	////// Start thread that downloads the web page
 	{
@@ -311,13 +308,13 @@ int main(int argc, char* argv[])
 		PRINT(yaccingCSS=0! printing CSS classes...);
 		for (int i=0;i<CSSClasses.size();i++)
 		{
-			std::cout << "Class selector:\n";
+			std::cout << "--- Class selector:\n";
 			for (int j=0;j<CSSClasses.at(i).selector.subSelectors.size();j++)
 			{
 				CSSSubSelector ss = CSSClasses.at(i).selector.subSelectors.at(j);
 				std::cout << ss.str1 << " " << ss.str2 << " " << ss.type << "\n";
 			}
-			std::cout << "Class rules:\n";
+			std::cout << "--- Class rules:\n";
 			for (int j=0;j<CSSClasses.at(i).ruleNames.size();j++)
 			{
 				std::cout	<< CSSClasses.at(i).ruleNames .at(j) << ": "
@@ -337,6 +334,7 @@ int main(int argc, char* argv[])
 	auto time5 = time_6 - time_5;
 	auto time6 = time_7 - time_6;
 	auto time7 = time_8 - time_7;
+	
 	std::cout << "\n\n##### Slowness report:\n";
 	std::cout <<"Parse URL: "
 	<<std::chrono::duration_cast<std::chrono::microseconds>(time1).count()<<"us\n";
