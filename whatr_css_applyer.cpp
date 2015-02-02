@@ -21,9 +21,20 @@ void* cssApplyThreadFunc(void* args)
 	
 	*applyingCSS = 1;
 	PRINT(cssApplyThreadFunc has set applyingCss=1);
-	std::cout << "Applying CSS:\n";
+	PRINT(Applying CSS:);
 	
+	for (	std::vector<CSSClass>::iterator c=CSSClasses->begin();
+			c!=CSSClasses->end();
+			c++)
+	{
+		// CSSClass* c = ...;
+		CSSSelector* s = &(c->selector);
+		for (std::vector<CSSSubSelector>::iterator ss=s->subSelectors.begin(); ss!=s->subSelectors.end(); ss++)
+		{
+			std::cout << ss->str1 << "\n";
+		}
+	}
 	
-	PRINT(Applying CSS done!\n);
+	PRINT(Applying CSS done!);
 	*applyingCSS = 0;
 }
