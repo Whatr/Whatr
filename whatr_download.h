@@ -1,3 +1,6 @@
+#ifndef downloader_included
+#define downloader_included yes
+
 class downloadArgs
 {
 public:
@@ -24,3 +27,5 @@ public:
 		userAgent(userAgent){};
 };
 void* downloadThreadFunc(void* voidStar);
+
+#endif

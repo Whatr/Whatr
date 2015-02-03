@@ -1,5 +1,3 @@
-#include "whatr_log_funcs.hpp"
-
 #define likely(x)       __builtin_expect((x),1)
 #define unlikely(x)     __builtin_expect((x),0)
 
@@ -16,12 +14,14 @@
 #include <cstring>
 #include <chrono>
 
+#include "whatr_log_funcs.hpp"
 #include "whatr_download.h"
 #include "whatr_html_lexer.h"
 #include "whatr_html_yaccer.h"
 #include "whatr_css_lexer.h"
 #include "whatr_css_yaccer.h"
 #include "whatr_css_applyer.h"
+#include "whatr_css_selector.h"
 
 void update_screen();
 
@@ -329,6 +329,8 @@ int main(int argc, char* argv[])
 		}
 	}
 	
+	auto time_8 = std::chrono::high_resolution_clock::now();
+	
 	///////////////////////////////////
 	////// Apply the css
 	{
@@ -345,7 +347,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	
-	auto time_8 = std::chrono::high_resolution_clock::now();
+	auto time_9 = std::chrono::high_resolution_clock::now();
 	
 	auto time1 = time_2 - time_1;
 	auto time2 = time_3 - time_2;
@@ -356,6 +358,7 @@ int main(int argc, char* argv[])
 	auto time5 = time_6 - time_5;
 	auto time6 = time_7 - time_6;
 	auto time7 = time_8 - time_7;
+	auto time8 = time_9 - time_8;
 	
 	std::cout << "\n\n##### Slowness report:\n";
 	std::cout <<"Parse URL: "
@@ -376,7 +379,9 @@ int main(int argc, char* argv[])
 	<<std::chrono::duration_cast<std::chrono::microseconds>(time6).count()<<"us\n";
 	std::cout<<"Yacc css: "
 	<<std::chrono::duration_cast<std::chrono::microseconds>(time7).count()<<"us\n";
-	auto total = time1+time2+time3a+time3b+time4a+time4b+time5+time6+time7;
+	std::cout<<"Apply css: "
+	<<std::chrono::duration_cast<std::chrono::microseconds>(time8).count()<<"us\n";
+	auto total = time1+time2+time3a+time3b+time4a+time4b+time5+time6+time7+time8;
 	std::cout << "##### Total time taken: "<<std::chrono::duration_cast<std::chrono::microseconds>(total).count()<<"us\n";
 	std::cout << "##### Total time taken excluding download: "<<std::chrono::duration_cast<std::chrono::microseconds>(total-time2-time3a).count()<<"us\n";
 	

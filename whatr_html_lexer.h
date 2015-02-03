@@ -1,5 +1,5 @@
-#include <string>
-#include <vector>
+#ifndef html_lexer_included
+#define html_lexer_included yes
 
 class HTMLTag
 {
@@ -36,3 +36,4 @@ public:
 };
 void* htmlLexThreadFunc(void* args);
 
+#endif

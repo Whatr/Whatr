@@ -1,5 +1,3 @@
-#include "whatr_html_lexer.h"
-
 #include <iostream>
 #include <vector>
 #include <functional>
@@ -11,6 +9,7 @@
 #include <cctype>
 
 #include "whatr_log_funcs.hpp"
+#include "whatr_html_lexer.h"
 
 // trim from start
 static inline std::string &ltrim(std::string &s) {

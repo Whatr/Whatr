@@ -1,5 +1,7 @@
-#include <string>
-#include <vector>
+#ifndef html_yaccer_included
+#define html_yaccer_included yes
+
+#include "whatr_html_lexer.h"
 
 class HTMLElement
 {
@@ -39,3 +41,4 @@ public:
 };
 void* htmlYaccThreadFunc(void* args);
 
+#endif

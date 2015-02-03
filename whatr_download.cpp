@@ -1,5 +1,3 @@
-#include "whatr_log_funcs.hpp"
-
 #include <stdio.h>
 #include <unistd.h>
 
@@ -17,6 +15,7 @@
 #include <string>
 #include <cstring>
 
+#include "whatr_log_funcs.hpp"
 #include "whatr_download.h"
 
 int isDigit(char c)

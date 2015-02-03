@@ -1,3 +1,6 @@
+#ifndef css_lexer_included
+#define css_lexer_included yes
+
 class CSSToken
 {
 public:
@@ -18,3 +21,5 @@ public:
 		inputCSS(inputCSS){};
 };
 void* cssLexThreadFunc(void* args);
+
+#endif

@@ -3,9 +3,7 @@
 #include <string>
 
 #include "whatr_log_funcs.hpp"
-#include "whatr_html_lexer.h"
 #include "whatr_html_yaccer.h"
-#include "whatr_css_lexer.h"
 #include "whatr_css_yaccer.h"
 #include "whatr_css_applyer.h"
 
