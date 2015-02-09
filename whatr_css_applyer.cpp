@@ -6,6 +6,7 @@
 #include "whatr_html_yaccer.h"
 #include "whatr_css_yaccer.h"
 #include "whatr_css_applyer.h"
+#include "whatr_css_selector.h"
 
 void* cssApplyThreadFunc(void* args)
 {
@@ -25,6 +26,7 @@ void* cssApplyThreadFunc(void* args)
 			c!=CSSClasses->end();
 			c++)
 	{
+		std::cout << "## ------ Entering a CSS class...\n";
 		// CSSClass* c = ...;
 		CSSSelector* s = &(c->selector);
 		for (std::vector<CSSSubSelector>::iterator ss=s->subSelectors.begin(); ss!=s->subSelectors.end(); ss++)
