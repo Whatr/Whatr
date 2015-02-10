@@ -27,11 +27,13 @@ void* cssApplyThreadFunc(void* args)
 			c++)
 	{
 		std::cout << "## ------ Entering a CSS class...\n";
-		// CSSClass* c = ...;
-		CSSSelector* s = &(c->selector);
-		for (std::vector<CSSSubSelector>::iterator ss=s->subSelectors.begin(); ss!=s->subSelectors.end(); ss++)
+		CSSSelector* selector = &(c->selector);
+		std::vector<HTMLElement*> applyToList = CSSSelect(destination, selector);
+		if (applyToList.size()==0) std::cout << "CSSSelect returned empty vector\n";
+		else for (std::vector<HTMLElement*>::iterator el=applyToList.begin(); el!=applyToList.end(); el++)
 		{
-			std::cout << ss->str1 << "\n";
+			std::cout << "CSSSelect returned: ";
+			std::cout << (*el)->text << "\n";
 		}
 	}
 	

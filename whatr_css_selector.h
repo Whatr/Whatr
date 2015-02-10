@@ -33,6 +33,6 @@ class CSSSelector
 public:
 	std::vector<CSSSubSelector> subSelectors;
 };
-std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector selector);
+std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector);
 
 #endif
