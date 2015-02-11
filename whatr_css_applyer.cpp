@@ -30,7 +30,9 @@ void* cssApplyThreadFunc(void* args)
 		CSSSelector* selector = &(c->selector);
 		std::vector<HTMLElement*> applyToList = CSSSelect(destination, selector);
 		if (applyToList.size()==0) std::cout << "CSSSelect returned empty vector\n";
-		else for (std::vector<HTMLElement*>::iterator el=applyToList.begin(); el!=applyToList.end(); el++)
+		else for (	std::vector<HTMLElement*>::iterator el=applyToList.begin();
+					el!=applyToList.end();
+					el++)
 		{
 			std::cout << "CSSSelect returned: ";
 			std::cout << (*el)->text << "\n";
