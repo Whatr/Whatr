@@ -35,6 +35,7 @@ public:
 };
 std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector);
 std::vector<HTMLElement*> CSSSelect2(HTMLElement* from, CSSSubSelector ss, bool recurse);
+std::vector<HTMLElement*> CSSSelectSiblings(HTMLElement* from, CSSSubSelector ss);
 void CSSSelectAll(HTMLElement* top, std::vector<HTMLElement*>* dest);
 bool applies(CSSSubSelector* ss, HTMLElement* el);
 
