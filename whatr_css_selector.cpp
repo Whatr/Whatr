@@ -21,7 +21,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 	{
 		std::cout << "Subselector: ";
 		std::cout << ss->str1 << "\n";
-		if (ss->type!=-1)
+		if (ss->type==0)
 		{
 			if (op==' ' || op=='>') // Select all children and sub-children
 			{
@@ -41,8 +41,17 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 				std::cout << RED << "Fatal CSS selector error: inside unknown op='" << op << "'\n" << NOCLR;
 			}
 		}
-		else if (ss->str1==std::string(" ")) op = ' ';
-		else if (ss->str1==std::string(">")) op = '>';
+		else if (ss->type==-1) // Operator
+		{
+			if (ss->str1==std::string(" ")) op = ' ';
+			else if (ss->str1==std::string(">")) op = '>';
+			else op = ss->str1.at(0);
+		}
+		else if (ss->type==10) // *
+		{
+			selected = std::vector<HTMLElement*>();
+			CSSSelectAll(from, &selected);
+		}
 		else
 		{
 			std::cout << RED << "TODO: ss type=" << ss->type << " str1=" << ss->str1 << "\n" << NOCLR;
@@ -51,6 +60,17 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 	}
 	std::cout << "Exiting CSSSelect(...,...)...\n";
 	return selected;
+}
+
+void CSSSelectAll(HTMLElement* top, std::vector<HTMLElement*>* dest)
+{
+	dest->push_back(top);
+	for (	std::vector<HTMLElement*>::iterator els=top->children.begin();
+						els!=top->children.end();
+						els++)
+	{
+		if ((*els)->type==1) CSSSelectAll(*els, dest);
+	}
 }
 
 std::vector<HTMLElement*> CSSSelect2(HTMLElement* from, CSSSubSelector ss, bool recurse)
