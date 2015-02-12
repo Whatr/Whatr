@@ -253,8 +253,20 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 			return false;
 		}
 		break;
-		case 5:		//
-			
+		case 5:		// elements having a str1 attribute and where str1 contains str2
+		{
+			std::vector<std::string>::iterator args = el->argNames .begin();
+			std::vector<std::string>::iterator vals = el->argValues.begin();
+			for (;	args!=el->argNames.end();
+					args++, vals++)
+			{
+				if (*args == ss->str1)
+				{
+					return vals->find(ss->str2) != std::string::npos;
+				}
+			}
+			return false;
+		}
 		break;
 	}
 }

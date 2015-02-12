@@ -6,10 +6,22 @@
  | HTTP downloader          | finished, but have to add https support
  | HTML lexer               | finished, but have to add <!DOCTYPE>
  | HTML yaccer              | finished, but have to add <!DOCTYPE>
- | CSS lexer                | in progress
- | CSS yaccer               | not started yet
- | CSS applyer              | not started yet
+ | CSS lexer                | finished, but have to add error-correction
+ | CSS yaccer               | finished, but have to add error-correction
+ | CSS applyer              | in progress
  | HTML renderer            | not started yet
  | JavaScript lexer         | not started yet
  | JavaScript compiler      | not started yet
  | JavaScript interpreter   | not started yet
+
+
+####################################################
+############## SMALL-SCALE TODO LIST ###############
+####################################################
+ |  Objective               |  State
+-+--------------------------+-------------------------------------------
+ | Custom constant string	| not started yet
+ | type that has a char* p	| 
+ | and an int l and write	| 
+ | appropriate search		| 
+ | functions and stuffs		| 
