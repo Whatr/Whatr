@@ -120,7 +120,7 @@ std::vector<HTMLElement*> CSSSelectSiblings(HTMLElement* from, CSSSubSelector ss
 		{
 			std::cout << "@ child <" << (*els)->text << ">\n";
 			if (!started && *els==from) started = true;
-			if (started)
+			else if (started)
 			{
 				PRINT(checking applies(..,..)...);
 				if (applies(&ss, *els))
