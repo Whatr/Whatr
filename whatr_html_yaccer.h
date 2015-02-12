@@ -14,6 +14,8 @@ public:
 	HTMLElement* parent;
 	std::vector<HTMLElement*> children;
 	
+	// TODO add an int containing the index of this element in its parent's children
+	
 	// Css yaccer stuff:
 	std::vector<std::string> styleFields;
 	std::vector<std::string> styleValues;
