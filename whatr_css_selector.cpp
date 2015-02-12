@@ -268,5 +268,10 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 			return false;
 		}
 		break;
+		default:
+		{
+			std::cout << RED << "FATAL ERROR: applies() CALLED WITH A WRONG CASE (" <<  ss->type << ")!\n" << NOCLR;
+		}
+		break;
 	}
 }
