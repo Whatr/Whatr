@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 #include "whatr_log_funcs.hpp"
 #include "whatr_html_yaccer.h"
@@ -36,7 +37,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 				}
 				selected = newVector;
 			}
-			else if (op=='+') // Select siblings
+			else if (op=='+' || op=='~') // Select siblings
 			{
 				PRINT(in op+);
 				std::vector<HTMLElement*> newVector;
@@ -45,14 +46,24 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 						els++)
 				{
 					PRINT(cp 1);
-					std::vector<HTMLElement*> addThis = CSSSelectSiblings(*els, *ss);
+					std::vector<HTMLElement*> addThis = CSSSelectSiblings(*els, *ss, op=='+');
 					PRINT(cp 2);
 					std::cout << "addThis.size()==" << addThis.size() << "\n";
 					PRINT(cp 3);
 					newVector.insert(newVector.end(), addThis.begin(), addThis.end());
 					PRINT(cp 4);
 				}
-				selected = newVector;
+				selected = std::vector<HTMLElement*>();
+				// Add all non-duplicates from newVector to selected
+				for (	std::vector<HTMLElement*>::iterator els=newVector.begin();
+						els!=newVector.end();
+						els++)
+				{
+					if (std::find(selected.begin(), selected.end(), *els) == selected.end())
+					{
+						selected.push_back(*els);
+					}
+				}
 			}
 			else
 			{
@@ -64,6 +75,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 			if (ss->str1==std::string(" ")) op = ' ';
 			else if (ss->str1==std::string(">")) op = '>';
 			else if (ss->str1==std::string("+")) op = '+';
+			else if (ss->str1==std::string("~")) op = '~';
 			else
 			{
 				std::cout << RED << "TODO: op=" << ss->str1 << "\n" << NOCLR;
@@ -94,7 +106,7 @@ void CSSSelectAll(HTMLElement* top, std::vector<HTMLElement*>* dest)
 		if ((*els)->type==1) CSSSelectAll(*els, dest);
 	}
 }
-std::vector<HTMLElement*> CSSSelectSiblings(HTMLElement* from, CSSSubSelector ss)
+std::vector<HTMLElement*> CSSSelectSiblings(HTMLElement* from, CSSSubSelector ss, bool directlyAfter)
 {
 	PRINT(Entering CSSSelectSiblings...);
 	std::cout << "from=<" << from->text << ">\n";
@@ -116,6 +128,7 @@ std::vector<HTMLElement*> CSSSelectSiblings(HTMLElement* from, CSSSubSelector ss
 					std::cout << "^ Matches!\n";
 					ret.push_back(*els);
 				}
+				if (directlyAfter) break;
 			}
 		}
 	}
