@@ -208,12 +208,15 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 	switch (ss->type)
 	{
 		case 0:		// str1 elements
+		{
 			return el->text==ss->str1;
+		}
 		break;
 		case 1:		// elements with class str1
 			
 		break;
 		case 2:		// elements that have an str1 attribute
+		{
 			for (	std::vector<std::string>::iterator args=el->argNames.begin();
 					args!=el->argNames.end();
 					args++)
@@ -221,8 +224,10 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 				if (*args == ss->str1) return true;
 			}
 			return false;
+		}
 		break;
 		case 3:		// elements that have an str1 attribute and where str1 = str2
+		{
 			std::vector<std::string>::iterator args = el->argNames .begin();
 			std::vector<std::string>::iterator vals = el->argValues.begin();
 			for (;	args!=el->argNames.end();
@@ -230,12 +235,26 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 			{
 				if (*args == ss->str1) return *vals == ss->str2;
 			}
+			return false;
 		break;
-		/*case 4:		//
-			
+		}
+		case 4:		// elements having a str1 attribute and where str1 contains str2
+		{
+			std::vector<std::string>::iterator args = el->argNames .begin();
+			std::vector<std::string>::iterator vals = el->argValues.begin();
+			for (;	args!=el->argNames.end();
+					args++, vals++)
+			{
+				if (*args == ss->str1)
+				{
+					return vals->find(ss->str2) != std::string::npos;
+				}
+			}
+			return false;
+		}
 		break;
 		case 5:		//
 			
-		break;*/
+		break;
 	}
 }
