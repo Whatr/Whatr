@@ -138,11 +138,18 @@ void* cssYaccThreadFunc(void* args)
 						}
 						else
 						{
-							std::cout << "Added Operator " << t.text << " to selector\n";
-							CSSSubSelector sub;
-							sub.str1 = t.text;
-							sub.type = -1;
-							curS.subSelectors.push_back(sub);
+							if (t.text==std::string(" ") && curS.subSelectors.size()==0)
+							{
+								std::cout << "Ignored whitespacing operator at start of selector\n";
+							}
+							else
+							{
+								std::cout << "Added Operator " << t.text << " to selector\n";
+								CSSSubSelector sub;
+								sub.str1 = t.text;
+								sub.type = -1;
+								curS.subSelectors.push_back(sub);
+							}
 						}
 					}
 					else

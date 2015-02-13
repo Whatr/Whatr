@@ -34,102 +34,102 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 	{
 		std::cout << "Subselector: ";
 		std::cout << ss->str1 << "\n";
-		switch (ss->type)
+		if (ss->type == -1)
 		{
-			case 0:
+			if (ss->str1==std::string(" ")) op = ' ';
+			else if (ss->str1==std::string(">")) op = '>';
+			else if (ss->str1==std::string("+")) op = '+';
+			else if (ss->str1==std::string("~")) op = '~';
+			else
 			{
-				if (op==' ' || op=='>') // Select children
-				{
-					std::vector<HTMLElement*> newVector;
-					for (	std::vector<HTMLElement*>::iterator els=selected.begin();
-							els!=selected.end();
-							els++)
-					{
-						std::vector<HTMLElement*> addThis = CSSSelect2(*els, *ss, op==' ');
-						std::cout << "addThis.size()==" << addThis.size() << "\n";
-						newVector.insert(newVector.end(), addThis.begin(), addThis.end());
-					}
-					selected = newVector;
-				}
-				else if (op=='+' || op=='~') // Select siblings
-				{
-					PRINT(in op+);
-					std::vector<HTMLElement*> newVector;
-					for (	std::vector<HTMLElement*>::iterator els=selected.begin();
-							els!=selected.end();
-							els++)
-					{
-						PRINT(cp 1);
-						std::vector<HTMLElement*> addThis = CSSSelectSiblings(*els, *ss, op=='+');
-						PRINT(cp 2);
-						std::cout << "addThis.size()==" << addThis.size() << "\n";
-						PRINT(cp 3);
-						newVector.insert(newVector.end(), addThis.begin(), addThis.end());
-						PRINT(cp 4);
-					}
-					selected = std::vector<HTMLElement*>();
-					// Add all non-duplicates from newVector to selected
-					for (	std::vector<HTMLElement*>::iterator els=newVector.begin();
-							els!=newVector.end();
-							els++)
-					{
-						if (std::find(selected.begin(), selected.end(), *els) == selected.end())
-						{
-							selected.push_back(*els);
-						}
-					}
-				}
-				else
-				{
-					std::cout << RED << "Fatal CSS selector error: inside unknown op='" << op << "'\n" << NOCLR;
-				}
-				op = '\0';
+				std::cout << RED << "TODO: op=" << ss->str1 << "\n" << NOCLR;
 			}
-			break;
-			case -1: // Operator
+		}
+		else if (ss->type == 10) // *
+		{
+			/*
+			Select all elements. Every single one.
+			*/
+			selected = std::vector<HTMLElement*>();
+			CSSSelectAll(from, &selected);
+		}
+		else if (op==' ') // (ss->type == 0)
+		{
+			/*
+			Delete current selection and make a new one based upon it
+			*/
+			if (op==' ' || op=='>') // Select children
 			{
-				if (ss->str1==std::string(" ")) op = ' ';
-				else if (ss->str1==std::string(">")) op = '>';
-				else if (ss->str1==std::string("+")) op = '+';
-				else if (ss->str1==std::string("~")) op = '~';
-				else
-				{
-					std::cout << RED << "TODO: op=" << ss->str1 << "\n" << NOCLR;
-				}
-			}
-			break;
-			case 10: // *
-			{
-				selected = std::vector<HTMLElement*>();
-				CSSSelectAll(from, &selected);
-			}
-			break;
-			case  2: // [a]
-			case  3: // [a=b]
-			case  4: // [a~=b]
-			case  5: // [a|=b]
-			case  6: // [a^=b]
-			case 11: // [a$=b]
-			case 12: // [a*=b]
-			{
-				std::cout << "case 2|3|4|5|6|11|12\n";
 				std::vector<HTMLElement*> newVector;
 				for (	std::vector<HTMLElement*>::iterator els=selected.begin();
 						els!=selected.end();
 						els++)
 				{
-					std::cout << "loop\n";
-					if (applies(&*ss, *els)) newVector.push_back(*els);
+					std::vector<HTMLElement*> addThis = CSSSelect2(*els, *ss, op==' ');
+					std::cout << "addThis.size()==" << addThis.size() << "\n";
+					newVector.insert(newVector.end(), addThis.begin(), addThis.end());
 				}
 				selected = newVector;
-				std::cout << "break case 2|3|4|5|6|11|12\n";
 			}
-			break;
-			default:
+			else if (op=='+' || op=='~') // Select siblings
 			{
-				std::cout << RED << "TODO: ss type=" << ss->type << " str1=" << ss->str1 << "\n" << NOCLR;
+				PRINT(in op+);
+				std::vector<HTMLElement*> newVector;
+				for (	std::vector<HTMLElement*>::iterator els=selected.begin();
+						els!=selected.end();
+						els++)
+				{
+					PRINT(cp 1);
+					std::vector<HTMLElement*> addThis = CSSSelectSiblings(*els, *ss, op=='+');
+					PRINT(cp 2);
+					std::cout << "addThis.size()==" << addThis.size() << "\n";
+					PRINT(cp 3);
+					newVector.insert(newVector.end(), addThis.begin(), addThis.end());
+					PRINT(cp 4);
+				}
+				selected = std::vector<HTMLElement*>();
+				// Add all non-duplicates from newVector to selected
+				for (	std::vector<HTMLElement*>::iterator els=newVector.begin();
+						els!=newVector.end();
+						els++)
+				{
+					if (std::find(selected.begin(), selected.end(), *els) == selected.end())
+					{
+						selected.push_back(*els);
+					}
+				}
 			}
-			break;
+			else
+			{
+				if (op!='\0') std::cout << RED << "Fatal CSS selector error: inside unknown op='" << op << "'\n" << NOCLR;
+				else std::cout << RED << "Fatal CSS selector error: inside zero op!\n" << NOCLR; // TODO handle zero op correctly
+			}
+			op = '\0';
+		}
+		else if (	op=='\0'
+					/*(ss->type >= 2 && ss->type <= 6) ||
+					ss->type == 11 ||
+					ss->type==12*/
+				)
+		{
+			/*
+			Use ss to select elements from the current selection that match it
+			*/
+			std::cout << "case 2|3|4|5|6|11|12\nop = " << ((int)op) << "\n";
+			std::vector<HTMLElement*> newVector;
+			for (	std::vector<HTMLElement*>::iterator els=selected.begin();
+					els!=selected.end();
+					els++)
+			{
+				std::cout << "loop\n";
+				if (applies(&*ss, *els)) newVector.push_back(*els);
+			}
+			selected = newVector;
+			std::cout << "break case 2|3|4|5|6|11|12\n";
+		}
+		else
+		{
+				std::cout << RED << "TODO: ss type=" << ss->type << " str1=" << ss->str1 << " op=" << ((int)op) << "\n" << NOCLR;
 		}
 		first = false;
 	}
