@@ -73,11 +73,11 @@ void* cssYaccThreadFunc(void* args)
 						std::cout << "Checkpoint\n";
 						if (curS.subSelectors.size()>0 && curS.subSelectors.back().type!=-1) // Not an op
 						{
-							std::cout << "Encountered space operator\n";
+							/*std::cout << "Encountered space operator\n";
 							CSSSubSelector sub;
 							sub.str1 = std::string(" ");
 							sub.type = -1;
-							curS.subSelectors.push_back(sub);
+							curS.subSelectors.push_back(sub);*/
 						}
 						if (t.text.at(0)=='#')
 						{
