@@ -83,7 +83,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 				{
 					std::cout << RED << "Fatal CSS selector error: inside unknown op='" << op << "'\n" << NOCLR;
 				}
-				op = ' ';
+				op = '\0';
 			}
 			break;
 			case -1: // Operator
@@ -104,13 +104,15 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 				CSSSelectAll(from, &selected);
 			}
 			break;
-			case 2: // [a]
-			case 3: // [a=b]
-			case 4: // [a~=b]
-			case 5: // [a|=b]
-			case 6: // [a^=b]
+			case  2: // [a]
+			case  3: // [a=b]
+			case  4: // [a~=b]
+			case  5: // [a|=b]
+			case  6: // [a^=b]
+			case 11: // [a$=b]
+			case 12: // [a*=b]
 			{
-				std::cout << "case 2|3|4|5|6\n";
+				std::cout << "case 2|3|4|5|6|11|12\n";
 				std::vector<HTMLElement*> newVector;
 				for (	std::vector<HTMLElement*>::iterator els=selected.begin();
 						els!=selected.end();
@@ -120,7 +122,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 					if (applies(&*ss, *els)) newVector.push_back(*els);
 				}
 				selected = newVector;
-				std::cout << "break case 2|3|4|5|6\n";
+				std::cout << "break case 2|3|4|5|6|11|12\n";
 			}
 			break;
 			default:

@@ -86,7 +86,17 @@ void* cssLexThreadFunc(void* args)
 			{
 				if (c==' ' || c=='\n' || c=='\t' || c=='\r')
 				{
-					// Ignore whitespaces when not inside anything
+					if (CSSTokens->size()>0)
+					{
+						CSSToken tt = CSSTokens->at(CSSTokens->size()-1);
+						if (tt.type!=1 || tt.text!=std::string(" "))
+						{
+							CSSToken t;
+							t.type = 1;
+							t.text = std::string(" ");
+							CSSTokens->push_back(t);
+						}
+					}
 				}
 				else if (	c==';' || // CSS op chars that always stand alone...
 							c=='{' ||
@@ -151,7 +161,10 @@ void* cssLexThreadFunc(void* args)
 					currentType = -1;
 					if (c==' ' || c=='\n' || c=='\t' || c=='\r')
 					{
-						// Skip whitespaces
+						CSSToken t;
+						t.type = 1;
+						t.text = std::string(" ");
+						CSSTokens->push_back(t);
 					}
 					else
 					{
@@ -194,6 +207,12 @@ void* cssLexThreadFunc(void* args)
 					CSSTokens->push_back(t);
 					buffer = std::string("");
 					currentType = -1;
+					{
+						CSSToken t;
+						t.type = 1;
+						t.text = std::string(" ");
+						CSSTokens->push_back(t);
+					}
 				}
 				else
 				{
