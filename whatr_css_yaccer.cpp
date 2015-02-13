@@ -332,6 +332,10 @@ void* cssYaccThreadFunc(void* args)
 						CSSClasses->push_back(curC);
 						curC = CSSClass();
 					}
+					else if (t.text==std::string(" "))
+					{
+						// Ignore whitespaces
+					}
 					else
 					{
 						std::cout << RED << "CSS Yacc error: Unexpected operator " << t.text << NOCLR << "\n";
@@ -369,6 +373,10 @@ void* cssYaccThreadFunc(void* args)
 						inWhat = 0;
 						CSSClasses->push_back(curC);
 						curC = CSSClass();
+					}
+					else if (t.text==std::string(" "))
+					{
+						// Ignore whitespaces
 					}
 					else
 					{
