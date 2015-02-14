@@ -240,7 +240,7 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 			return false;
 		break;
 		}
-		case 4:		// elements having a str1 attribute and where str1 contains str2
+		case 4:		// ~=		elements having a str1 attribute and where str1 contains str2
 		{
 			std::vector<std::string>::iterator args = el->argNames .begin();
 			std::vector<std::string>::iterator vals = el->argValues.begin();
@@ -255,7 +255,7 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 			return false;
 		}
 		break;
-		case 5:		// elements having a str1 attribute and where str1 contains str2
+		case 5:		// |=		elements having a str1 attribute and where str1 starts with str2
 		{
 			std::vector<std::string>::iterator args = el->argNames .begin();
 			std::vector<std::string>::iterator vals = el->argValues.begin();
@@ -264,7 +264,8 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 			{
 				if (*args == ss->str1)
 				{
-					return vals->find(ss->str2) != std::string::npos;
+					if (vals->length() < ss->str2.length()) return false;
+					return vals->substr(ss->str2.length()) == ss->str2;
 				}
 			}
 			return false;
