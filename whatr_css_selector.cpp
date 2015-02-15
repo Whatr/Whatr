@@ -255,7 +255,32 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 			return false;
 		}
 		break;
-		case 5:		// |=		elements having a str1 attribute and where str1 starts with str2
+		case 5:		// |=		elements having a str1 attribute and where str1 starts with str2 as part of a hyphen-seperated list
+		{
+			std::vector<std::string>::iterator args = el->argNames .begin();
+			std::vector<std::string>::iterator vals = el->argValues.begin();
+			for (;	args!=el->argNames.end();
+					args++, vals++)
+			{
+				if (*args == ss->str1)
+				{
+					if (vals->length() < ss->str2.length()) return false;
+					return
+						(
+							vals->substr(ss->str2.length()) == ss->str2
+							&&
+							(
+								vals->length() == ss->str2.length()
+								||
+								vals->at(ss->str2.length()) == '-'
+							)
+						);
+				}
+			}
+			return false;
+		}
+		break;
+		case 6:		// ^=		elements having a str1 attribute and where str1 starts with str2
 		{
 			std::vector<std::string>::iterator args = el->argNames .begin();
 			std::vector<std::string>::iterator vals = el->argValues.begin();
@@ -266,6 +291,37 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 				{
 					if (vals->length() < ss->str2.length()) return false;
 					return vals->substr(ss->str2.length()) == ss->str2;
+				}
+			}
+			return false;
+		}
+		break;
+		case 11:	// $=		elements having a str1 attribute and where str1 ends with str2
+		{
+			std::vector<std::string>::iterator args = el->argNames .begin();
+			std::vector<std::string>::iterator vals = el->argValues.begin();
+			for (;	args!=el->argNames.end();
+					args++, vals++)
+			{
+				if (*args == ss->str1)
+				{
+					if (vals->length() < ss->str2.length()) return false;
+					return vals->substr(ss->str2.length()) == ss->str2;
+				}
+			}
+			return false;
+		}
+		break;
+		case 12:	// *=		elements having a str1 attribute and where str1 contains str2
+		{
+			std::vector<std::string>::iterator args = el->argNames .begin();
+			std::vector<std::string>::iterator vals = el->argValues.begin();
+			for (;	args!=el->argNames.end();
+					args++, vals++)
+			{
+				if (*args == ss->str1)
+				{
+					return vals->find(ss->str2) != std::string::npos;
 				}
 			}
 			return false;
