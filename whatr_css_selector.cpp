@@ -369,7 +369,21 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 				if (el->parent==NULL) return false;
 				std::vector<HTMLElement*>::iterator siblings = el->parent->children.begin();
 				for (;	siblings!=el->parent->children.end();
-							siblings++)
+						siblings++)
+				{
+					if ((*siblings)->type==1)
+					{
+						return el == *siblings;
+					}
+				}
+			}
+			else if (ss->str1==std::string("last-child"))
+			{
+				if (el->parent==NULL) return false;
+				std::vector<HTMLElement*>::iterator siblings = el->parent->children.end();
+				siblings--;
+				for (;	siblings>=el->parent->children.begin();
+						siblings--)
 				{
 					if ((*siblings)->type==1)
 					{
