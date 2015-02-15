@@ -52,6 +52,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 			*/
 			selected = std::vector<HTMLElement*>();
 			CSSSelectAll(from, &selected);
+			op = '\0';
 		}
 		else if (op==' ') // (ss->type == 0)
 		{
@@ -60,6 +61,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 			*/
 			if (op==' ' || op=='>') // Select children
 			{
+				std::cout << "op==' ' || op=='>'\n";
 				std::vector<HTMLElement*> newVector;
 				for (	std::vector<HTMLElement*>::iterator els=selected.begin();
 						els!=selected.end();
@@ -121,7 +123,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 					els!=selected.end();
 					els++)
 			{
-				//std::cout << "loop\n";
+				std::cout << "loop\n";
 				if (applies(&*ss, *els)) newVector.push_back(*els);
 			}
 			selected = newVector;
@@ -360,10 +362,32 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 			return false;
 		}
 		break;
+		case 7:		// Things like :first-child
+		{
+			if (ss->str1==std::string("first-child"))
+			{
+				if (el->parent==NULL) return false;
+				std::vector<HTMLElement*>::iterator siblings = el->parent->children.begin();
+				for (;	siblings!=el->parent->children.end();
+							siblings++)
+				{
+					if ((*siblings)->type==1)
+					{
+						return el == *siblings;
+					}
+				}
+			}
+			else
+			{
+				std::cout << RED << "Error: Unknown CSS selector :" << ss->str1 << "\n" << NOCLR;
+			}
+		}
+		break;
 		default:
 		{
 			std::cout << RED << "FATAL ERROR: applies() CALLED WITH A WRONG CASE (" <<  ss->type << ")!\n" << NOCLR;
 		}
 		break;
 	}
+	return false;
 }

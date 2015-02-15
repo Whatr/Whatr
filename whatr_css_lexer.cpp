@@ -189,7 +189,9 @@ void* cssLexThreadFunc(void* args)
 					c==']' ||
 					c==',' ||
 					c=='>' ||
-					c=='+'))
+					c=='+' ||
+					c==':'
+					))
 				{
 					CSSToken t;
 					t.type = 1;
