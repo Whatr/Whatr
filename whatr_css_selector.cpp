@@ -376,6 +376,7 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 						return el == *siblings;
 					}
 				}
+				std::cout << RED << "Fatal error: aksdfklajselkrmjakls\n" << NOCLR;
 			}
 			else if (ss->str1==std::string("last-child"))
 			{
@@ -390,6 +391,7 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 						return el == *siblings;
 					}
 				}
+				std::cout << RED << "Fatal error: lkqwelkqwnekqmwkemqk\n" << NOCLR;
 			}
 			else if (ss->str1==std::string("only-child"))
 			{
@@ -418,6 +420,20 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 					}
 				}
 				return true;
+			}
+			else if (ss->str1==std::string("first-of-type"))
+			{
+				if (el->parent==NULL) return false;
+				std::vector<HTMLElement*>::iterator siblings = el->parent->children.begin();
+				for (;	siblings!=el->parent->children.end();
+						siblings++)
+				{
+					if ((*siblings)->type==1 && (*siblings)->text==el->text)
+					{
+						return *siblings == el;
+					}
+				}
+				std::cout << RED << "Fatal error: almwlkrcmwlkrmslkfm\n" << NOCLR;
 			}
 			else
 			{
