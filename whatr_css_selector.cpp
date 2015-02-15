@@ -66,7 +66,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 						els++)
 				{
 					std::vector<HTMLElement*> addThis = CSSSelect2(*els, *ss, op==' ');
-					std::cout << "addThis.size()==" << addThis.size() << "\n";
+					//std::cout << "addThis.size()==" << addThis.size() << "\n";
 					newVector.insert(newVector.end(), addThis.begin(), addThis.end());
 				}
 				selected = newVector;
@@ -82,7 +82,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 					PRINT(cp 1);
 					std::vector<HTMLElement*> addThis = CSSSelectSiblings(*els, *ss, op=='+');
 					PRINT(cp 2);
-					std::cout << "addThis.size()==" << addThis.size() << "\n";
+					//std::cout << "addThis.size()==" << addThis.size() << "\n";
 					PRINT(cp 3);
 					newVector.insert(newVector.end(), addThis.begin(), addThis.end());
 					PRINT(cp 4);
@@ -115,17 +115,17 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 			/*
 			Use ss to select elements from the current selection that match it
 			*/
-			std::cout << "case 2|3|4|5|6|11|12\nop = " << ((int)op) << "\n";
+			//std::cout << "case 2|3|4|5|6|11|12\nop = " << ((int)op) << "\n";
 			std::vector<HTMLElement*> newVector;
 			for (	std::vector<HTMLElement*>::iterator els=selected.begin();
 					els!=selected.end();
 					els++)
 			{
-				std::cout << "loop\n";
+				//std::cout << "loop\n";
 				if (applies(&*ss, *els)) newVector.push_back(*els);
 			}
 			selected = newVector;
-			std::cout << "break case 2|3|4|5|6|11|12\n";
+			//std::cout << "break case 2|3|4|5|6|11|12\n";
 		}
 		else
 		{
@@ -150,7 +150,7 @@ void CSSSelectAll(HTMLElement* top, std::vector<HTMLElement*>* dest)
 std::vector<HTMLElement*> CSSSelectSiblings(HTMLElement* from, CSSSubSelector ss, bool directlyAfter)
 {
 	PRINT(Entering CSSSelectSiblings...);
-	std::cout << "from=<" << from->text << ">\n";
+	//std::cout << "from=<" << from->text << ">\n";
 	std::vector<HTMLElement*> ret;
 	bool started = false;
 	for (	std::vector<HTMLElement*>::iterator els=from->parent->children.begin();
@@ -159,14 +159,14 @@ std::vector<HTMLElement*> CSSSelectSiblings(HTMLElement* from, CSSSubSelector ss
 	{
 		if ((*els)->type==1)
 		{
-			std::cout << "@ child <" << (*els)->text << ">\n";
+			//std::cout << "@ child <" << (*els)->text << ">\n";
 			if (!started && *els==from) started = true;
 			else if (started)
 			{
 				PRINT(checking applies(..,..)...);
 				if (applies(&ss, *els))
 				{
-					std::cout << "^ Matches!\n";
+					//std::cout << "^ Matches!\n";
 					ret.push_back(*els);
 				}
 				if (directlyAfter) break;
@@ -187,10 +187,10 @@ std::vector<HTMLElement*> CSSSelect2(HTMLElement* from, CSSSubSelector ss, bool 
 	{
 		if ((*els)->type==1)
 		{
-			std::cout << "@ child <" << (*els)->text << ">\n";
+			//std::cout << "@ child <" << (*els)->text << ">\n";
 			if (applies(&ss, *els))
 			{
-				std::cout << "^ Matches! checking its children...\n";
+				//std::cout << "^ Matches! checking its children...\n";
 				ret.push_back(*els);
 			}
 			if (recurse)
@@ -240,7 +240,7 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 			return false;
 		break;
 		}
-		case 4:		// ~=		elements having a str1 attribute and where str1 contains str2
+		case 4:		// ~=		elements having a str1 attribute and where str1 contains str2 as part of a space-seperated list
 		{
 			std::vector<std::string>::iterator args = el->argNames .begin();
 			std::vector<std::string>::iterator vals = el->argValues.begin();
@@ -249,7 +249,40 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 			{
 				if (*args == ss->str1)
 				{
-					return vals->find(ss->str2) != std::string::npos;
+					size_t foundLoc = vals->find(ss->str2);
+					if (foundLoc == std::string::npos)
+					{
+						// arg="a b c"
+						// checking for "qwertyuiop"
+						return false;
+					}
+					if (vals->length() == ss->str2.length())
+					{
+						// arg="a"
+						// checking for "a"
+						return true;
+					}
+					if (foundLoc==0)
+					{
+						// arg="a b c"
+						// checking for "a"
+						return vals->at(ss->str2.length())==' ';
+					}
+					if (
+							vals->at(foundLoc-1)==' '
+							&&
+							(
+								foundLoc+ss->str2.length()==vals->length()
+								||
+								vals->at(foundLoc+ss->str2.length())==' '
+							)
+						)
+					{
+						// arg="a b c"
+						// checking for "c" or "b"
+						return true;
+					}
+					return false;
 				}
 			}
 			return false;
@@ -267,7 +300,7 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 					if (vals->length() < ss->str2.length()) return false;
 					return
 						(
-							vals->substr(ss->str2.length()) == ss->str2
+							vals->substr(0, ss->str2.length()) == ss->str2
 							&&
 							(
 								vals->length() == ss->str2.length()
@@ -290,7 +323,7 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 				if (*args == ss->str1)
 				{
 					if (vals->length() < ss->str2.length()) return false;
-					return vals->substr(ss->str2.length()) == ss->str2;
+					return vals->substr(0, ss->str2.length()) == ss->str2;
 				}
 			}
 			return false;
@@ -306,7 +339,7 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 				if (*args == ss->str1)
 				{
 					if (vals->length() < ss->str2.length()) return false;
-					return vals->substr(ss->str2.length()) == ss->str2;
+					return vals->substr(vals->length() - ss->str2.length(), ss->str2.length()) == ss->str2;
 				}
 			}
 			return false;
