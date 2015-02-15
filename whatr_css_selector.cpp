@@ -391,6 +391,34 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 					}
 				}
 			}
+			else if (ss->str1==std::string("only-child"))
+			{
+				if (el->parent==NULL) return false;
+				std::vector<HTMLElement*>::iterator siblings = el->parent->children.begin();
+				for (;	siblings!=el->parent->children.end();
+						siblings++)
+				{
+					if (*siblings!=el && (*siblings)->type==1)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+			else if (ss->str1==std::string("only-of-type"))
+			{
+				if (el->parent==NULL) return false;
+				std::vector<HTMLElement*>::iterator siblings = el->parent->children.begin();
+				for (;	siblings!=el->parent->children.end();
+						siblings++)
+				{
+					if (*siblings!=el && (*siblings)->type==1 && (*siblings)->text==el->text)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
 			else
 			{
 				std::cout << RED << "Error: Unknown CSS selector :" << ss->str1 << "\n" << NOCLR;
