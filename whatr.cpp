@@ -209,30 +209,10 @@ int main(int argc, char* argv[])
 	auto time_5 = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
-	////// Wait until the downloading is done, then print the data
-	{
-		/*while (downloadingPage)
-		{
-			PRINT(Main thread is waiting for downloadingPage to be 0...);
-			usleep(100000);
-		};*/
-		//PRINT(DOWNLOADED HEADERS:);
-		//std::cout << downloadedHeaders << "\n";
-		//PRINT(DOWNLOADED HTML:);
-		//std::cout << downloadedHTML << "\n";
-		//PRINT(DOWNLOADED DATA:);
-		//std::cout << downloadedData << "\n";
-	}
-	
-	///////////////////////////////////
 	////// Wait until the lexing is done, then print the headers and tags
 	{
-		/*while (lexingPage)
-		{
-			PRINT(Main thread is waiting for lexingPage to be 0...);
-			usleep(100000);
-		};*/
-		/*PRINT(The lexer is done! Here are its results:)
+		while (lexingPage){};
+		PRINT(The HTML lexer is done! Here are its results:)
 		for (int i=0;i<HTMLTags.size();i++)
 		{
 			HTMLTag tag = HTMLTags[i];
@@ -268,7 +248,7 @@ int main(int argc, char* argv[])
 			{
 				std::cout << RED << "ERROR ERROR FATAL ERROR: Tag with unknown type " << tag.type << NOCLR << "\n";
 			}
-		}*/
+		}
 	}
 	///////////////////////////////////
 	////// Wait until the yaccing is done, then print the HTML element tree
@@ -401,7 +381,7 @@ int main(int argc, char* argv[])
 	///////////////////////////////////
 	////// Create window
 	
-	/*char testString[] = "blablabla";
+	char testString[] = "blablabla";
 	
 	testText.chars = testString;
 	testText.nchars = strlen(testString);
@@ -499,7 +479,7 @@ int main(int argc, char* argv[])
 	XDestroyWindow(dsp, win);
 	XCloseDisplay(dsp);
 
-	return 0;*/
+	return 0;
 }
 void printTree(HTMLElement* currentElement, std::string tabs)
 {
