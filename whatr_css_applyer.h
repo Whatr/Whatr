@@ -30,6 +30,31 @@ public:
 		CSSClasses(CSSClasses),
 		destination(destination){};
 };
+class cssValue
+{
+public:
+	int type;
+	/* 0 = pixels						int
+	 * 1 = em							float
+	 * 2 = ex							float
+	 * 3 = mm (millimeters)				float
+	 * 4 = cm (centimeters)				float
+	 * 5 = pt (1 points = 1/72 inches)	int
+	 * 6 = inches						float
+	 * 
+	 * 7 = colour						
+	 * 
+	 * 
+	 * 
+	 */
+	union
+	{
+		int i;
+		float f;
+	};
+	int i2;
+	int i3;
+};
 void* cssApplyThreadFunc(void* args);
 
 #endif

@@ -31,9 +31,12 @@ public:
 	// CSS applyer stuff:
 	std::vector<std::string> styleFields;
 	std::vector<std::string> styleValues;
+	int top = 0, left = 0, bottom = 0, right = 0;
+	
 	
 	// Prerenderer stuff:
 	int position = 0; // 0 = fixed, 1 = absolute, 2 = relative
+	int positionX = 0, positionY = 0;
 	int width = 0;
 	int height = 0;
 	int paddingLeft = 0, paddingTop = 0, paddingRight = 0, paddingBottom = 0;
