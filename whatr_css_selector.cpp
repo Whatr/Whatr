@@ -32,8 +32,6 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 	
 	for (std::vector<CSSSubSelector>::iterator ss=selector->subSelectors.begin(); ss!=selector->subSelectors.end(); ss++)
 	{
-		std::cout << "Subselector: ";
-		std::cout << ss->str1 << "\n";
 		if (ss->type == -1)
 		{
 			if (ss->str1==std::string(" ")) op = ' ';
@@ -61,7 +59,6 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 			*/
 			if (op==' ' || op=='>') // Select children
 			{
-				std::cout << "op==' ' || op=='>'\n";
 				std::vector<HTMLElement*> newVector;
 				for (	std::vector<HTMLElement*>::iterator els=selected.begin();
 						els!=selected.end();
@@ -75,19 +72,13 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 			}
 			else if (op=='+' || op=='~') // Select siblings
 			{
-				PRINT(in op+);
 				std::vector<HTMLElement*> newVector;
 				for (	std::vector<HTMLElement*>::iterator els=selected.begin();
 						els!=selected.end();
 						els++)
 				{
-					PRINT(cp 1);
 					std::vector<HTMLElement*> addThis = CSSSelectSiblings(*els, *ss, op=='+');
-					PRINT(cp 2);
-					//std::cout << "addThis.size()==" << addThis.size() << "\n";
-					PRINT(cp 3);
 					newVector.insert(newVector.end(), addThis.begin(), addThis.end());
-					PRINT(cp 4);
 				}
 				selected = std::vector<HTMLElement*>();
 				// Add all non-duplicates from newVector to selected
@@ -123,7 +114,6 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 					els!=selected.end();
 					els++)
 			{
-				std::cout << "loop\n";
 				if (applies(&*ss, *els)) newVector.push_back(*els);
 			}
 			selected = newVector;
@@ -448,7 +438,7 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 						return el == *siblings;
 					}
 				}
-				std::cout << RED << "Fatal error: lkqwelkqwnekqmwkemqk\n" << NOCLR;
+				std::cout << RED << "Fatal error: klkmsdfmkasdfkwe\n" << NOCLR;
 			}
 			else
 			{
