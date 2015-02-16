@@ -28,14 +28,16 @@ public:
 	
 	// TODO add an int containing the index of this element in its parent's children
 	
-	// Css yaccer stuff:
+	// CSS applyer stuff:
 	std::vector<std::string> styleFields;
 	std::vector<std::string> styleValues;
 	
 	// Prerenderer stuff:
-	int sizeRelativity = 0; // 0 = no relativity, 1 = 
+	int position = 0; // 0 = fixed, 1 = absolute, 2 = relative
 	int width = 0;
 	int height = 0;
+	int paddingLeft = 0, paddingTop = 0, paddingRight = 0, paddingBottom = 0;
+	int marginLeft = 0, marginTop = 0, marginRight = 0, marginBottom = 0;
 };
 class htmlYaccArgs
 {

@@ -356,6 +356,7 @@ int main(int argc, char* argv[])
 				return 0;
 			}
 			while(applyingCSS){};
+			printTree(HTMLElements.at(i), std::string("  "));
 		}
 	}
 	
@@ -514,6 +515,13 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 			std::cout << " " << currentElement->argNames.at(i) <<
 						"=\"" << currentElement->argValues.at(i) << "\"";
 		}
+		std::cout << " computedStyle=\"";
+		for (int i=0;i<currentElement->styleFields.size();i++)
+		{
+			std::cout	<< currentElement->styleFields.at(i) << ":"
+						<< currentElement->styleValues.at(i) << ";";
+		}
+		std::cout << "\"";
 		std::cout << "/>\n";
 	}
 	else
@@ -524,6 +532,13 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 			std::cout << " " << currentElement->argNames.at(i) <<
 						"=\"" << currentElement->argValues.at(i) << "\"";
 		}
+		std::cout << " computedStyle=\"";
+		for (int i=0;i<currentElement->styleFields.size();i++)
+		{
+			std::cout	<< currentElement->styleFields.at(i) << ":"
+						<< currentElement->styleValues.at(i) << ";";
+		}
+		std::cout << "\"";
 		std::cout << ">\n";
 		for (int i=0;i<currentElement->children.size();i++)
 		{

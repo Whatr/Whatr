@@ -46,8 +46,13 @@ void* cssApplyThreadFunc(void* args)
 					el!=applyToList.end();
 					el++)
 		{
-			std::cout << "CSSSelect returned: ";
-			std::cout << (*el)->text << "\n";
+			for (int i=0;i<c->ruleNames.size();i++)
+			{
+				std::cout << "CSSSelect returned: ";
+				std::cout << (*el)->text << "\n";
+				(*el)->styleFields.push_back(c->ruleNames.at(i));
+				(*el)->styleValues.push_back(c->ruleValues.at(i));
+			}
 		}
 	}
 	
