@@ -435,6 +435,21 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 				}
 				std::cout << RED << "Fatal error: almwlkrcmwlkrmslkfm\n" << NOCLR;
 			}
+			else if (ss->str1==std::string("last-of-type"))
+			{
+				if (el->parent==NULL) return false;
+				std::vector<HTMLElement*>::iterator siblings = el->parent->children.end();
+				siblings--;
+				for (;	siblings>=el->parent->children.begin();
+						siblings--)
+				{
+					if ((*siblings)->type==1 && (*siblings)->text==el->text)
+					{
+						return el == *siblings;
+					}
+				}
+				std::cout << RED << "Fatal error: lkqwelkqwnekqmwkemqk\n" << NOCLR;
+			}
 			else
 			{
 				std::cout << RED << "Error: Unknown CSS selector :" << ss->str1 << "\n" << NOCLR;
