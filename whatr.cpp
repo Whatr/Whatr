@@ -34,6 +34,7 @@
 #include "whatr_css_yaccer.h"
 #include "whatr_css_applyer.h"
 #include "whatr_css_selector.h"
+#include "whatr_renderer_1.h"
 
 void update_screen();
 
@@ -89,6 +90,11 @@ std::vector<CSSClass> CSSClasses;
 //----------------------------
 pthread_t cssApplyThread;
 int applyingCSS = 0;
+//----------------------------
+
+//----------------------------
+pthread_t renderer1Thread;
+int rendering1 = 0;
 //----------------------------
 
 std::string url, host, path;
@@ -342,6 +348,22 @@ int main(int argc, char* argv[])
 	
 	auto time_9 = std::chrono::high_resolution_clock::now();
 	
+	///////////////////////////////////
+	////// Renderer 1: HTML Transform
+	{
+		rendering1 = 1;
+		renderer1Args args(&rendering1, &HTMLElements);
+		if (pthread_create(&renderer1Thread, NULL, renderer1ThreadFunc, &args))
+		{
+			ERROR(Failed to create renderer 1 thread!);
+			return 0;
+		}
+		while(rendering1){};
+		printTree(HTMLElements.at(0), std::string("  "));
+	}
+	
+	auto time_10 = std::chrono::high_resolution_clock::now();
+	
 	auto time1 = time_2 - time_1;
 	auto time2 = time_3 - time_2;
 	auto time3a = time_3b - time_3;
@@ -352,6 +374,7 @@ int main(int argc, char* argv[])
 	auto time6 = time_7 - time_6;
 	auto time7 = time_8 - time_7;
 	auto time8 = time_9 - time_8;
+	auto time9 = time_10 - time_9;
 	
 	std::cout << "\n\n##### Slowness report:\n";
 	std::cout <<"Parse URL: "
@@ -374,7 +397,11 @@ int main(int argc, char* argv[])
 	<<std::chrono::duration_cast<std::chrono::microseconds>(time7).count()<<"us\n";
 	std::cout<<"Apply css: "
 	<<std::chrono::duration_cast<std::chrono::microseconds>(time8).count()<<"us\n";
-	auto total = time1+time2+time3a+time3b+time4a+time4b+time5+time6+time7+time8;
+	std::cout<<"Renderer 1: "
+	<<std::chrono::duration_cast<std::chrono::microseconds>(time9).count()<<"us\n";
+	
+	auto total = time1+time2+time3a+time3b+time4a+time4b+time5+time6+time7+time8+time9;
+	
 	std::cout << "##### Total time taken: "<<std::chrono::duration_cast<std::chrono::microseconds>(total).count()<<"us\n";
 	std::cout << "##### Total time taken excluding download: "<<std::chrono::duration_cast<std::chrono::microseconds>(total-time2-time3a).count()<<"us\n";
 	
