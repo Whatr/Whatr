@@ -18,6 +18,7 @@
 #include "whatr_html_yaccer.h"
 #include "whatr_renderer_1.h"
 
+void recursiveRenderer1(HTMLElement* el);
 void* renderer1ThreadFunc(void* args)
 {
 	PRINT(renderer1ThreadFunc start);
@@ -31,8 +32,25 @@ void* renderer1ThreadFunc(void* args)
 	PRINT(renderer1ThreadFunc has set rendering1=1);
 	PRINT(Renderer 1 starting:);
 	
-	// TODO: Do stuffs
+	for (	std::vector<HTMLElement*>::iterator h=HTMLElements->begin();
+			h!=HTMLElements->end();
+			h++)
+	{
+		if ((*h)->type==0) continue; // Skip text nodes
+		recursiveRenderer1(*h);
+	}
 	
 	PRINT(Renderer 1 is done);
 	*rendering1 = 0;
+}
+void recursiveRenderer1(HTMLElement* el)
+{
+	std::cout << "recursiveRenderer1 is at a <" << el->text << "...>\n";
+	for (	std::vector<HTMLElement*>::iterator h=el->children.begin();
+			h!=el->children.end();
+			h++)
+	{
+		if ((*h)->type==0) continue; // Skip text nodes
+		recursiveRenderer1(*h);
+	}
 }
