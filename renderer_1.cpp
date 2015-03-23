@@ -14,9 +14,9 @@
 #include <vector>
 #include <string>
 
-#include "whatr_log_funcs.hpp"
-#include "whatr_html_yaccer.h"
-#include "whatr_renderer_1.h"
+#include "log_funcs.hpp"
+#include "html_yaccer.h"
+#include "renderer_1.h"
 
 void recursiveRenderer1(HTMLElement* el);
 void* renderer1ThreadFunc(void* args)

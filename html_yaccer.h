@@ -13,7 +13,7 @@
 #ifndef html_yaccer_included
 #define html_yaccer_included yes
 
-#include "whatr_html_lexer.h"
+#include "html_lexer.h"
 
 class HTMLElement
 {

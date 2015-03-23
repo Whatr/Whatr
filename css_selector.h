@@ -13,7 +13,7 @@
 #ifndef css_selector_included
 #define css_selector_included yes
 
-#include "whatr_html_yaccer.h"
+#include "html_yaccer.h"
 
 class CSSSubSelector
 {

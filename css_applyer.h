@@ -15,7 +15,7 @@
 #ifndef css_applyer_included
 #define css_applyer_included yes
 
-#include "whatr_html_yaccer.h"
+#include "html_yaccer.h"
 
 class cssApplyArgs
 {

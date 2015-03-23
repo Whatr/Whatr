@@ -26,15 +26,15 @@
 #include <cstring>
 #include <chrono>
 
-#include "whatr_log_funcs.hpp"
-#include "whatr_download.h"
-#include "whatr_html_lexer.h"
-#include "whatr_html_yaccer.h"
-#include "whatr_css_lexer.h"
-#include "whatr_css_yaccer.h"
-#include "whatr_css_applyer.h"
-#include "whatr_css_selector.h"
-#include "whatr_renderer_1.h"
+#include "log_funcs.hpp"
+#include "download.h"
+#include "html_lexer.h"
+#include "html_yaccer.h"
+#include "css_lexer.h"
+#include "css_yaccer.h"
+#include "css_applyer.h"
+#include "css_selector.h"
+#include "renderer_1.h"
 
 void update_screen();
 

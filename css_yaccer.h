@@ -13,8 +13,8 @@
 #ifndef css_yaccer_included
 #define css_yaccer_included yes
 
-#include "whatr_css_lexer.h"
-#include "whatr_css_selector.h"
+#include "css_lexer.h"
+#include "css_selector.h"
 
 class CSSClass
 {

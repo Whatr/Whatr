@@ -20,9 +20,9 @@
 #include <cstring>
 #include <cctype>
 
-#include "whatr_log_funcs.hpp"
-#include "whatr_css_yaccer.h"
-#include "whatr_css_lexer.h"
+#include "log_funcs.hpp"
+#include "css_yaccer.h"
+#include "css_lexer.h"
 
 void* cssYaccThreadFunc(void* args)
 {

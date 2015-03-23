@@ -27,8 +27,8 @@
 #include <string>
 #include <cstring>
 
-#include "whatr_log_funcs.hpp"
-#include "whatr_download.h"
+#include "log_funcs.hpp"
+#include "download.h"
 
 int isDigit(char c)
 {

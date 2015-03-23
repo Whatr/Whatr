@@ -13,7 +13,7 @@
 #ifndef renderer_1_included
 #define renderer_1_included yes
 
-#include "whatr_html_yaccer.h"
+#include "html_yaccer.h"
 
 class renderer1Args
 {

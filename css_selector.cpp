@@ -15,9 +15,9 @@
 #include <iostream>
 #include <algorithm>
 
-#include "whatr_log_funcs.hpp"
-#include "whatr_html_yaccer.h"
-#include "whatr_css_selector.h"
+#include "log_funcs.hpp"
+#include "html_yaccer.h"
+#include "css_selector.h"
 
 std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 {

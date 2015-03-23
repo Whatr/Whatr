@@ -20,8 +20,8 @@
 #include <cstring>
 #include <cctype>
 
-#include "whatr_log_funcs.hpp"
-#include "whatr_html_lexer.h"
+#include "log_funcs.hpp"
+#include "html_lexer.h"
 
 // trim from start
 static inline std::string &ltrim(std::string &s) {
