@@ -10,12 +10,12 @@
 /* You should have received a copy of the GNU General Public License
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 
-#ifndef css_enums_included
-#define css_enums_included yes
+#ifndef css_values_included
+#define css_values_included yes
 
 // Used for multiple properties:
-enum CSSLineStyle // CSS1 border-style, CSS2 outline-style, CSS3 column-rule-style
-{
+struct CSSLineStyle // CSS1 border-style, CSS2 outline-style, CSS3 column-rule-style
+{ enum {
 	NONE, // Default
 	HIDDEN,
 	DOTTED,
@@ -26,137 +26,137 @@ enum CSSLineStyle // CSS1 border-style, CSS2 outline-style, CSS3 column-rule-sty
 	RIDGE,
 	INSET,
 	OUTSET,
-};
-enum CSSOverflow // CSS2 overflow, CSS3 overflow-x, CSS3 overflow-y
-{
+}; };
+struct CSSOverflow // CSS2 overflow, CSS3 overflow-x, CSS3 overflow-y
+{ enum {
 	VISIBLE, // Default
 	HIDDEN,
 	SCROLL,
 	AUTO,
-}
+}; };
 
 // Used for a single property:
-enum CSSAlignContent // CSS3
-{
+struct CSSAlignContent // CSS3
+{ enum {
 	STRETCH, // Default
 	CENTER,
 	FLEX_START,
 	FLEX_END,
 	SPACE_BETWEEN,
 	SPACE_AROUND,
-};
-enum CSSAlignItems // CSS3
-{
+}; };
+struct CSSAlignItems // CSS3
+{ enum {
 	STRETCH, // Default
 	CENTER,
 	FLEX_START,
 	FLEX_END,
 	BASELINE,
-};
-enum CSSAlignSelf // CSS3
-{
+}; };
+struct CSSAlignSelf // CSS3
+{ enum {
 	AUTO, // Default
 	STRETCH,
 	CENTER,
 	FLEX_START,
 	FLEX_END,
 	BASELINE,
-};
-enum CSSAnimationDirection // CSS3
-{
+}; };
+struct CSSAnimationDirection // CSS3
+{ enum {
 	NORMAL, // Default
 	REVERSE,
 	ALTERNATE,
 	ALTERNATE_REVERSE,
-};
-enum CSSAnimationFillMode // CSS3
-{
+}; };
+struct CSSAnimationFillMode // CSS3
+{ enum {
 	NONE, // Default
 	FORWARDS,
 	BACKWARDS,
 	BOTH,
-};
-enum CSSAnimationPlayState // CSS3
-{
+}; };
+struct CSSAnimationPlayState // CSS3
+{ enum {
 	PAUSED,
 	RUNNING, // Default
-};
-enum CSSBackfaceVisibility // CSS3
-{
+}; };
+struct CSSBackfaceVisibility // CSS3
+{ enum {
 	VISIBLE, // Default
 	HIDDEN,
-};
-enum CSSBackgroundAttachment // CSS1
-{
+}; };
+struct CSSBackgroundAttachment // CSS1
+{ enum {
 	SCROLL, // Default
 	FIXED,
 	LOCAL,
-};
-enum CSSBackgroundClip // CSS3
-{
+}; };
+struct CSSBackgroundClip // CSS3
+{ enum {
 	BORDER_BOX, // Default
 	PADDING_BOX,
 	CONTENT_BOX,
-};
-enum CSSBackgroundOrigin // CSS3
-{
+}; };
+struct CSSBackgroundOrigin // CSS3
+{ enum {
 	PADDING_BOX, // Default
 	BORDER_BOX,
 	CONTENT_BOX,
-};
-enum CSSBackgroundRepeat // CSS1
-{
+}; };
+struct CSSBackgroundRepeat // CSS1
+{ enum {
 	REPEAT,
 	REPEAT_X,
 	REPEAT_Y,
 	NO_REPEAT,
-};
-enum CSSBorderCollapse // CSS2
-{
+}; };
+struct CSSBorderCollapse // CSS2
+{ enum {
 	SEPARATE, // Default
 	COLLAPSE,
-};
-enum CSSBorderImageRepeat // CSS3
-{
+}; };
+struct CSSBorderImageRepeat // CSS3
+{ enum {
 	STRETCH, // Default
 	REPEAT,
 	ROUND,
 	SPACE,
-};
-enum CSSBoxSizing // CSS3
-{
+}; };
+struct CSSBoxSizing // CSS3
+{ enum {
 	CONTENT_BOX, // Default
 	BORDER_BOX,
-};
-enum CSSCaptionSide // CSS2
-{
+}; };
+struct CSSCaptionSide // CSS2
+{ enum {
 	TOP, // Default
 	BOTTOM,
-};
-enum CSSClear // CSS1
-{
+}; };
+struct CSSClear // CSS1
+{ enum {
 	NONE, // Default
 	LEFT,
 	RIGHT,
 	BOTH,
-};
-enum CSSColumnFill // CSS3
-{
+}; };
+struct CSSColumnFill // CSS3
+{ enum {
 	BALANCE, // Default
 	AUTO,
-};
-enum CSSColumnSpan // CSS3
-{
+}; };
+struct CSSColumnSpan // CSS3
+{ enum {
 	ONE, // Default
 	ALL,
-};
-enum CSSDirection // CSS2
-{
+}; };
+struct CSSDirection // CSS2
+{ enum {
 	LTR, // Default
 	RTL,
-};
-enum CSSDisplay
-{
+}; };
+struct CSSDisplay
+{ enum {
 	INLINE,
 	BLOCK,
 	FLEX,
@@ -175,33 +175,33 @@ enum CSSDisplay
 	TABLE_COLUMN,
 	TABLE_ROW,
 	NONE,
-};
-enum CSSEmptyCells // CSS2
-{
+}; };
+struct CSSEmptyCells // CSS2
+{ enum {
 	SHOW, // Default
 	HIDE,
-};
-enum CSSFlexDirection // CSS3
-{
+}; };
+struct CSSFlexDirection // CSS3
+{ enum {
 	ROW,
 	ROW_REVERSE,
 	COLUMN,
 	COLUMN_REVERSE,
-};
-enum CSSFlexWrap // CSS3
-{
+}; };
+struct CSSFlexWrap // CSS3
+{ enum {
 	NOWRAP, // Default
 	WRAP,
 	WRAP_REVERSE,
-};
-enum CSSFloat // CSS1
-{
+}; };
+struct CSSFloat // CSS1
+{ enum {
 	NONE, // Default
 	LEFT,
 	RIGHT,
-};
-enum CSSFontStretch // CSS3
-{
+}; };
+struct CSSFontStretch // CSS3
+{ enum {
 	ULTRA_CONDENSED,
 	EXTRA_CONDENSED,
 	CONDENSED,
@@ -211,20 +211,20 @@ enum CSSFontStretch // CSS3
 	EXPANDED,
 	EXTRA_EXPANDED,
 	ULTRA_EXPANDED,
-};
-enum CSSFontStyle // CSS1
-{
+}; };
+struct CSSFontStyle // CSS1
+{ enum {
 	NORMAL, // Default
 	ITALIC,
 	OBLIQUE,
-};
-enum CSSFontVariant // CSS1
-{
+}; };
+struct CSSFontVariant // CSS1
+{ enum {
 	NORMAL, // Default
 	SMALL_CAPS,
-};
-enum CSSFontWeight // CSS1
-{
+}; };
+struct CSSFontWeight // CSS1
+{ enum {
 	ONE_HUNDRED,
 	TWO_HUNDRED,
 	THREE_HUNDRED,
@@ -239,30 +239,30 @@ enum CSSFontWeight // CSS1
 	NORMAL=ONE_HUNDRED, // Default
 	BOLD=FOUR_HUNDRED,
 	BOLDER=NINE_HUNDRED,
-};
-enum CSSHangingPunctuation // CSS3
-{
+}; };
+struct CSSHangingPunctuation // CSS3
+{ enum {
 	NONE, // Default
 	FIRST,
 	LAST,
 	ALLOW_END,
 	FORCE_END,
-};
-enum CSSJustifyContent // CSS3
-{
+}; };
+struct CSSJustifyContent // CSS3
+{ enum {
 	FLEX_START, // Default
 	FLEX_END,
 	CENTER,
 	SPACE_BETWEEN,
 	SPACE_AROUND,
-};
-enum CSSListStylePosition // CSS1
-{
+}; };
+struct CSSListStylePosition // CSS1
+{ enum {
 	INSIDE,
 	OUTSIDE, // Default
-};
-enum CSSListStyleType // CSS1
-{
+}; };
+struct CSSListStyleType // CSS1
+{ enum {
 	DISC, // Default
 	ARMENIAN,
 	CIRCLE,
@@ -284,58 +284,58 @@ enum CSSListStyleType // CSS1
 	UPPER_ALPHA,
 	UPPER_LATIN,
 	UPPER_ROMAN,
-}
-enum CSSPageBreakAfter // CSS2
-{
+}; };
+struct CSSPageBreakAfter // CSS2
+{ enum {
 	AUTO, // Default
 	ALWAYS,
 	AVOID,
 	LEFT,
 	RIGHT,
-}
-enum CSSPageBreakBefore // CSS2
-{
+}; };
+struct CSSPageBreakBefore // CSS2
+{ enum {
 	AUTO, // Default
 	ALWAYS,
 	AVOID,
 	LEFT,
 	RIGHT,
-}
-enum CSSPageBreakInside // CSS2
-{
+}; };
+struct CSSPageBreakInside // CSS2
+{ enum {
 	AUTO, // Default
 	AVOID,
 	LEFT,
 	RIGHT,
-}
-enum CSSPosition // CSS2
-{
+}; };
+struct CSSPosition // CSS2
+{ enum {
 	STATIC, // Default
 	ABSOLUTE,
 	FIXED,
 	RELATIVE,
-};
-enum CSSResize // CSS3
-{
+}; };
+struct CSSResize // CSS3
+{ enum {
 	NONE, // Default
 	BOTH,
 	HORIZONTAL,
 	VERTICAL,
-}
-enum CSSTableLayout // CSS2
-{
+}; };
+struct CSSTableLayout // CSS2
+{ enum {
 	AUTO, // Default
 	FIXED,
-}
-enum CSSTextAlign // CSS1
-{
+}; };
+struct CSSTextAlign // CSS1
+{ enum {
 	LEFT, // Default for direction: ltr;
 	RIGHT, // Default for direction: rtl;
 	CENTER,
 	JUSTIFY,
-}
-enum CSSTextAlignLast // CSS3
-{
+}; };
+struct CSSTextAlignLast // CSS3
+{ enum {
 	AUTO, // Default
 	LEFT,
 	RIGHT,
@@ -343,24 +343,24 @@ enum CSSTextAlignLast // CSS3
 	JUSTIFY,
 	START,
 	END,
-}
-enum CSSTextDecorationLine // CSS3
-{
+}; };
+struct CSSTextDecorationLine // CSS3
+{ enum {
 	NONE, // Default
 	UNDERLINE,
 	OVERLINE,
 	LINE_THROUGH,
-}
-enum CSSTextDecorationStyle // CSS3
-{
+}; };
+struct CSSTextDecorationStyle // CSS3
+{ enum {
 	SOLID, // Default
 	DOUBLE,
 	DOTTED,
 	DASHED,
 	WAVY,
-}
-enum CSSTextJustify // CSS3
-{
+}; };
+struct CSSTextJustify // CSS3
+{ enum {
 	AUTO,
 	INTER_WORD,
 	INTER_IDEOGRAPH,
@@ -369,48 +369,48 @@ enum CSSTextJustify // CSS3
 	KASHIDA,
 	TRIM,
 	NONE,
-}
-enum CSSTextTransform // CSS1
-{
+}; };
+struct CSSTextTransform // CSS1
+{ enum {
 	NONE,
 	CAPITALIZE,
 	UPPERCASE,
 	LOWERCASE,
-}
-enum CSSTransformStyle // CSS3
-{
+}; };
+struct CSSTransformStyle // CSS3
+{ enum {
 	FLAT,
 	PRESERVE_3D,
-}
-enum CSSUnicodeBidi // CSS2
-{
+}; };
+struct CSSUnicodeBidi // CSS2
+{ enum {
 	NORMAL, // Default
 	EMBED,
-	BIDI-OVERRIDE,
-}
-enum CSSVisibility // CSS2
-{
+	BIDI_OVERRIDE,
+}; };
+struct CSSVisibility // CSS2
+{ enum {
 	VISIBLE, // Default
 	HIDDEN,
 	COLLAPSE,
-}
-enum CSSWhiteSpace // CSS1
-{
+}; };
+struct CSSWhiteSpace // CSS1
+{ enum {
 	NORMAL, // Default
 	NOWRAP,
 	PRE,
 	PRE_LINE,
 	PRE_WRAP,
-}
-enum CSSWordBreak // CSS3
-{
+}; };
+struct CSSWordBreak // CSS3
+{ enum {
 	NORMAL, // Default
 	BREAK_ALL,
 	KEEP_ALL,
-}
-enum CSSWordWrap // CSS3
-{
+}; };
+struct CSSWordWrap // CSS3
+{ enum {
 	NORMAL, // DEFAULT
 	BREAK_WORD,
-}
+}; };
 #endif

@@ -14,7 +14,7 @@
 #define html_yaccer_included yes
 
 #include "html_lexer.h"
-#include "css_enums.h"
+#include "css_values.h"
 
 class HTMLElement
 {
