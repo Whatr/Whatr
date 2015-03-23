@@ -13,6 +13,29 @@
 #ifndef css_enums_included
 #define css_enums_included yes
 
+// Used for multiple properties:
+enum CSSLineStyle // CSS1 border-style, CSS2 outline-style, CSS3 column-rule-style
+{
+	NONE, // Default
+	HIDDEN,
+	DOTTED,
+	DASHED,
+	SOLID,
+	DOUBLE,
+	GROOVE,
+	RIDGE,
+	INSET,
+	OUTSET,
+};
+enum CSSOverflow // CSS2 overflow, CSS3 overflow-x, CSS3 overflow-y
+{
+	VISIBLE, // Default
+	HIDDEN,
+	SCROLL,
+	AUTO,
+}
+
+// Used for a single property:
 enum CSSAlignContent // CSS3
 {
 	STRETCH, // Default
@@ -88,19 +111,6 @@ enum CSSBackgroundRepeat // CSS1
 	REPEAT_Y,
 	NO_REPEAT,
 };
-enum CSSBorderStyle // CSS1
-{
-	NONE, // Default
-	HIDDEN,
-	DOTTED,
-	DASHED,
-	SOLID,
-	DOUBLE,
-	GROOVE,
-	RIDGE,
-	INSET,
-	OUTSET,
-};
 enum CSSBorderCollapse // CSS2
 {
 	SEPARATE, // Default
@@ -135,19 +145,6 @@ enum CSSColumnFill // CSS3
 	BALANCE, // Default
 	AUTO,
 };
-enum CSSColumnRuleStyle // CSS3
-{
-	NONE, // Default
-	HIDDEN,
-	DOTTED,
-	DASHED,
-	SOLID,
-	DOUBLE,
-	GROOVE,
-	RIDGE,
-	INSET,
-	OUTSET,
-};
 enum CSSColumnSpan // CSS3
 {
 	ONE, // Default
@@ -179,10 +176,241 @@ enum CSSDisplay
 	TABLE_ROW,
 	NONE,
 };
-enum CSSPosition
+enum CSSEmptyCells // CSS2
 {
-	FIXED,
+	SHOW, // Default
+	HIDE,
+};
+enum CSSFlexDirection // CSS3
+{
+	ROW,
+	ROW_REVERSE,
+	COLUMN,
+	COLUMN_REVERSE,
+};
+enum CSSFlexWrap // CSS3
+{
+	NOWRAP, // Default
+	WRAP,
+	WRAP_REVERSE,
+};
+enum CSSFloat // CSS1
+{
+	NONE, // Default
+	LEFT,
+	RIGHT,
+};
+enum CSSFontStretch // CSS3
+{
+	ULTRA_CONDENSED,
+	EXTRA_CONDENSED,
+	CONDENSED,
+	SEMI_CONDENSED,
+	NORMAL, // Default
+	SEMI_EXPANDED,
+	EXPANDED,
+	EXTRA_EXPANDED,
+	ULTRA_EXPANDED,
+};
+enum CSSFontStyle // CSS1
+{
+	NORMAL, // Default
+	ITALIC,
+	OBLIQUE,
+};
+enum CSSFontVariant // CSS1
+{
+	NORMAL, // Default
+	SMALL_CAPS,
+};
+enum CSSFontWeight // CSS1
+{
+	ONE_HUNDRED,
+	TWO_HUNDRED,
+	THREE_HUNDRED,
+	FOUR_HUNDRED,
+	FIVE_HUNDRED,
+	SIX_HUNDRED,
+	SEVEN_HUNDRED,
+	EIGHT_HUNDRED,
+	NINE_HUNDRED,
+	
+	LIGHTER,
+	NORMAL=ONE_HUNDRED, // Default
+	BOLD=FOUR_HUNDRED,
+	BOLDER=NINE_HUNDRED,
+};
+enum CSSHangingPunctuation // CSS3
+{
+	NONE, // Default
+	FIRST,
+	LAST,
+	ALLOW_END,
+	FORCE_END,
+};
+enum CSSJustifyContent // CSS3
+{
+	FLEX_START, // Default
+	FLEX_END,
+	CENTER,
+	SPACE_BETWEEN,
+	SPACE_AROUND,
+};
+enum CSSListStylePosition // CSS1
+{
+	INSIDE,
+	OUTSIDE, // Default
+};
+enum CSSListStyleType // CSS1
+{
+	DISC, // Default
+	ARMENIAN,
+	CIRCLE,
+	CJK_IDEOGRAPHIC,
+	DECIMAL,
+	DECIMAL_LEADING_ZERO,
+	GEORGIAN,
+	HEBREW,
+	HIRAGANA,
+	HIRAGANA_IROHA,
+	KATAKANA,
+	KATAKANA_IROHA,
+	LOWER_ALPHA,
+	LOWER_GREEK,
+	LOWER_LATIN,
+	LOWER_ROMAN,
+	NONE,
+	SQUARE,
+	UPPER_ALPHA,
+	UPPER_LATIN,
+	UPPER_ROMAN,
+}
+enum CSSPageBreakAfter // CSS2
+{
+	AUTO, // Default
+	ALWAYS,
+	AVOID,
+	LEFT,
+	RIGHT,
+}
+enum CSSPageBreakBefore // CSS2
+{
+	AUTO, // Default
+	ALWAYS,
+	AVOID,
+	LEFT,
+	RIGHT,
+}
+enum CSSPageBreakInside // CSS2
+{
+	AUTO, // Default
+	AVOID,
+	LEFT,
+	RIGHT,
+}
+enum CSSPosition // CSS2
+{
+	STATIC, // Default
 	ABSOLUTE,
+	FIXED,
 	RELATIVE,
 };
+enum CSSResize // CSS3
+{
+	NONE, // Default
+	BOTH,
+	HORIZONTAL,
+	VERTICAL,
+}
+enum CSSTableLayout // CSS2
+{
+	AUTO, // Default
+	FIXED,
+}
+enum CSSTextAlign // CSS1
+{
+	LEFT, // Default for direction: ltr;
+	RIGHT, // Default for direction: rtl;
+	CENTER,
+	JUSTIFY,
+}
+enum CSSTextAlignLast // CSS3
+{
+	AUTO, // Default
+	LEFT,
+	RIGHT,
+	CENTER,
+	JUSTIFY,
+	START,
+	END,
+}
+enum CSSTextDecorationLine // CSS3
+{
+	NONE, // Default
+	UNDERLINE,
+	OVERLINE,
+	LINE_THROUGH,
+}
+enum CSSTextDecorationStyle // CSS3
+{
+	SOLID, // Default
+	DOUBLE,
+	DOTTED,
+	DASHED,
+	WAVY,
+}
+enum CSSTextJustify // CSS3
+{
+	AUTO,
+	INTER_WORD,
+	INTER_IDEOGRAPH,
+	INTER_CLUSTER,
+	DISTRIBUTE,
+	KASHIDA,
+	TRIM,
+	NONE,
+}
+enum CSSTextTransform // CSS1
+{
+	NONE,
+	CAPITALIZE,
+	UPPERCASE,
+	LOWERCASE,
+}
+enum CSSTransformStyle // CSS3
+{
+	FLAT,
+	PRESERVE_3D,
+}
+enum CSSUnicodeBidi // CSS2
+{
+	NORMAL, // Default
+	EMBED,
+	BIDI-OVERRIDE,
+}
+enum CSSVisibility // CSS2
+{
+	VISIBLE, // Default
+	HIDDEN,
+	COLLAPSE,
+}
+enum CSSWhiteSpace // CSS1
+{
+	NORMAL, // Default
+	NOWRAP,
+	PRE,
+	PRE_LINE,
+	PRE_WRAP,
+}
+enum CSSWordBreak // CSS3
+{
+	NORMAL, // Default
+	BREAK_ALL,
+	KEEP_ALL,
+}
+enum CSSWordWrap // CSS3
+{
+	NORMAL, // DEFAULT
+	BREAK_WORD,
+}
 #endif
