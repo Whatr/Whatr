@@ -13,6 +13,8 @@
 #ifndef css_values_included
 #define css_values_included yes
 
+
+
 // Used for multiple properties:
 struct CSSLineStyle // CSS1 border-style, CSS2 outline-style, CSS3 column-rule-style
 { enum {
@@ -36,7 +38,7 @@ struct CSSOverflow // CSS2 overflow, CSS3 overflow-x, CSS3 overflow-y
 }; };
 
 // Used for a single property:
-struct CSSAlignContent // CSS3
+/*struct CSSAlignContent // CSS3
 { enum {
 	STRETCH, // Default
 	CENTER,
@@ -85,14 +87,14 @@ struct CSSBackfaceVisibility // CSS3
 { enum {
 	VISIBLE, // Default
 	HIDDEN,
-}; };
+}; };*/
 struct CSSBackgroundAttachment // CSS1
 { enum {
 	SCROLL, // Default
 	FIXED,
 	LOCAL,
 }; };
-struct CSSBackgroundClip // CSS3
+/*struct CSSBackgroundClip // CSS3
 { enum {
 	BORDER_BOX, // Default
 	PADDING_BOX,
@@ -103,7 +105,7 @@ struct CSSBackgroundOrigin // CSS3
 	PADDING_BOX, // Default
 	BORDER_BOX,
 	CONTENT_BOX,
-}; };
+}; };*/
 struct CSSBackgroundRepeat // CSS1
 { enum {
 	REPEAT,
@@ -116,7 +118,7 @@ struct CSSBorderCollapse // CSS2
 	SEPARATE, // Default
 	COLLAPSE,
 }; };
-struct CSSBorderImageRepeat // CSS3
+/*struct CSSBorderImageRepeat // CSS3
 { enum {
 	STRETCH, // Default
 	REPEAT,
@@ -127,7 +129,7 @@ struct CSSBoxSizing // CSS3
 { enum {
 	CONTENT_BOX, // Default
 	BORDER_BOX,
-}; };
+}; };*/
 struct CSSCaptionSide // CSS2
 { enum {
 	TOP, // Default
@@ -140,7 +142,7 @@ struct CSSClear // CSS1
 	RIGHT,
 	BOTH,
 }; };
-struct CSSColumnFill // CSS3
+/*struct CSSColumnFill // CSS3
 { enum {
 	BALANCE, // Default
 	AUTO,
@@ -149,7 +151,7 @@ struct CSSColumnSpan // CSS3
 { enum {
 	ONE, // Default
 	ALL,
-}; };
+}; };*/
 struct CSSDirection // CSS2
 { enum {
 	LTR, // Default
@@ -181,7 +183,7 @@ struct CSSEmptyCells // CSS2
 	SHOW, // Default
 	HIDE,
 }; };
-struct CSSFlexDirection // CSS3
+/*struct CSSFlexDirection // CSS3
 { enum {
 	ROW,
 	ROW_REVERSE,
@@ -193,14 +195,14 @@ struct CSSFlexWrap // CSS3
 	NOWRAP, // Default
 	WRAP,
 	WRAP_REVERSE,
-}; };
+}; };*/
 struct CSSFloat // CSS1
 { enum {
 	NONE, // Default
 	LEFT,
 	RIGHT,
 }; };
-struct CSSFontStretch // CSS3
+/*struct CSSFontStretch // CSS3
 { enum {
 	ULTRA_CONDENSED,
 	EXTRA_CONDENSED,
@@ -211,7 +213,7 @@ struct CSSFontStretch // CSS3
 	EXPANDED,
 	EXTRA_EXPANDED,
 	ULTRA_EXPANDED,
-}; };
+}; };*/
 struct CSSFontStyle // CSS1
 { enum {
 	NORMAL, // Default
@@ -240,7 +242,7 @@ struct CSSFontWeight // CSS1
 	BOLD=FOUR_HUNDRED,
 	BOLDER=NINE_HUNDRED,
 }; };
-struct CSSHangingPunctuation // CSS3
+/*struct CSSHangingPunctuation // CSS3
 { enum {
 	NONE, // Default
 	FIRST,
@@ -255,7 +257,7 @@ struct CSSJustifyContent // CSS3
 	CENTER,
 	SPACE_BETWEEN,
 	SPACE_AROUND,
-}; };
+}; };*/
 struct CSSListStylePosition // CSS1
 { enum {
 	INSIDE,
@@ -334,7 +336,7 @@ struct CSSTextAlign // CSS1
 	CENTER,
 	JUSTIFY,
 }; };
-struct CSSTextAlignLast // CSS3
+/*struct CSSTextAlignLast // CSS3
 { enum {
 	AUTO, // Default
 	LEFT,
@@ -369,7 +371,7 @@ struct CSSTextJustify // CSS3
 	KASHIDA,
 	TRIM,
 	NONE,
-}; };
+}; };*/
 struct CSSTextTransform // CSS1
 { enum {
 	NONE,
@@ -377,11 +379,11 @@ struct CSSTextTransform // CSS1
 	UPPERCASE,
 	LOWERCASE,
 }; };
-struct CSSTransformStyle // CSS3
+/*struct CSSTransformStyle // CSS3
 { enum {
 	FLAT,
 	PRESERVE_3D,
-}; };
+}; };*/
 struct CSSUnicodeBidi // CSS2
 { enum {
 	NORMAL, // Default
@@ -402,7 +404,7 @@ struct CSSWhiteSpace // CSS1
 	PRE_LINE,
 	PRE_WRAP,
 }; };
-struct CSSWordBreak // CSS3
+/*struct CSSWordBreak // CSS3
 { enum {
 	NORMAL, // Default
 	BREAK_ALL,
@@ -412,5 +414,5 @@ struct CSSWordWrap // CSS3
 { enum {
 	NORMAL, // DEFAULT
 	BREAK_WORD,
-}; };
+}; };*/
 #endif
