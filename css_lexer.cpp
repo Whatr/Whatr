@@ -151,6 +151,15 @@ void* cssLexThreadFunc(void* args)
 					buffer += c;
 				}
 				else if (c=='/') {} // Ignore /
+				else if (c=='%')
+				{
+					CSSToken t;
+					t.type = 2;
+					t.text = buffer;
+					CSSTokens->push_back(t);
+					buffer = std::string("");
+					currentType = -1;
+				}
 				else
 				{
 					CSSToken t;
