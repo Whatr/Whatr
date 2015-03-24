@@ -197,6 +197,7 @@ int main(int argc, char* argv[])
 	
 	auto time_4 = std::chrono::high_resolution_clock::now();
 	while (lexingPage){}
+	usleep(100000);
 	auto time_4b = std::chrono::high_resolution_clock::now();
 	///////////////////////////////////
 	////// Start thread that yaccs the HTML tags

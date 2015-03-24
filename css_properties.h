@@ -10,33 +10,13 @@
 /* You should have received a copy of the GNU General Public License
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>  */
 
-#ifndef css_yaccer_included
-#define css_yaccer_included yes
+#ifndef css_properties_included
+#define css_properties_included yes
 
-#include "css_lexer.h"
-#include "css_selector.h"
-#include "css_values.h"
-
-class CSSClass
+enum CSSProperty
 {
-public:
-	CSSSelector selector;
-	std::vector<std::string> ruleNames;
-	std::vector<CSSValue> ruleValues;
+	BACKGROUND_COLOR,
+	WIDTH,
 };
-class cssYaccArgs
-{
-public:
-	int* yaccingCSS;
-	std::vector<CSSToken>* CSSTokens;
-	std::vector<CSSClass>* CSSClasses;
-	cssYaccArgs(int* yaccingCSS,
-				std::vector<CSSToken>* CSSTokens,
-				std::vector<CSSClass>* CSSClasses):
-		yaccingCSS(yaccingCSS),
-		CSSTokens(CSSTokens),
-		CSSClasses(CSSClasses){};
-};
-void* cssYaccThreadFunc(void* args);
 
 #endif

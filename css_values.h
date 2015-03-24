@@ -13,7 +13,21 @@
 #ifndef css_values_included
 #define css_values_included yes
 
-
+struct CSSValue
+{
+	int text;	// 0 = nope, 1 = yup
+	int length;	// 0 = nope, 1 = px, 2 = em, 3 = %
+	int color;	// 0 = nope, 1 = yup
+	int time;	// 0 = nope, 1 = ms, 2 = s
+	
+	union
+	{
+		int textValue;
+		double lengthValue;
+		int colorValue;
+		double timeValue;
+	};
+};
 
 // Used for multiple properties:
 struct CSSLineStyle // CSS1 border-style, CSS2 outline-style, CSS3 column-rule-style

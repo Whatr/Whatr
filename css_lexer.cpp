@@ -204,7 +204,7 @@ void* cssLexThreadFunc(void* args)
 						currentType = -1;
 						seenLetter = seenDigit = 0;
 					}
-					else
+					else if (buffer.at(0)=='#')
 					{
 						std::cout << RED << "Lexer error: Lol wtf\n";
 					}
