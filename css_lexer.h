@@ -16,7 +16,7 @@
 class CSSToken
 {
 public:
-	int type; // 0 = string, 1 = operator, 2 = percentage
+	int type; // 0 = string, 1 = operator, 2 = percentage, 3 = number
 	std::string text;
 };
 class cssLexArgs

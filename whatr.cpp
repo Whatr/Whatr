@@ -171,6 +171,10 @@ int main(int argc, char* argv[])
 	
 	auto time_3 = std::chrono::high_resolution_clock::now();
 	while (downloadingPage){}
+	
+	PRINT(DOWNLOADED HTML:);
+	std::cout << downloadedHTML << "\n";
+	
 	auto time_3b = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
@@ -190,9 +194,6 @@ int main(int argc, char* argv[])
 			return 0;
 		}
 	}
-	
-	PRINT(DOWNLOADED HTML:);
-	std::cout << downloadedHTML << "\n";
 	
 	auto time_4 = std::chrono::high_resolution_clock::now();
 	while (lexingPage){}
@@ -408,6 +409,7 @@ int main(int argc, char* argv[])
 	///////////////////////////////////
 	////// Create window
 	
+	/*
 	char testString[] = "blablabla";
 	
 	testText.chars = testString;
@@ -505,7 +507,8 @@ int main(int argc, char* argv[])
 
 	XDestroyWindow(dsp, win);
 	XCloseDisplay(dsp);
-
+	*/
+	
 	return 0;
 }
 void printTree(HTMLElement* currentElement, std::string tabs)

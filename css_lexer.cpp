@@ -44,6 +44,8 @@ void* cssLexThreadFunc(void* args)
 		int i = 0;
 		
 		int currentType = -1; // 0 = string, 1 = operator
+		int seenLetter = 0;
+		int seenDigit = 0;
 		
 		std::string buffer = std::string("");
 		
@@ -129,6 +131,7 @@ void* cssLexThreadFunc(void* args)
 				else if (	(c>='a' && c<='z') ||
 							(c>='0' && c<='9') ||
 							c=='#' ||
+							c=='-' ||
 							c=='.'
 						)
 				{
@@ -138,36 +141,73 @@ void* cssLexThreadFunc(void* args)
 				else if (c=='/'){} // Ignore /
 				else
 				{
-					std::cout << RED << "CSS Lexer error: Unexpected character '" << c << "'\n" << NOCLR;
+					std::cout << RED << "CSS Lexer error: Unexpected character '" << c << "' (in " << currentType << ")\n" << NOCLR;
 				}
 			}
 			else if (currentType==0)
 			{
-				if ((c>='a' && c<='z') ||
-					(c>='A' && c<='Z') ||
-					(c>='0' && c<='9') ||
-					 c=='-')
+				if (c>='0' && c<='9')
+				{
+					buffer += c;
+					seenDigit = 1;
+				}
+				else if (((c>='a' && c<='z') ||
+						  (c>='A' && c<='Z'))
+						&& (seenLetter || !seenDigit))
+				{
+					buffer += c;
+					seenLetter = 1;
+				}
+				else if ((c=='-' && !seenDigit) ||
+						 (c=='.' && (buffer.size()==0 || seenDigit)))
 				{
 					buffer += c;
 				}
 				else if (c=='/') {} // Ignore /
 				else if (c=='%')
 				{
-					CSSToken t;
-					t.type = 2;
-					t.text = buffer;
-					CSSTokens->push_back(t);
-					buffer = std::string("");
-					currentType = -1;
+					if (seenLetter || !seenDigit)
+					{
+						std::cout << RED << "CSS Lexer error: Unexpected character '" << c << "'\n" << NOCLR;
+					
+					}
+					else // It was a percentage
+					{
+						CSSToken t;
+						t.type = 2;
+						t.text = buffer;
+						CSSTokens->push_back(t);
+						buffer = std::string("");
+						currentType = -1;
+						seenLetter = seenDigit = 0;
+					}
 				}
 				else
 				{
-					CSSToken t;
-					t.type = 0;
-					t.text = buffer;
-					CSSTokens->push_back(t);
-					buffer = std::string("");
-					currentType = -1;
+					if (seenLetter) // It was a string
+					{
+						CSSToken t;
+						t.type = 0;
+						t.text = buffer;
+						CSSTokens->push_back(t);
+						buffer = std::string("");
+						currentType = -1;
+						seenLetter = seenDigit = 0;
+					}
+					else if (seenDigit) // It was a number
+					{
+						CSSToken t;
+						t.type = 3;
+						t.text = buffer;
+						CSSTokens->push_back(t);
+						buffer = std::string("");
+						currentType = -1;
+						seenLetter = seenDigit = 0;
+					}
+					else
+					{
+						std::cout << RED << "Lexer error: Lol wtf\n";
+					}
 					if (c==' ' || c=='\n' || c=='\t' || c=='\r')
 					{
 						CSSToken t;
@@ -208,6 +248,7 @@ void* cssLexThreadFunc(void* args)
 					CSSTokens->push_back(t);
 					buffer = std::string("");
 					currentType = -1;
+					seenLetter = seenDigit = 0;
 					continue;
 				}
 				else if (c==' ' || c=='\n' || c=='\t' || c=='\r')
@@ -218,6 +259,7 @@ void* cssLexThreadFunc(void* args)
 					CSSTokens->push_back(t);
 					buffer = std::string("");
 					currentType = -1;
+					seenLetter = seenDigit = 0;
 					{
 						CSSToken t;
 						t.type = 1;

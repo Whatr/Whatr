@@ -52,7 +52,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 			CSSSelectAll(from, &selected);
 			op = '\0';
 		}
-		else if (op==' ') // (ss->type == 0)
+		else if (ss->type == 0)
 		{
 			/*
 			Delete current selection and make a new one based upon it
