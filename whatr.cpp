@@ -35,8 +35,21 @@
 #include "css_applyer.h"
 #include "css_selector.h"
 #include "renderer_1.h"
+#include "css_values.h"
 
 void update_screen();
+
+void printCSSValue(CSSValue val)
+{
+	std::cout << "("	<< val.text << ","
+						<< val.length << ","
+						<< val.color << ","
+						<< val.time << ")=("
+						<< val.textValue << ","
+						<< val.lengthValue << ","
+						<< val.colorValue << ","
+						<< val.timeValue << ")";
+}
 
 int XRES = 500;
 int YRES = 500;
@@ -323,8 +336,9 @@ int main(int argc, char* argv[])
 			std::cout << "--- Class rules:\n";
 			for (int j=0;j<CSSClasses.at(i).ruleNames.size();j++)
 			{
-				std::cout	<< CSSClasses.at(i).ruleNames .at(j) << ": "
-							<< CSSClasses.at(i).ruleValues.at(j) << "\n";
+				std::cout << CSSClasses.at(i).ruleNames.at(j) << ": ";
+				printCSSValue(CSSClasses.at(i).ruleValues.at(j));
+				std::cout << "\n";
 			}
 		}
 	}
@@ -529,8 +543,9 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 		std::cout << " computedStyle=\"";
 		for (int i=0;i<currentElement->styleFields.size();i++)
 		{
-			std::cout	<< currentElement->styleFields.at(i) << ":"
-						<< currentElement->styleValues.at(i) << ";";
+			std::cout << currentElement->styleFields.at(i) << ":";
+			printCSSValue(currentElement->styleValues.at(i));
+			std::cout << ";";
 		}
 		std::cout << "\"";
 		std::cout << "/>\n";
@@ -546,8 +561,9 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 		std::cout << " computedStyle=\"";
 		for (int i=0;i<currentElement->styleFields.size();i++)
 		{
-			std::cout	<< currentElement->styleFields.at(i) << ":"
-						<< currentElement->styleValues.at(i) << ";";
+			std::cout << currentElement->styleFields.at(i) << ":";
+			printCSSValue(currentElement->styleValues.at(i));
+			std::cout << ";";
 		}
 		std::cout << "\"";
 		std::cout << ">\n";

@@ -23,6 +23,77 @@
 #include "log_funcs.hpp"
 #include "css_yaccer.h"
 #include "css_lexer.h"
+#include "css_values.h"
+
+CSSValue parseRuleValue(CSSToken t1, CSSToken t2)
+{
+	CSSValue ret;
+	ret.text = 0;
+	ret.length = 0;
+	ret.color = 0;
+	ret.time = 0;
+	if (t2.type==0) // String
+	{
+		if (t2.text==std::string("px"))
+		{
+			ret.length = 1;
+			std::string::size_type sz;
+			ret.lengthValue = std::stod(t1.text, &sz);
+		}
+		else if (t2.text==std::string("em"))
+		{
+			ret.length = 2;
+			std::string::size_type sz;
+			ret.lengthValue = std::stod(t1.text, &sz);
+		}
+		else if (t2.text==std::string("ms"))
+		{
+			ret.time = 1;
+			std::string::size_type sz;
+			ret.timeValue = std::stod(t1.text, &sz);
+		}
+		else if (t2.text==std::string("s"))
+		{
+			ret.time = 2;
+			std::string::size_type sz;
+			ret.timeValue = std::stod(t1.text, &sz);
+		}
+		else if (t2.text==std::string("red"))
+		{
+			ret.color = 1;
+			ret.colorValue = 0xFF000000;
+		}
+		else if (t2.text==std::string("green"))
+		{
+			ret.color = 1;
+			ret.colorValue = 0x00FF0000;
+		}
+		else if (t2.text==std::string("blue"))
+		{
+			ret.color = 1;
+			ret.colorValue = 0x0000FF00;
+		}
+		else
+		{
+			std::cout << RED << "CSS Yaccer error: Unexpected string " << t2.text << "\n" << NOCLR;
+		}
+	}
+	else if (t2.type==1) // Operator
+	{
+			std::cout << RED << "CSS Yaccer error: Unexpected operator " << t2.text << "\n" << NOCLR;
+	}
+	else if (t2.type==2) // Percentage
+	{
+		ret.length = 3;
+		std::string::size_type sz;
+		ret.lengthValue = std::stod(t1.text, &sz);
+	}
+	else
+	{
+		std::cout << RED << "CSS Yaccer error: Unexpected t2.type " << t2.type << "\n" << NOCLR;
+	}
+	return ret;
+}
 
 void* cssYaccThreadFunc(void* args)
 {
@@ -378,7 +449,7 @@ void* cssYaccThreadFunc(void* args)
 					else
 					{
 						std::cout << "Added rule value " << t.text << "\n";
-						curC.ruleValues.push_back(t.text);
+						curC.ruleValues.push_back(parseRuleValue(CSSTokens->at(i-1), t));
 					}
 				}
 				else if (t.type==1) // Current token is an op

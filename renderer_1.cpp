@@ -46,14 +46,14 @@ void* renderer1ThreadFunc(void* args)
 void recursiveRenderer1(HTMLElement* el)
 {
 	std::cout << "recursiveRenderer1 is at a <" << el->text << "...>\n";
-	if (el->text==std::string("a"))
+	/*if (el->text==std::string("a"))
 	{
 		// ???
 		/*
 		el->styleFields.push_back(std::string(""));
 		el->styleValues.push_back(std::string(""));
 		*/
-	}
+	/*}
 	else if (el->text==std::string("abbr"))
 	{
 		el->text = std::string("span");
@@ -87,7 +87,7 @@ void recursiveRenderer1(HTMLElement* el)
 		el->text = std::string("");
 		el->styleFields.push_back(std::string(""));
 		el->styleValues.push_back(std::string(""));
-	}
+	}*/
 	for (	std::vector<HTMLElement*>::iterator h=el->children.begin();
 			h!=el->children.end();
 			h++)

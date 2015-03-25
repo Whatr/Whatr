@@ -31,7 +31,7 @@ public:
 	
 	// CSS applyer stuff:
 	std::vector<std::string> styleFields;
-	std::vector<std::string> styleValues;
+	std::vector<CSSValue> styleValues;
 	int top = 0, left = 0, bottom = 0, right = 0;
 	CSSDisplay cssDisplay;
 	CSSPosition cssPosition;

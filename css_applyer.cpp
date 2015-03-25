@@ -19,6 +19,7 @@
 #include "css_yaccer.h"
 #include "css_applyer.h"
 #include "css_selector.h"
+#include "css_values.h"
 
 void* cssApplyThreadFunc(void* args)
 {
@@ -49,7 +50,7 @@ void* cssApplyThreadFunc(void* args)
 			for (int i=0;i<c->ruleNames.size();i++)
 			{
 				std::string name = c->ruleNames.at(i);
-				std::string value = c->ruleValues.at(i);
+				CSSValue value = c->ruleValues.at(i);
 				std::cout << "CSSSelect returned: ";
 				std::cout << (*el)->text << "\n";
 				(*el)->styleFields.push_back(name);

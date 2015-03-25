@@ -13,6 +13,8 @@
 #ifndef css_values_included
 #define css_values_included yes
 
+#include <iostream>
+
 struct CSSValue
 {
 	int text;	// 0 = nope, 1 = yup
