@@ -114,7 +114,7 @@ void* cssYaccThreadFunc(void* args)
 		int i = 0;
 		
 		int inWhat = 0; // 0 = in selector, 1 = in rule pre :, 2 = in rule post :
-		
+		int ruleValueStartI = -1;
 		
 		//------------ This only applies when inWhat==0
 		int inWhatWhat = 0; // 0 = normal, 1 = inside []
@@ -416,6 +416,7 @@ void* cssYaccThreadFunc(void* args)
 					{
 						std::cout << "Encountered : - now in rule after :\n";
 						inWhat = 2;
+						ruleValueStartI = i;
 					}
 					else if (t.text==std::string("}"))
 					{

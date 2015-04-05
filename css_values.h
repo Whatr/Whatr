@@ -14,13 +14,24 @@
 #define css_values_included yes
 
 #include <iostream>
+#include <string>
 
 struct CSSValue
 {
+	// 100:
 	int text;	// 0 = nope, 1 = yup
+	
+	// 101:
 	int length;	// 0 = nope, 1 = px, 2 = em, 3 = %
+	
+	// 102:
 	int color;	// 0 = nope, 1 = yup
+	
+	// 103:
 	int time;	// 0 = nope, 1 = ms, 2 = s
+	
+	// 104:
+	//int url;	// 0 = nope, 1 = yup
 	
 	union
 	{
@@ -28,6 +39,7 @@ struct CSSValue
 		double lengthValue;
 		int colorValue;
 		double timeValue;
+		//std::string urlValue;
 	};
 };
 
@@ -52,6 +64,20 @@ struct CSSOverflow // CSS2 overflow, CSS3 overflow-x, CSS3 overflow-y
 	SCROLL,
 	AUTO,
 }; };
+struct CSSBorderColor // CSS1 border-(bottom|top|left|right)-color
+{ enum {
+	TRANSPARENT, // Default
+	VAL_COLOR=102,
+}; };
+struct CSSBorderWidth // CSS1 border-(bottom|top|left|right)-width
+{ enum {
+	VAL_LENGTH=101, // Default
+}; };
+/*struct CSSBorderRadius // CSS3 border-(bottom|top)-(left|right)-radius
+{ enum {
+	VAL_LENGTH=101, // Default
+}; };*/
+
 
 // Used for a single property:
 /*struct CSSAlignContent // CSS3
@@ -110,29 +136,68 @@ struct CSSBackgroundAttachment // CSS1
 	FIXED,
 	LOCAL,
 }; };
+struct CSSBackgroundColor // CSS1
+{ enum {
+	TRANSPARENT, // Default
+	VAL_COLOR=102,
+}; };
+struct CSSBackgroundImage // CSS1
+{ enum {
+	NONE, // Default
+	VAL_URL=104,
+}; };
 /*struct CSSBackgroundClip // CSS3
 { enum {
 	BORDER_BOX, // Default
 	PADDING_BOX,
 	CONTENT_BOX,
-}; };
-struct CSSBackgroundOrigin // CSS3
+}; };*/
+
+/*struct CSSBackgroundOrigin // CSS3
 { enum {
 	PADDING_BOX, // Default
 	BORDER_BOX,
 	CONTENT_BOX,
 }; };*/
+struct CSSBackgroundPositionX // CSS1
+{ enum {
+	LEFT,
+	CENTER,
+	RIGHT,
+	VAL_LENGTH=101, // Default: 0%
+}; };
+struct CSSBackgroundPositionY // CSS1
+{ enum {
+	TOP,
+	CENTER,
+	BOTTOM,
+	VAL_LENGTH=101, // Default: 0%
+}; };
+
 struct CSSBackgroundRepeat // CSS1
 { enum {
-	REPEAT,
+	REPEAT, // Default
 	REPEAT_X,
 	REPEAT_Y,
 	NO_REPEAT,
 }; };
+
+/*struct CSSBackgroundSize // CSS3
+{ enum {
+	AUTO, // Default
+	COVER,
+	CONTAIN,
+	VAL_LENGTH=101,
+}; };*/
+
 struct CSSBorderCollapse // CSS2
 { enum {
 	SEPARATE, // Default
 	COLLAPSE,
+}; };
+struct CSSBorderSpacing // CSS2
+{ enum {
+	VAL_LENGTH=101, // Default: 0px
 }; };
 /*struct CSSBorderImageRepeat // CSS3
 { enum {
@@ -333,6 +398,7 @@ struct CSSPosition // CSS2
 	FIXED,
 	RELATIVE,
 }; };
+/*
 struct CSSResize // CSS3
 { enum {
 	NONE, // Default
@@ -340,6 +406,7 @@ struct CSSResize // CSS3
 	HORIZONTAL,
 	VERTICAL,
 }; };
+*/
 struct CSSTableLayout // CSS2
 { enum {
 	AUTO, // Default
