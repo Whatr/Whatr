@@ -1,3 +1,5 @@
+#include <string>
+
 class ConstStr
 {
 public:
@@ -6,17 +8,30 @@ public:
 	char* start;
 	int length;
 	
+	//ConstStr(char*
+	
 	// String functions:
-	bool operator == (ConstStr& str2) // Equals
+	bool operator == (ConstStr& str) // Equals
 	{
-		if (this->length!=str1.length) return false;
+		if (this->length!=str.length) return false;
 		char* c1 = this->start;
-		char* c2 = str2.start;
+		char* c2 = str.start;
 		for (int i=0;i<this->length;i++)
 		{
 			if (*c1 != *c2) return false;
 			c1++;
 			c2++;
+		}
+		return true;
+	}
+	bool operator == (std::string& str) // Equals
+	{
+		if (this->length!=str.size()) return false;
+		char* c1 = this->start;
+		for (int i=0;i<this->length;i++)
+		{
+			if (*c1 != str.at(i)) return false;
+			c1++;
 		}
 		return true;
 	}

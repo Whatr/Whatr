@@ -25,13 +25,33 @@
 #include "css_lexer.h"
 #include "css_values.h"
 
-CSSValue parseRuleValue(CSSToken t1, CSSToken t2)
+CSSValue parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
 {
+	int length = end-start;
 	CSSValue ret;
 	ret.text = 0;
 	ret.length = 0;
 	ret.color = 0;
 	ret.time = 0;
+	if (length<0)
+	{
+		ERROR(CSS error: WTF length of value < 0 wtf impossibru);
+		return ret;
+	}
+	else if (length==0)
+	{
+		ERROR(Fatal CSS error: empty rule value);
+		return ret;
+	}
+	if (length==1) // 20  red  #FFF  #test
+	{
+		
+	}  
+	else if (length==2) // 20px
+	{
+		
+	}
+	
 	if (t2.type==0) // String
 	{
 		if (t2.text==std::string("px"))
@@ -449,8 +469,7 @@ void* cssYaccThreadFunc(void* args)
 					}
 					else
 					{
-						std::cout << "Added rule value " << t.text << "\n";
-						curC.ruleValues.push_back(parseRuleValue(CSSTokens->at(i-1), t));
+						std::cout << "Test :)";
 					}
 				}
 				else if (t.type==1) // Current token is an op
@@ -459,6 +478,7 @@ void* cssYaccThreadFunc(void* args)
 					{
 						std::cout << "Encountered ; - now in rule before :\n";
 						inWhat = 1;
+						curC.ruleValues.push_back(parseRuleValue(&CSSTokens, ruleValueStartI, i-1));
 					}
 					else if (t.text==std::string("}"))
 					{
