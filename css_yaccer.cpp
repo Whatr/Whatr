@@ -27,6 +27,9 @@
 
 CSSValue parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
 {
+	// start points to the :
+	// end points to the token before the ;
+	printf("parseRuleValue(..., %i, %i) = (..., %i-%s, %i-%s)\n", start, end, tokens->at(start).type, tokens->at(start).text.c_str(), tokens->at(end).type, tokens->at(end).text.c_str());
 	int length = end-start;
 	CSSValue ret;
 	ret.text = 0;
@@ -43,60 +46,69 @@ CSSValue parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
 		ERROR(Fatal CSS error: empty rule value);
 		return ret;
 	}
-	if (length==1) // 20  red  #FFF  #test
+	else if (length==1) // 20  red  #FFF  #test
 	{
-		
-	}  
-	else if (length==2) // 20px
-	{
-		
-	}
-	
-	if (t2.type==0) // String
-	{
-		if (t2.text==std::string("px"))
-		{
-			ret.length = 1;
-			std::string::size_type sz;
-			ret.lengthValue = std::stod(t1.text, &sz);
-		}
-		else if (t2.text==std::string("em"))
-		{
-			ret.length = 2;
-			std::string::size_type sz;
-			ret.lengthValue = std::stod(t1.text, &sz);
-		}
-		else if (t2.text==std::string("ms"))
-		{
-			ret.time = 1;
-			std::string::size_type sz;
-			ret.timeValue = std::stod(t1.text, &sz);
-		}
-		else if (t2.text==std::string("s"))
-		{
-			ret.time = 2;
-			std::string::size_type sz;
-			ret.timeValue = std::stod(t1.text, &sz);
-		}
-		else if (t2.text==std::string("red"))
+		if (tokens->at(start+1).text==std::string("red"))
 		{
 			ret.color = 1;
 			ret.colorValue = 0xFF000000;
 		}
-		else if (t2.text==std::string("green"))
+		else if (tokens->at(start+1).text==std::string("green"))
 		{
 			ret.color = 1;
 			ret.colorValue = 0x00FF0000;
 		}
-		else if (t2.text==std::string("blue"))
+		else if (tokens->at(start+1).text==std::string("blue"))
 		{
 			ret.color = 1;
 			ret.colorValue = 0x0000FF00;
 		}
 		else
 		{
-			std::cout << RED << "CSS Yaccer error: Unexpected string " << t2.text << "\n" << NOCLR;
+			ret.length = 3;
+			std::string::size_type sz;
+			ret.lengthValue = std::stod(tokens->at(start+1).text, &sz);
 		}
+	}  
+	else if (length==2) // 20px
+	{
+		if (tokens->at(start+2).text==std::string("px"))
+		{
+			ret.length = 1;
+			std::string::size_type sz;
+			ret.lengthValue = std::stod(tokens->at(start+1).text, &sz);
+		}
+		else if (tokens->at(start+2).text==std::string("em"))
+		{
+			ret.length = 2;
+			std::string::size_type sz;
+			ret.lengthValue = std::stod(tokens->at(start+1).text, &sz);
+		}
+		else if (tokens->at(start+2).text==std::string("ms"))
+		{
+			ret.time = 1;
+			std::string::size_type sz;
+			ret.timeValue = std::stod(tokens->at(start+1).text, &sz);
+		}
+		else if (tokens->at(start+2).text==std::string("s"))
+		{
+			ret.time = 2;
+			std::string::size_type sz;
+			ret.timeValue = std::stod(tokens->at(start+1).text, &sz);
+		}
+		else
+		{
+			std::cout << RED << "CSS Yaccer error: Unexpected something xD\n" << NOCLR;
+		}
+	}
+	else
+	{
+		std::cout << RED << "CSS Yaccer error: Unexpected something xD\n" << NOCLR;
+	}
+		
+	/*if (t2.type==0) // String
+	{
+
 	}
 	else if (t2.type==1) // Operator
 	{
@@ -104,14 +116,12 @@ CSSValue parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
 	}
 	else if (t2.type==2) // Percentage
 	{
-		ret.length = 3;
-		std::string::size_type sz;
-		ret.lengthValue = std::stod(t1.text, &sz);
+
 	}
 	else
 	{
 		std::cout << RED << "CSS Yaccer error: Unexpected t2.type " << t2.type << "\n" << NOCLR;
-	}
+	}*/
 	return ret;
 }
 
@@ -152,7 +162,7 @@ void* cssYaccThreadFunc(void* args)
 		{
 			CSSToken t = CSSTokens->at(i);
 			std::cout << "##############################################\n";
-			std::cout << "Now at token " << t.type << ": " << t.text << "\n";
+			std::cout << "Now at token[" << i << "] "<< t.type << ": " << t.text << "\n";
 			std::cout << "inWhat="<<inWhat<<" inWhatWhat="<<inWhatWhat<<"\n";
 			
 			if (inWhat==0) // In selector curS
@@ -463,14 +473,14 @@ void* cssYaccThreadFunc(void* args)
 			{
 				if (t.type==0) // Current token is a string
 				{
-					if (curC.ruleNames.size()==curC.ruleValues.size())
+					/*if (curC.ruleNames.size()==curC.ruleValues.size())
 					{
 						std::cout << RED << "CSS Yacc error: Unexpected string " << t.text << "\n" << NOCLR;
 					}
 					else
 					{
 						std::cout << "Test :)";
-					}
+					}*/
 				}
 				else if (t.type==1) // Current token is an op
 				{
@@ -478,7 +488,7 @@ void* cssYaccThreadFunc(void* args)
 					{
 						std::cout << "Encountered ; - now in rule before :\n";
 						inWhat = 1;
-						curC.ruleValues.push_back(parseRuleValue(&CSSTokens, ruleValueStartI, i-1));
+						curC.ruleValues.push_back(parseRuleValue(CSSTokens, ruleValueStartI, i-1));
 					}
 					else if (t.text==std::string("}"))
 					{
@@ -498,7 +508,7 @@ void* cssYaccThreadFunc(void* args)
 				}
 				else
 				{
-					std::cout << RED << "CSS Yacc error: t.type=" << t.type << "\n" << NOCLR;
+					//std::cout << RED << "CSS Yacc error: t.type=" << t.type << "\n" << NOCLR;
 				}
 			}
 			else

@@ -21,6 +21,7 @@
 #include <pthread.h>
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <string>
 #include <cstring>
@@ -47,7 +48,13 @@ void printCSSValue(CSSValue val)
 						<< val.time << ")=("
 						<< val.textValue << ","
 						<< val.lengthValue << ","
+						<< std::setw(8)
+						<< std::hex
+						<< std::setfill('0')
 						<< val.colorValue << ","
+						<< std::setw(0)
+						<< std::dec
+						<< std::setfill(' ')
 						<< val.timeValue << ")";
 }
 
