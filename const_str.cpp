@@ -63,7 +63,7 @@ public:
 	{
 		for (int i=0;i<length;i++)
 		{
-			position[i] = start[i];
+			startPos[i] = start[i];
 		}
 	}
 	void copyTo(ConstStr destination, int startPos) // Copy it
