@@ -8,7 +8,11 @@ public:
 	char* start;
 	int length;
 	
-	//ConstStr(char*
+	ConstStr(char* startCp, int lengthI)
+	{
+		start = startCp;
+		length = lengthI;
+	}
 	
 	// String functions:
 	bool operator == (ConstStr& str) // Equals
@@ -37,7 +41,7 @@ public:
 	}
 	char operator [] (int i) // Get char
 	{
-		if (i>=length || i<0) return 0;
+		if (i>=length || i<0) return 0; // not fancy enough
 		return start[i];
 	}
 	char* copy() // Copy it
