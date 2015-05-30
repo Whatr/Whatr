@@ -7,8 +7,8 @@ public:
 	char* startChar;
 	int length;
 	ConstStr(char** startBlock, char* startChar, int length);
+	//bool operator == (const ConstStr& str1, const std::string str2)
 	bool operator == (ConstStr& str);
-	bool operator == (std::string& str);
 	char operator [] (int i);
 	char* copy();
 	void copyTo(char* startPos);
@@ -17,3 +17,4 @@ public:
 	void print();
 	void printLine();
 };
+const bool operator == (const ConstStr& str1, const std::string& str2);

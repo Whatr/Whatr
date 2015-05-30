@@ -30,6 +30,30 @@ using namespace std;
 		length(length){};
 	
 	// String functions:
+	
+	const bool operator == (const ConstStr& str1, const std::string& str2)
+	{
+		if (str1.length!=str2.size())
+		{
+			return false;
+		}
+		char** b1 = str1.startBlock;
+		char* c1 = str1.startChar;
+		char* endC1 = *b1 + BLOCK_SIZE; // position of last char in block + 1
+		for (int i=0;i<str1.length;i++)
+		{
+			if (c1==endC1)
+			{
+				b1++;
+				c1 = *b1;
+				endC1 = c1 + BLOCK_SIZE;
+			}
+			if (*c1 != str2.at(i)) return false;
+			c1++;
+		}
+		return true;
+	}
+	
 	bool ConstStr::operator == (ConstStr& str) // Equals
 	{
 		if (this->length!=str.length) return false;
@@ -60,25 +84,7 @@ using namespace std;
 		}
 		return true;
 	}
-	bool ConstStr::operator == (std::string& str) // Equals
-	{
-		if (this->length!=str.size()) return false;
-		char** b1 = this->startBlock;
-		char* c1 = this->startChar;
-		char* endC1 = *b1 + BLOCK_SIZE; // position of last char in block + 1
-		for (int i=0;i<this->length;i++)
-		{
-			if (c1==endC1)
-			{
-				b1++;
-				c1 = *b1;
-				endC1 = c1 + BLOCK_SIZE;
-			}
-			if (*c1 != str.at(i)) return false;
-			c1++;
-		}
-		return true;
-	}
+
 	char ConstStr::operator [] (int i) // Get char
 	{
 		if (i>=length || i<0) throw OUT_OF_STRING_BOUNDS;
@@ -142,7 +148,7 @@ using namespace std;
 		if (startPos<0 || lengthChars<0) throw INVALID_ARGUMENT;
 		if (startPos+lengthChars>=length) throw OUT_OF_STRING_BOUNDS;
 		
-		char** newStartBlock = startBlock + (startChar-*startBlock+lengthChars) / BLOCK_SIZE;
+		char** newStartBlock = startBlock + (startChar-*startBlock+startPos) / BLOCK_SIZE;
 		char* newStartChar = *newStartBlock + (startChar-*startBlock+startPos) % BLOCK_SIZE;
 		return	ConstStr
 				(
@@ -189,10 +195,19 @@ using namespace std;
 		int progress = 0;
 		if (*b1 != c1)
 		{
-			fwrite(c1, 1, c1 - *b1 + BLOCK_SIZE, stdout);
-			progress += c1 - *b1;
-			b1++;
-			c1 = *b1;
+			int restOfBlockLength = BLOCK_SIZE - (c1 - *b1);
+			if (length>=restOfBlockLength)
+			{
+				fwrite(c1, 1, restOfBlockLength, stdout);
+				progress += restOfBlockLength;
+				b1++;
+				c1 = *b1;
+			}
+			else
+			{
+				fwrite(c1, 1, length, stdout);
+				return;
+			}
 		}
 		while (length - progress >= BLOCK_SIZE)
 		{

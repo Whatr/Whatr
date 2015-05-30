@@ -1,6 +1,7 @@
 #include "const_str.h"
 #include "settings.h"
 #include <cstring>
+#include <string>
 
 int main()
 {
@@ -16,19 +17,29 @@ int main()
 	int c = 0;
 	while (c<length)
 	{
-		blocks[b] = storage + b*16;
+		blocks[b] = storage + b*(BLOCK_SIZE+16);
 		if (c+BLOCK_SIZE<=length) memcpy(blocks[b], theString+c, BLOCK_SIZE);
 		else memcpy(blocks[b], theString+c, length-c);
 		b++;
 		c += BLOCK_SIZE;
 	}
-	////// done setting up... now for the actual testing
-	
-	
-	
-	
 	ConstStr whole(blocks, *blocks, length);
+	////// done setting up... now the actual testing
 	
-	whole.printLine();
-	whole.subString(0, 10).printLine();
+	
+	
+	
+	ConstStr part = whole.subString(3, 5);
+	part.printLine();
+	
+	std::string test("em is");
+	//printf("test=%s\n", test.c_str());
+	if (part==test) printf("true\n");
+	else printf("false\n");
+	//if (asd)
+	/*{
+		printf("equalling\n");
+		printf("false\n");
+	}
+	else printf("true\n");*/
 }
