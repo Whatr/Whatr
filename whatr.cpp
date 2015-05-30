@@ -37,6 +37,8 @@
 #include "css_selector.h"
 #include "renderer_1.h"
 #include "css_values.h"
+#include "const_str.h"
+#include "settings.h"
 
 void update_screen();
 
@@ -73,12 +75,15 @@ XTextItem testText;
 
 std::string userAgent = std::string("Whatr development version");
 
+
 //----------------------------
 pthread_t downloadThread;
 int downloadingPage = 0;
-std::string downloadedData;
-std::string downloadedHeaders;
-std::string downloadedHTML;
+int bytesDownloaded = 0;
+char* blocks[MAX_BLOCKS];
+//ConstStr downloadedData;
+ConstStr downloadedHeaders;
+ConstStr downloadedHTML;
 //----------------------------
 
 //----------------------------
@@ -121,6 +126,9 @@ std::string url, host, path;
 void printTree(HTMLElement* currentElement, std::string tabs);
 int main(int argc, char* argv[])
 {
+	try{
+	
+	
 	if (argc!=2)
 	{
 		ERROR(One URL argument is required!);
@@ -219,22 +227,6 @@ int main(int argc, char* argv[])
 	while (lexingPage){}
 	usleep(100000);
 	auto time_4b = std::chrono::high_resolution_clock::now();
-	///////////////////////////////////
-	////// Start thread that yaccs the HTML tags
-	{
-		yaccingPage = 1;
-		htmlYaccArgs args(&lexingPage,
-						&yaccingPage,
-						&HTMLTags,
-						&HTMLElements);
-		if (pthread_create(&htmlYaccThread, NULL, htmlYaccThreadFunc, &args))
-		{
-			ERROR(Failed to create HTML yacc thread!);
-			return 0;
-		}
-	}
-	
-	auto time_5 = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
 	////// Wait until the lexing is done, then print the headers and tags
@@ -278,6 +270,22 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
+	///////////////////////////////////
+	////// Start thread that yaccs the HTML tags
+	{
+		yaccingPage = 1;
+		htmlYaccArgs args(&lexingPage,
+						&yaccingPage,
+						&HTMLTags,
+						&HTMLElements);
+		if (pthread_create(&htmlYaccThread, NULL, htmlYaccThreadFunc, &args))
+		{
+			ERROR(Failed to create HTML yacc thread!);
+			return 0;
+		}
+	}
+	
+	auto time_5 = std::chrono::high_resolution_clock::now();
 	///////////////////////////////////
 	////// Wait until the yaccing is done, then print the HTML element tree
 	{
@@ -530,6 +538,12 @@ int main(int argc, char* argv[])
 	XDestroyWindow(dsp, win);
 	XCloseDisplay(dsp);
 	*/
+	
+	}
+	catch(int exex)
+	{
+		printf("exception=%i=%s\n", exex, (char*)(&exex));
+	}
 	
 	return 0;
 }
