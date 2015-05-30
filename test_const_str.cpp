@@ -26,20 +26,8 @@ int main()
 	ConstStr whole(blocks, *blocks, length);
 	////// done setting up... now the actual testing
 	
-	
-	
-	
 	ConstStr part = whole.subString(3, 5);
 	part.printLine();
 	
-	std::string test("em is");
-	//printf("test=%s\n", test.c_str());
-	if (part==test) printf("true\n");
-	else printf("false\n");
-	//if (asd)
-	/*{
-		printf("equalling\n");
-		printf("false\n");
-	}
-	else printf("true\n");*/
+	
 }

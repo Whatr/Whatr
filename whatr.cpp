@@ -73,15 +73,14 @@ GC gc;
 
 XTextItem testText;
 
-std::string userAgent = std::string("Whatr development version");
-
+ConstStr userAgent("Whatr development version");
 
 //----------------------------
 pthread_t downloadThread;
 int downloadingPage = 0;
 int bytesDownloaded = 0;
 char* blocks[MAX_BLOCKS];
-//ConstStr downloadedData;
+ConstStr downloadedData;
 ConstStr downloadedHeaders;
 ConstStr downloadedHTML;
 //----------------------------
@@ -90,8 +89,8 @@ ConstStr downloadedHTML;
 pthread_t htmlLexThread;
 int lexingPage = 0;
 std::vector<HTMLTag> HTMLTags;
-std::vector<std::string> headerFields;
-std::vector<std::string> headerValues;
+std::vector<ConstStr> headerFields;
+std::vector<ConstStr> headerValues;
 //----------------------------
 
 //----------------------------
@@ -122,7 +121,7 @@ pthread_t renderer1Thread;
 int rendering1 = 0;
 //----------------------------
 
-std::string url, host, path;
+ConstStr url, host, path;
 void printTree(HTMLElement* currentElement, std::string tabs);
 int main(int argc, char* argv[])
 {
@@ -180,9 +179,11 @@ int main(int argc, char* argv[])
 	////// Start thread that downloads the web page
 	{
 		downloadingPage = 1;
-		downloadedData = std::string("");
-		downloadedHeaders = std::string("");
-		downloadedHTML = std::string("");
+		
+		downloadedData.startBlock = &blocks[0];
+		downloadedData.startChar = NULL;
+		downloadedData.length = 0;
+		
 		downloadArgs args(&downloadingPage,
 						&downloadedData,
 						&downloadedHeaders,
@@ -203,7 +204,7 @@ int main(int argc, char* argv[])
 	PRINT(DOWNLOADED HTML:);
 	std::cout << downloadedHTML << "\n";
 	
-	auto time_3b = std::chrono::high_resolution_clock::now();
+	/*auto time_3b = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
 	////// Start thread that parses the response headers and lexes the HTML tags
@@ -289,11 +290,7 @@ int main(int argc, char* argv[])
 	///////////////////////////////////
 	////// Wait until the yaccing is done, then print the HTML element tree
 	{
-		while (yaccingPage)
-		{
-			/*PRINT(waiting for yaccingPage);
-			usleep(50000);*/
-		};
+		while (yaccingPage){};
 		for (int i=0;i<HTMLElements.size();i++)
 		{
 			HTMLElement* currentElement = HTMLElements.at(i);
@@ -435,6 +432,7 @@ int main(int argc, char* argv[])
 	
 	std::cout << "##### Total time taken: "<<std::chrono::duration_cast<std::chrono::microseconds>(total).count()<<"us\n";
 	std::cout << "##### Total time taken excluding download: "<<std::chrono::duration_cast<std::chrono::microseconds>(total-time2-time3a).count()<<"us\n";
+	*/
 	
 	///////////////////////////////////
 	////// Create window

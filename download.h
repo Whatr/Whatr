@@ -17,19 +17,19 @@ class downloadArgs
 {
 public:
 	int* downloadingPage;
-	std::string* downloadedData;
-	std::string* downloadedHeaders;
-	std::string* downloadedHTML;
+	ConstStr* downloadedData;
+	ConstStr* downloadedHeaders;
+	ConstStr* downloadedHTML;
 	std::string* host;
 	std::string* path;
-	std::string* userAgent;
+	ConstStr* userAgent;
 	downloadArgs(int* downloadingPage,
-				std::string* downloadedData,
-				std::string* downloadedHeaders,
-				std::string* downloadedHTML,
+				ConstStr* downloadedData,
+				ConstStr* downloadedHeaders,
+				ConstStr* downloadedHTML,
 				std::string* host,
 				std::string* path,
-				std::string* userAgent):
+				ConstStr* userAgent):
 		downloadingPage(downloadingPage),
 		downloadedData(downloadedData),
 		downloadedHeaders(downloadedHeaders),
