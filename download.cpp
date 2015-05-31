@@ -38,11 +38,6 @@ int isDigit(char c)
 			c=='5'||c=='6'||c=='7'||c=='8'||c=='9';
 }
 
-/*struct lolInt
-{
-	int i;
-};*/
-
 void* downloadThreadFunc(void* args)
 {
 	PRINT(downloadThreadFunc start);
@@ -65,10 +60,8 @@ void* downloadThreadFunc(void* args)
     struct sockaddr_in serv_addr;
     struct hostent* server;
     char buffer[256];
-    PRINT(downloader thread Checkpoint 000.2);
     portno = 80;
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    PRINT(downloader thread Checkpoint 001);
     if (sockfd<0)
     {
     	ERROR(Error creating socket!);
@@ -117,7 +110,7 @@ void* downloadThreadFunc(void* args)
 		std::string("Connection: keep-alive\r\n\r\n")
     ).c_str();
     PRINT(downloader thread Checkpoint 003);
-    n = write(sockfd, HTTPgetRequest, strlen(HTTPgetRequest)); //buffer, strlen(buffer));
+    n = write(sockfd, HTTPgetRequest, strlen(HTTPgetRequest));
     if (n<0)
     {
     	ERROR(Could not write to socket!);
@@ -169,15 +162,8 @@ void* downloadThreadFunc(void* args)
     		downloadedData->startChar = currentBlock[-1];
     	}
     	downloadedData->length += n;
-    	//printf("downloadedData->length=%i\n", n);
-    	//printf("downloadedData=");
-    	//downloadedData->printLine();
     	int appendedHTML = 0;
     	std::cout << n << " bytes read (total=" << downloadedData->length << ") Content-Length: " << content_length_header << "\n";
-    	//if (n<255)
-    	//{
-    	//	buffer[n] = 0;
-    	//}
     	if (header_length==-1)
     	{
 			if (content_length_header==-1)
@@ -200,16 +186,10 @@ void* downloadThreadFunc(void* args)
 			{
 				header_length = found+4;
     			*downloadedHeaders = downloadedData->subString(0, header_length);
-    			//downloadedHTML->append(downloadedData->substr(header_length));
     			downloadedHTMLStartPos = found+4;
     			appendedHTML = 1;
 			}
-			//else std::cout << "Could not find header length.\n";
     	}
-    	//if (header_length!=-1 && !appendedHTML)
-    	//{
-    	//	downloadedHTML->append(buffer);
-		//} 
     	std::cout << n << " bytes written to buffer!\n";
     }
     std::cout << "Reading done.\n";

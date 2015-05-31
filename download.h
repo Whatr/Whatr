@@ -38,10 +38,7 @@ public:
 		downloadedHTML(downloadedHTML),
 		host(host),
 		path(path),
-		userAgent(userAgent)
-		{
-			printf("downloadingPage=%i\n", downloadingPage);
-		};
+		userAgent(userAgent){};
 };
 void* downloadThreadFunc(void* voidStar);
 
