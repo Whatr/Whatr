@@ -341,4 +341,57 @@ int ConstStr::findChar(int startPos, char target)
 	}
 	return -1;
 }
+ConstStrIterator ConstStr::iterate()
+{
+	return this->iterate(0);
+}
+ConstStrIterator ConstStr::iterate(int startPos)
+{
+	return ConstStrIterator(this, startPos);
+}
+
+
+ConstStrIterator::ConstStrIterator(ConstStr& cs, int startPos):
+	cs(cs),
+{
+	if (startPos<0 || startPos>=cs.length) throw OUT_OF_STRING_BOUNDS;
+	pos = startPos;
+	b1 = startBlock + (pos / BLOCK_SIZE); // current block
+	c1 = *b1 + (pos % BLOCK_SIZE); // current char
+	endC1 = *b1 + BLOCK_SIZE; // position of last char in block + 1
+}
+
+ConstStr& constStr();
+
+char ConstStrIterator::operator * () // Get current char
+{
+	return *c1;
+}
+void ConstStrIterator::operator ++ ()
+{
+	pos++;
+	if (pos>=length) throw OUT_OF_STRING_BOUNDS;
+	c1++;
+	if (c1==endC1)
+	{
+		b1++;
+		c1 = *b1;
+		endC1 = c1 + BLOCK_SIZE;
+	}
+}
+void ConstStrIterator::operator -- ()
+{
+	pos--;
+	if (pos<0) throw OUT_OF_STRING_BOUNDS;
+	if (c1==*b1) // if we're at the start of a block
+	{
+		b1--; // go to previous block
+		endC1 = *b1 + BLOCK_SIZE;
+		c1 = endC1 - 1; // point to the last character of the block
+	}
+	else
+	{
+		c1--;
+	}
+}
 

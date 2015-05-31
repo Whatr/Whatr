@@ -35,6 +35,26 @@ public:
 	
 	int findChar (int startPos, char target);
 	int findChar (char target);
+	
+	ConstStrIterator iterate();
+	ConstStrIterator iterate(int startPos);
+};
+class ConstStrIterator
+{
+public:
+	ConstStr& cs;
+	char** b1;
+	char* c1;
+	char* endC1;
+	int pos;
+	
+	ConstStrIterator(ConstStr& cs, int startPos);
+	
+	ConstStr& constStr();
+	
+	char operator * ();
+	void operator ++ ();
+	void operator -- ();
 };
 const bool operator == (const ConstStr& str1, const std::string& str2);
 const bool operator == (const ConstStr& str1, const ConstStr& str2);
