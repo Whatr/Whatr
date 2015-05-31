@@ -347,17 +347,36 @@ ConstStrIterator ConstStr::iterate()
 }
 ConstStrIterator ConstStr::iterate(int startPos)
 {
-	return ConstStrIterator(this, startPos);
+	return ConstStrIterator(*this, startPos);
 }
 
 
 ConstStrIterator::ConstStrIterator(ConstStr& cs, int startPos):
-	cs(cs),
+	cs(cs)
 {
 	if (startPos<0 || startPos>=cs.length) throw OUT_OF_STRING_BOUNDS;
 	pos = startPos;
-	b1 = startBlock + (pos / BLOCK_SIZE); // current block
-	c1 = *b1 + (pos % BLOCK_SIZE); // current char
+	
+	b1 // current block
+	=
+	cs.startBlock
+	+
+	(
+		(cs.startChar - *(cs.startBlock) + pos)
+		/
+		BLOCK_SIZE
+	);
+	
+	c1 // current char
+	=
+	*b1
+	+
+	(
+		(cs.startChar - *(cs.startBlock) + pos)
+		%
+		BLOCK_SIZE
+	);
+	
 	endC1 = *b1 + BLOCK_SIZE; // position of last char in block + 1
 }
 
@@ -370,7 +389,7 @@ char ConstStrIterator::operator * () // Get current char
 void ConstStrIterator::operator ++ ()
 {
 	pos++;
-	if (pos>=length) throw OUT_OF_STRING_BOUNDS;
+	if (pos>=cs.length) throw OUT_OF_STRING_BOUNDS;
 	c1++;
 	if (c1==endC1)
 	{

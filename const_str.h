@@ -2,7 +2,7 @@
 #define const_str_included yes
 
 #include <string>
-
+class ConstStrIterator;
 class ConstStr
 {
 public:
