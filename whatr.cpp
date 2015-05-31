@@ -179,9 +179,13 @@ int main(int argc, char* argv[])
 		if (path.length==0) path = std::string("/");
 	}
 	
+	//host.printLine();
+	
 	printf("main():3\n");
 	
 	auto time_2 = std::chrono::high_resolution_clock::now();
+	
+	int aaa = 0;
 	
 	///////////////////////////////////
 	////// Start thread that downloads the web page
@@ -192,14 +196,16 @@ int main(int argc, char* argv[])
 		downloadedData.startChar = NULL;
 		downloadedData.length = 0;
 		
-		downloadArgs args(&downloadingPage,
-						&downloadedData,
-						&downloadedHeaders,
-						&downloadedHTML,
-						&host,
-						&path,
-						&userAgent);
-		if (pthread_create(&downloadThread, NULL, downloadThreadFunc, &args))
+		downloadArgs* args = new downloadArgs
+								(&downloadingPage,
+								&downloadedData,
+								&downloadedHeaders,
+								&downloadedHTML,
+								&host,
+								&path,
+								&userAgent);
+		
+		if (pthread_create(&downloadThread, NULL, downloadThreadFunc, args))
 		{
 			ERROR(Failed to create download thread!);
 			return 0;
@@ -207,10 +213,10 @@ int main(int argc, char* argv[])
 	}
 	
 	auto time_3 = std::chrono::high_resolution_clock::now();
-	while (downloadingPage){}
+	while (downloadingPage){usleep(100);}
 	
-	PRINT(DOWNLOADED HTML:);
-	downloadedHTML.printLine();
+	//PRINT(DOWNLOADED HTML:);
+	//downloadedHTML.printLine();
 	
 	/*auto time_3b = std::chrono::high_resolution_clock::now();
 	

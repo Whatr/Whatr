@@ -37,6 +37,12 @@ int isDigit(char c)
 	return	c=='0'||c=='1'||c=='2'||c=='3'||c=='4'||
 			c=='5'||c=='6'||c=='7'||c=='8'||c=='9';
 }
+
+/*struct lolInt
+{
+	int i;
+};*/
+
 void* downloadThreadFunc(void* args)
 {
 	PRINT(downloadThreadFunc start);
@@ -51,7 +57,7 @@ void* downloadThreadFunc(void* args)
 	
 	PRINT(downloadThreadFunc start);
 	
-	//*downloadingPage = 1;
+	*downloadingPage = 1;
 	
 	PRINT(downloader thread has set downloadingPage=1);
 	
@@ -81,6 +87,7 @@ void* downloadThreadFunc(void* args)
     {
         ERROR(No such host!);
     	pthread_exit(NULL);
+    	exit(0);
     	return NULL;
     }
     else
@@ -162,9 +169,9 @@ void* downloadThreadFunc(void* args)
     		downloadedData->startChar = currentBlock[-1];
     	}
     	downloadedData->length += n;
-    	printf("downloadedData->length=%i\n", n);
-    	printf("downloadedData=");
-    	downloadedData->printLine();
+    	//printf("downloadedData->length=%i\n", n);
+    	//printf("downloadedData=");
+    	//downloadedData->printLine();
     	int appendedHTML = 0;
     	std::cout << n << " bytes read (total=" << downloadedData->length << ") Content-Length: " << content_length_header << "\n";
     	//if (n<255)
@@ -205,16 +212,23 @@ void* downloadThreadFunc(void* args)
 		//} 
     	std::cout << n << " bytes written to buffer!\n";
     }
-    
-    //std::cout << "Reading done.\n";
+    std::cout << "Reading done.\n";
     close(sockfd);
-    //std::cout << "Socket closed.\n";
-    //std::cout << downloadedData->size() << " bytes response.\n";
-    
+    std::cout << "Socket closed.\n";
+    PRINT(-------------------------------------------------------);
+    std::cout << downloadedData->length << " bytes response:\n";
+    downloadedData->printLine();
+    PRINT(-------------------------------------------------------);
+    std::cout << downloadedHeaders->length << " bytes of header:\n";
+    downloadedHeaders->printLine();
+    PRINT(-------------------------------------------------------);
     *downloadedHTML = downloadedData->subString(downloadedHeaders->length);
-    
-    *downloadingPage = 0;
+    std::cout << downloadedHTML->length << " bytes of HTML:\n";
+    downloadedHTML->printLine();
+    PRINT(-------------------------------------------------------);
+    //if (downloadingPage==NULL) printf("wtf downloadingPage = NULL\n");
 	PRINT(downloadThreadFunc end);
+	*downloadingPage = 0;
 	pthread_exit(NULL);
 }
 

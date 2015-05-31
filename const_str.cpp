@@ -24,7 +24,8 @@ using namespace std;
 ConstStr::ConstStr():
 	startBlock(NULL),
 	startChar(NULL),
-	length(0){};
+	length(0),
+	parent(NULL){};
 ConstStr::ConstStr(char* str)
 {
 	char** blocks = new char*;
@@ -32,11 +33,18 @@ ConstStr::ConstStr(char* str)
 	startBlock = blocks;
 	startChar = str;
 	length = strlen(str);
+	parent = NULL;
 }
 ConstStr::ConstStr(char** startBlock, char* startChar, int length):
 	startBlock(startBlock),
 	startChar(startChar),
-	length(length){};
+	length(length),
+	parent(NULL){};
+ConstStr::ConstStr(char** startBlock, char* startChar, int length, ConstStr* parent):
+	startBlock(startBlock),
+	startChar(startChar),
+	length(length),
+	parent(parent){};
 
 void ConstStr::operator = (const std::string& str)
 {
@@ -48,6 +56,14 @@ void ConstStr::operator = (const std::string& str)
 	startBlock = theBlock;
 	startChar = theStr;
 	length = str.size();
+}
+void ConstStr::operator = (const ConstStr& str)
+{
+	if (length!=0 || startChar!=NULL) throw TRIED_TO_ASSIGN_TO_CONSTANT;
+	this->parent = str.parent;
+	this->startBlock = str.startBlock;
+	this->startChar = str.startChar;
+	this->length = str.length;
 }
 const bool operator != (const ConstStr& str1, const std::string& str2)
 {
@@ -201,7 +217,8 @@ ConstStr ConstStr::subString(int startPos, int lengthChars) // Easy :)
 			(
 				newStartBlock,
 				newStartChar,
-				lengthChars
+				lengthChars,
+				this
 			);
 }
 void ConstStr::trim() // Easy :)

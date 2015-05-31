@@ -6,6 +6,8 @@
 class ConstStr
 {
 public:
+	ConstStr* parent;
+	
 	char** startBlock;
 	char* startChar;
 	int length;
@@ -13,8 +15,10 @@ public:
 	ConstStr();
 	ConstStr(char* str);
 	ConstStr(char** startBlock, char* startChar, int length);
+	ConstStr(char** startBlock, char* startChar, int length, ConstStr* parent);
 	
 	void operator = (const std::string& str);
+	void operator = (const ConstStr& str);
 	
 	char* copy();
 	void copyTo(char* startPos);
