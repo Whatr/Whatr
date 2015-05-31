@@ -27,20 +27,23 @@ fi
 dotOfiles=""
 compiled=0
 for i in *.cpp; do
-	j="${i/$dotCpp/$dotO}"
-	dotOfiles=$dotOfiles$j" "
-	if [ -f $j ];
+	if [[ $i != test* ]];
 	then
-		if (( `date -r $i +%s` > `date -r $j +%s` )) || (( forceCompileAll == 1 ))
+		j="${i/$dotCpp/$dotO}"
+		dotOfiles=$dotOfiles$j" "
+		if [ -f $j ];
 		then
-			echo "$j has expired. Recompiling $i...";
+			if (( `date -r $i +%s` > `date -r $j +%s` )) || (( forceCompileAll == 1 ))
+			then
+				echo "$j has expired. Recompiling $i...";
+				compiled=1
+				g++ -std=c++11 -c $i
+			fi
+		else
+			echo "Compiling $i..."
 			compiled=1
 			g++ -std=c++11 -c $i
 		fi
-	else
-		echo "Compiling $i..."
-		compiled=1
-		g++ -std=c++11 -c $i
 	fi
 done
 if [ -f $outputProgramFile ]

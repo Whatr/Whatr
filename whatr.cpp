@@ -27,6 +27,7 @@
 #include <cstring>
 #include <chrono>
 
+#include "const_str.h"
 #include "log_funcs.hpp"
 #include "download.h"
 #include "html_lexer.h"
@@ -127,6 +128,7 @@ int main(int argc, char* argv[])
 {
 	try{
 	
+	printf("main():0\n");
 	
 	if (argc!=2)
 	{
@@ -142,36 +144,42 @@ int main(int argc, char* argv[])
 		url = std::string(argv[1]);
 	}
 	
+	printf("main():1\n");
+	
 	///////////////////////////////////
 	////// Check URL validity
 	{
-		if (url.substr(0, 7)!=std::string("http://"))
+		if (url.subString(0, 7)!=std::string("http://"))
 		{
 			ERROR(The URL is not HTTP!);
 			return 0;
 		}
-		if (url.length()<8)
+		if (url.length<8)
 		{
 			ERROR(The URL has no host!);
 			return 0;
 		}
 	}
 	
+	printf("main():2\n");
+	
 	///////////////////////////////////
 	////// Convert URL to host and path
 	{
 		int i;
-		for (i=7;i<url.length();i++)
+		for (i=7;i<url.length;i++)
 		{
-			if (url.at(i)=='/')
+			if (url[i]=='/')
 			{
 				break;
 			}
 		}
-		host = url.substr(7, i-7);
-		path = url.substr(i, url.length()-i);
-		if (path.length()==0) path = std::string("/");
+		host = url.subString(7, i-7);
+		path = url.subString(i);//, url.length-i);
+		if (path.length==0) path = std::string("/");
 	}
+	
+	printf("main():3\n");
 	
 	auto time_2 = std::chrono::high_resolution_clock::now();
 	
@@ -202,7 +210,7 @@ int main(int argc, char* argv[])
 	while (downloadingPage){}
 	
 	PRINT(DOWNLOADED HTML:);
-	std::cout << downloadedHTML << "\n";
+	downloadedHTML.printLine();
 	
 	/*auto time_3b = std::chrono::high_resolution_clock::now();
 	

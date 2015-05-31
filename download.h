@@ -13,6 +13,8 @@
 #ifndef downloader_included
 #define downloader_included yes
 
+#include "const_str.h"
+
 class downloadArgs
 {
 public:
@@ -20,15 +22,15 @@ public:
 	ConstStr* downloadedData;
 	ConstStr* downloadedHeaders;
 	ConstStr* downloadedHTML;
-	std::string* host;
-	std::string* path;
+	ConstStr* host;
+	ConstStr* path;
 	ConstStr* userAgent;
 	downloadArgs(int* downloadingPage,
 				ConstStr* downloadedData,
 				ConstStr* downloadedHeaders,
 				ConstStr* downloadedHTML,
-				std::string* host,
-				std::string* path,
+				ConstStr* host,
+				ConstStr* path,
 				ConstStr* userAgent):
 		downloadingPage(downloadingPage),
 		downloadedData(downloadedData),

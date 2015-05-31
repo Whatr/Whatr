@@ -5,10 +5,17 @@
 #include <iostream>
 #include <cstring>
 
-enum Exceptions
+enum Exception1
 {
 	INVALID_ARGUMENT='INAR',
+};
+enum Execption2
+{
 	OUT_OF_STRING_BOUNDS='OOSB',
+};
+enum Exception3
+{
+	TRIED_TO_ASSIGN_TO_CONSTANT='TATC',
 };
 
 using namespace std;
@@ -30,6 +37,22 @@ ConstStr::ConstStr(char** startBlock, char* startChar, int length):
 	startBlock(startBlock),
 	startChar(startChar),
 	length(length){};
+
+void ConstStr::operator = (const std::string& str)
+{
+	if (length!=0 || startChar!=NULL) throw TRIED_TO_ASSIGN_TO_CONSTANT;
+	char* theStr = (char*)malloc(str.size()+1);
+	strcpy(theStr, str.c_str());
+	char** theBlock = new char*;
+	*theBlock = theStr;
+	startBlock = theBlock;
+	startChar = theStr;
+	length = str.size();
+}
+const bool operator != (const ConstStr& str1, const std::string& str2)
+{
+	return !(str1==str2);
+}
 
 const bool operator == (const ConstStr& str1, const std::string& str2)
 {
@@ -84,7 +107,11 @@ const bool operator == (const ConstStr& str1, const ConstStr& str2)
 
 const char ConstStr::operator [] (const int i) // Get char
 {
-	if (i>=length || i<0) throw OUT_OF_STRING_BOUNDS;
+	if (i>=length || i<0)
+	{
+		printf("ConstStr[] out of string bounds: i=%i length=%i\n", i, length);
+		throw OUT_OF_STRING_BOUNDS;
+	}
 	return	* // lol
 			(
 				(
@@ -110,6 +137,11 @@ const char ConstStr::operator [] (const int i) // Get char
 char* ConstStr::copy() // Copy it
 {
 	char* ret = (char*)malloc(length+1);
+	if (ret==NULL)
+	{
+		printf("malloc failed!\n");
+		throw 'SHIT';
+	}
 	ret[length] = 0; // Null terminator
 	this->copyTo(ret);
 	return ret;
@@ -121,11 +153,20 @@ void ConstStr::copyTo(char* destination) // Copy it
 	int progress = 0;
 	if (*b1 != c1)
 	{
-		memcpy(destination, c1, c1 - *b1 + BLOCK_SIZE);
-		progress += c1 - *b1;
-		destination += c1 - *b1;
-		b1++;
-		c1 = *b1;
+		int copyLength = c1 - *b1 + BLOCK_SIZE;
+		if (copyLength<=length)
+		{
+			memcpy(destination, c1, copyLength);
+			progress += copyLength;//c1 - *b1;
+			destination += copyLength;//c1 - *b1;
+			b1++;
+			c1 = *b1;
+		}
+		else
+		{
+			memcpy(destination, c1, length);
+			return;
+		}
 	}
 	while (length - progress >= BLOCK_SIZE)
 	{
@@ -137,13 +178,22 @@ void ConstStr::copyTo(char* destination) // Copy it
 	}
 	if (length > progress)
 	{
+		destination[0] = c1[0];
 		memcpy(destination, c1, length - progress);
 	}
+}
+ConstStr ConstStr::subString(int startPos) // Easy :)
+{
+	return this->subString(startPos, this->length-startPos);
 }
 ConstStr ConstStr::subString(int startPos, int lengthChars) // Easy :)
 {
 	if (startPos<0 || lengthChars<0) throw INVALID_ARGUMENT;
-	if (startPos+lengthChars>=length) throw OUT_OF_STRING_BOUNDS;
+	if (startPos+lengthChars>length)
+	{
+		printf("ConstStr.subString out of string bounds: startPos=%i lengthChars=%i length=%i\n", startPos, lengthChars, length);
+		throw OUT_OF_STRING_BOUNDS;
+	}
 	
 	char** newStartBlock = startBlock + (startChar-*startBlock+startPos) / BLOCK_SIZE;
 	char* newStartChar = *newStartBlock + (startChar-*startBlock+startPos) % BLOCK_SIZE;
@@ -227,7 +277,7 @@ bool ConstStr::isEmpty()
 {
 	return length==0;
 }
-int ConstStr::findReverse(char* str)
+int ConstStr::findReverse(const char* str)
 {
 	int strLength = strlen(str);
 	

@@ -41,15 +41,17 @@ void* downloadThreadFunc(void* args)
 {
 	PRINT(downloadThreadFunc start);
 	downloadArgs* d = (downloadArgs*)args;
-	
 	int* downloadingPage = d->downloadingPage;
+	ConstStr* downloadedData = d->downloadedData;
 	ConstStr* downloadedHeaders = d->downloadedHeaders;
 	ConstStr* downloadedHTML = d->downloadedHTML;
-	std::string* host = d->host;
-	std::string* path = d->path;
+	ConstStr* host = d->host;
+	ConstStr* path = d->path;
 	ConstStr* userAgent = d->userAgent;
 	
-	*downloadingPage = 1;
+	PRINT(downloadThreadFunc start);
+	
+	//*downloadingPage = 1;
 	
 	PRINT(downloader thread has set downloadingPage=1);
 	
@@ -71,7 +73,10 @@ void* downloadThreadFunc(void* args)
     {
     	PRINT(Socket created);
     }
-    server = gethostbyname(host->c_str());
+    host->printLine();
+    char* hostStr = host->copy();
+    PRINT(checkey);
+    server = gethostbyname(hostStr);
     if (server == NULL)
     {
         ERROR(No such host!);
@@ -80,7 +85,9 @@ void* downloadThreadFunc(void* args)
     }
     else
     {
-    	std::cout << GREEN << "Host " << *host << " found\n" << NOCLR;
+    	std::cout << GREEN << "Host ";
+    	host->print();
+    	std::cout << " found\n" << NOCLR;
     }
     PRINT(downloader thread Checkpoint 002);
     bzero((char*) &serv_addr, sizeof(serv_addr));
@@ -95,8 +102,8 @@ void* downloadThreadFunc(void* args)
     }
     const char* HTTPgetRequest =
     (
-		std::string("GET ")+*path+std::string(" HTTP/1.1\r\n")+
-		std::string("Host: ")+*host+std::string("\r\n")+
+		std::string("GET ")+std::string(path->copy())+std::string(" HTTP/1.1\r\n")+
+		std::string("Host: ")+std::string(host->copy())+std::string("\r\n")+
 		std::string("User-Agent: ")+userAgent->copy()+std::string("\r\n")+
 		std::string("DNT: 1\r\n")+
 		std::string("Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n")+
@@ -129,7 +136,7 @@ void* downloadThreadFunc(void* args)
     		||
     		header_length==-1
     		||
-    		downloadedData->size()<(content_length_header+header_length)
+    		downloadedData->length < (content_length_header+header_length)
     	)
     	&&
     	(
@@ -140,9 +147,7 @@ void* downloadThreadFunc(void* args)
     			(
     				sockfd
     				,
-    				(
-    					currentBlock++[0]=malloc(BLOCK_SIZE) // lol
-    				)
+    				currentBlock++[0]=(char*)malloc(BLOCK_SIZE) // lol
     				,
     				BLOCK_SIZE
     			)
@@ -152,8 +157,14 @@ void* downloadThreadFunc(void* args)
     	) // https://www.youtube.com/watch?v=JKQwgpaLR6o
     )
     {
+    	if (downloadedData->length==0)
+    	{
+    		downloadedData->startChar = currentBlock[-1];
+    	}
     	downloadedData->length += n;
     	printf("downloadedData->length=%i\n", n);
+    	printf("downloadedData=");
+    	downloadedData->printLine();
     	int appendedHTML = 0;
     	std::cout << n << " bytes read (total=" << downloadedData->length << ") Content-Length: " << content_length_header << "\n";
     	//if (n<255)
@@ -164,34 +175,34 @@ void* downloadThreadFunc(void* args)
     	{
 			if (content_length_header==-1)
 			{
-				std::size_t found = downloadedData->find(std::string("Content-Length: "));
+				std::size_t found = downloadedData->findReverse("Content-Length: ");
 				if (found!=std::string::npos)
 				{
-					std::string tempContentLength = downloadedData->substr(found+16, 10);
-					for (int i=0;i<tempContentLength.size();i++)
+					char* tempContentLength = downloadedData->subString(found+16, 10).copy();
+					for (int i=0;tempContentLength[i]!=0;i++)
 					{
-						if (isDigit(tempContentLength.at(i))) continue;
-						else tempContentLength = tempContentLength.substr(0, i);
+						if (isDigit(tempContentLength[i])) continue;
+						else tempContentLength[i] = 0;
 					}
-					//std::cout << "Content length =" << tempContentLength << "=\n\n";
-					content_length_header = atoi(tempContentLength.c_str());
+					content_length_header = atoi(tempContentLength);
+					
 				}
 			}
-			std::size_t found = downloadedData->findReverse(std::string("\r\n\r\n"));
+			std::size_t found = downloadedData->findReverse("\r\n\r\n");
 			if (found!=std::string::npos)
 			{
 				header_length = found+4;
-				//std::cout << "Header length =" << header_length << "=\n\n";
-    			*downloadedHeaders = downloadedData->substr(0, header_length);
-    			downloadedHTML->append(downloadedData->substr(header_length));
+    			*downloadedHeaders = downloadedData->subString(0, header_length);
+    			//downloadedHTML->append(downloadedData->substr(header_length));
+    			downloadedHTMLStartPos = found+4;
     			appendedHTML = 1;
 			}
 			//else std::cout << "Could not find header length.\n";
     	}
-    	if (header_length!=-1 && !appendedHTML)
-    	{
-    		downloadedHTML->append(buffer);
-		} 
+    	//if (header_length!=-1 && !appendedHTML)
+    	//{
+    	//	downloadedHTML->append(buffer);
+		//} 
     	std::cout << n << " bytes written to buffer!\n";
     }
     
@@ -199,6 +210,8 @@ void* downloadThreadFunc(void* args)
     close(sockfd);
     //std::cout << "Socket closed.\n";
     //std::cout << downloadedData->size() << " bytes response.\n";
+    
+    *downloadedHTML = downloadedData->subString(downloadedHeaders->length);
     
     *downloadingPage = 0;
 	PRINT(downloadThreadFunc end);
