@@ -61,10 +61,10 @@ void* htmlLexThreadFunc(void* args)
 	int* downloadingPage = l->downloadingPage;
 	int* lexingPage = l->lexingPage;
 	std::vector<HTMLTag>* HTMLTags = l->HTMLTags;
-	std::vector<std::string>* headerFields = l->headerFields;
-	std::vector<std::string>* headerValues = l->headerValues;
-	std::string* downloadedHeaders = l->downloadedHeaders;
-	std::string* downloadedHTML = l->downloadedHTML;
+	std::vector<ConstStr>* headerFields = l->headerFields;
+	std::vector<ConstStr>* headerValues = l->headerValues;
+	ConstStr* downloadedHeaders = l->downloadedHeaders;
+	ConstStr* downloadedHTML = l->downloadedHTML;
 	
 	*lexingPage = 1;
 	PRINT(htmlLexThreadFunc has set lexingPage=1);
@@ -76,7 +76,7 @@ void* htmlLexThreadFunc(void* args)
 		int inField = 0;
 		int inValue = 0;
 		
-		std::string httpVersion;
+		ConstStr httpVersion;
 		int responseCode = -1;
 		std::string responseStatus = std::string("");
 		std::string field;
@@ -85,10 +85,10 @@ void* htmlLexThreadFunc(void* args)
 		(
 			*downloadingPage
 			||
-			i<downloadedHeaders->length()
+			i<downloadedHeaders->length
 		)
 		{
-			while(i>=downloadedHeaders->length())
+			while(i>=downloadedHeaders->length)
 			{
 				if ((*downloadingPage)==0) break; // If downloading is done, quit
 				PRINT(HTML Lex thread is waiting for downloader...);
@@ -99,20 +99,20 @@ void* htmlLexThreadFunc(void* args)
 			(
 				(*downloadingPage)==0
 				&&
-				(i>=downloadedHeaders->length())
+				(i>=downloadedHeaders->length)
 			)
 			{
 				PRINT(HTML Lex thread detected downloader=done);
 				break; // If downloading is done, quit
 			}
-			char c = downloadedHeaders->at(i);
+			char c = downloadedHeaders[i];
 			if (inFirstLine)
 			{
 				if (inFirstLine==1) // In HTTP version
 				{
 					if (c==' ')
 					{
-						httpVersion = downloadedHeaders->substr(0, i);
+						httpVersion = downloadedHeaders->subString(0, i);
 						//std::cout << "httpVersion=" << httpVersion << "\n";
 						inFirstLine++;
 					}

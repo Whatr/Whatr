@@ -317,4 +317,28 @@ int ConstStr::findReverse(const char* str)
 	}
 	return -1;
 }
+int ConstStr::findChar(char target)
+{
+	return this->findChar(0, target);
+}
+int ConstStr::findChar(int startPos, char target)
+{
+	char** b1 = startBlock + (startPos / BLOCK_SIZE);
+	char* c1 = *b1 + (startPos % BLOCK_SIZE);
+	char* endC1 = *b1 + BLOCK_SIZE; // position of last char in block + 1
+	for (int i=startPos;i<length;i++)
+	{
+		if (c1==endC1)
+		{
+			b1++;
+			c1 = *b1;
+			endC1 = c1 + BLOCK_SIZE;
+		}
+		
+		if (*c1 == target) return i;
+		
+		c1++;
+	}
+	return -1;
+}
 

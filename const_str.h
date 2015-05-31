@@ -32,6 +32,9 @@ public:
 	bool isEmpty();
 	
 	int findReverse (const char* str);
+	
+	int findChar (int startPos, char target);
+	int findChar (char target);
 };
 const bool operator == (const ConstStr& str1, const std::string& str2);
 const bool operator == (const ConstStr& str1, const ConstStr& str2);

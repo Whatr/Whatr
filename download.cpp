@@ -206,7 +206,6 @@ void* downloadThreadFunc(void* args)
     std::cout << downloadedHTML->length << " bytes of HTML:\n";
     downloadedHTML->printLine();
     PRINT(-------------------------------------------------------);
-    //if (downloadingPage==NULL) printf("wtf downloadingPage = NULL\n");
 	PRINT(downloadThreadFunc end);
 	*downloadingPage = 0;
 	pthread_exit(NULL);

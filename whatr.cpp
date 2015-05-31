@@ -218,7 +218,7 @@ int main(int argc, char* argv[])
 	//PRINT(DOWNLOADED HTML:);
 	//downloadedHTML.printLine();
 	
-	/*auto time_3b = std::chrono::high_resolution_clock::now();
+	auto time_3b = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
 	////// Start thread that parses the response headers and lexes the HTML tags
@@ -237,6 +237,8 @@ int main(int argc, char* argv[])
 			return 0;
 		}
 	}
+	
+	/*
 	
 	auto time_4 = std::chrono::high_resolution_clock::now();
 	while (lexingPage){}
