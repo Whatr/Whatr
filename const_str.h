@@ -36,29 +36,37 @@ public:
 	int findChar (int startPos, char target);
 	int findChar (char target);
 	
-	ConstStrIterator iterate();
-	ConstStrIterator iterate(int startPos);
+	ConstStrIterator iterate() const;
+	ConstStrIterator iterate(const int startPos) const;
 };
 class ConstStrIterator
 {
 public:
-	ConstStr& cs;
+	const ConstStr& cs;
 	char** b1;
 	char* c1;
 	char* endC1;
 	int pos;
 	
-	ConstStrIterator(ConstStr& cs, int startPos);
+	ConstStrIterator(const ConstStr& cs, const int startPos);
 	
 	ConstStr& constStr();
 	
 	char operator * ();
-	void operator ++ ();
-	void operator -- ();
+	int operator ++ (int);
+	int operator -- (int);
+	
 };
 const bool operator == (const ConstStr& str1, const std::string& str2);
 const bool operator == (const ConstStr& str1, const ConstStr& str2);
 const bool operator != (const ConstStr& str1, const std::string& str2);
+const bool operator == (const ConstStrIterator& i1, const int& i2);
+const bool operator != (const ConstStrIterator& i1, const int& i2);
+const bool operator <  (const ConstStrIterator& i1, const int& i2);
+const bool operator >  (const ConstStrIterator& i1, const int& i2);
+const bool operator <= (const ConstStrIterator& i1, const int& i2);
+const bool operator >= (const ConstStrIterator& i1, const int& i2);
+
 /*
 const bool operator != (const ConstStr& str1, const ConstStr& str2)
 {

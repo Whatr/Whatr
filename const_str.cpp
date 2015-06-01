@@ -73,19 +73,11 @@ const bool operator != (const ConstStr& str1, const std::string& str2)
 const bool operator == (const ConstStr& str1, const std::string& str2)
 {
 	if (str1.length!=str2.size()) return false;
-	char** b1 = str1.startBlock;
-	char* c1 = str1.startChar;
-	char* endC1 = *b1 + BLOCK_SIZE; // position of last char in block + 1
-	for (int i=0;i<str1.length;i++)
+	
+	ConstStrIterator i = str1.iterate();
+	for (int j=0;j<str1.length;j++,i++)
 	{
-		if (c1==endC1)
-		{
-			b1++;
-			c1 = *b1;
-			endC1 = c1 + BLOCK_SIZE;
-		}
-		if (*c1 != str2.at(i)) return false;
-		c1++;
+		if (*i != str2.at(j)) return false;
 	}
 	return true;
 }
@@ -93,30 +85,15 @@ const bool operator == (const ConstStr& str1, const std::string& str2)
 const bool operator == (const ConstStr& str1, const ConstStr& str2)
 {
 	if (str1.length!=str2.length) return false;
-	char** b1 = str1.startBlock;
-	char* c1 = str1.startChar;
-	char** b2 = str2.startBlock;
-	char* c2 = str2.startChar;
-	char* endC1 = *b1 + BLOCK_SIZE; // position of last char in block + 1
-	char* endC2 = *b2 + BLOCK_SIZE;
+	
+	ConstStrIterator i1 = str1.iterate();
+	ConstStrIterator i2 = str2.iterate();
 	
 	for (int i=0;i<str1.length;i++)
 	{
-		if (c1==endC1)
-		{
-			b1++;
-			c1 = *b1;
-			endC1 = c1 + BLOCK_SIZE;
-		}
-		if (c2==endC2)
-		{
-			b2++;
-			c2 = *b2;
-			endC2 = c2 + BLOCK_SIZE;
-		}
-		if (*c1 != *c2) return false;
-		c1++;
-		c2++;
+		if (*i1 != *i2) return false;
+		i1++;
+		i2++;
 	}
 	return true;
 }
@@ -298,20 +275,13 @@ int ConstStr::findReverse(const char* str)
 {
 	int strLength = strlen(str);
 	
-	for (int i=length-1 ; i>=strLength-1 ; i--)
+	for (ConstStrIterator i=iterate(length-strLength-1) ; i>=0 ; i--)
 	{
-		for (int j=0;j<strLength;j++)
+		if (*i == str[0])
 		{
-			if ( (*this)[i-strLength+1+j] == str[j] )
+			if (subString(i.pos, strLength)==str)
 			{
-				if (j==strLength-1)
-				{
-					return i-strLength+1;
-				}
-			}
-			else
-			{
-				break;
+				return i.pos;
 			}
 		}
 	}
@@ -323,35 +293,23 @@ int ConstStr::findChar(char target)
 }
 int ConstStr::findChar(int startPos, char target)
 {
-	char** b1 = startBlock + (startPos / BLOCK_SIZE);
-	char* c1 = *b1 + (startPos % BLOCK_SIZE);
-	char* endC1 = *b1 + BLOCK_SIZE; // position of last char in block + 1
-	for (int i=startPos;i<length;i++)
+	for (ConstStrIterator i = this->iterate(startPos);i<length;i++)
 	{
-		if (c1==endC1)
-		{
-			b1++;
-			c1 = *b1;
-			endC1 = c1 + BLOCK_SIZE;
-		}
-		
-		if (*c1 == target) return i;
-		
-		c1++;
+		if (*i == target) return i.pos;
 	}
 	return -1;
 }
-ConstStrIterator ConstStr::iterate()
+ConstStrIterator ConstStr::iterate() const
 {
 	return this->iterate(0);
 }
-ConstStrIterator ConstStr::iterate(int startPos)
+ConstStrIterator ConstStr::iterate(const int startPos) const
 {
 	return ConstStrIterator(*this, startPos);
 }
 
 
-ConstStrIterator::ConstStrIterator(ConstStr& cs, int startPos):
+ConstStrIterator::ConstStrIterator(const ConstStr& cs, const int startPos):
 	cs(cs)
 {
 	if (startPos<0 || startPos>=cs.length) throw OUT_OF_STRING_BOUNDS;
@@ -386,10 +344,10 @@ char ConstStrIterator::operator * () // Get current char
 {
 	return *c1;
 }
-void ConstStrIterator::operator ++ ()
+int ConstStrIterator::operator ++ (int)
 {
 	pos++;
-	if (pos>=cs.length) throw OUT_OF_STRING_BOUNDS;
+	if (pos>=cs.length) return pos;//throw OUT_OF_STRING_BOUNDS;
 	c1++;
 	if (c1==endC1)
 	{
@@ -397,11 +355,12 @@ void ConstStrIterator::operator ++ ()
 		c1 = *b1;
 		endC1 = c1 + BLOCK_SIZE;
 	}
+	return pos;
 }
-void ConstStrIterator::operator -- ()
+int ConstStrIterator::operator -- (int)
 {
 	pos--;
-	if (pos<0) throw OUT_OF_STRING_BOUNDS;
+	if (pos<0) return pos; //throw OUT_OF_STRING_BOUNDS;
 	if (c1==*b1) // if we're at the start of a block
 	{
 		b1--; // go to previous block
@@ -412,5 +371,19 @@ void ConstStrIterator::operator -- ()
 	{
 		c1--;
 	}
+	return pos;
 }
+
+const bool operator == (const ConstStrIterator& i1, const int& i2)
+{ return i1.pos == i2; }
+const bool operator != (const ConstStrIterator& i1, const int& i2)
+{ return i1.pos != i2; }
+const bool operator <  (const ConstStrIterator& i1, const int& i2)
+{ return i1.pos <  i2; }
+const bool operator >  (const ConstStrIterator& i1, const int& i2)
+{ return i1.pos >  i2; }
+const bool operator <= (const ConstStrIterator& i1, const int& i2)
+{ return i1.pos <= i2; }
+const bool operator >= (const ConstStrIterator& i1, const int& i2)
+{ return i1.pos >= i2; }
 

@@ -71,16 +71,19 @@ void* htmlLexThreadFunc(void* args)
 	////////////////////
 	// Parse headers
 	{
-		int i = 0;
+		ConstStrIterator i = downloadedHeaders->iterate();
+		
 		int inFirstLine = 1;
 		int inField = 0;
 		int inValue = 0;
 		
 		ConstStr httpVersion;
 		int responseCode = -1;
-		std::string responseStatus = std::string("");
-		std::string field;
-		std::string value;
+		ConstStr responseStatus;
+		
+		int fieldStart = -1;
+		int valueStart = -1;
+		
 		while
 		(
 			*downloadingPage
@@ -91,9 +94,7 @@ void* htmlLexThreadFunc(void* args)
 			while(i>=downloadedHeaders->length)
 			{
 				if ((*downloadingPage)==0) break; // If downloading is done, quit
-				PRINT(HTML Lex thread is waiting for downloader...);
-				usleep(50000);
-				//std::cout<<"lexer waiting for downloader="<<*downloadingPage<<"\n";
+				usleep(100);
 			} // Wait until more has been buffered
 			if
 			(
@@ -105,15 +106,15 @@ void* htmlLexThreadFunc(void* args)
 				PRINT(HTML Lex thread detected downloader=done);
 				break; // If downloading is done, quit
 			}
-			char c = downloadedHeaders[i];
+			char c = *i;
 			if (inFirstLine)
 			{
 				if (inFirstLine==1) // In HTTP version
 				{
 					if (c==' ')
 					{
-						httpVersion = downloadedHeaders->subString(0, i);
-						//std::cout << "httpVersion=" << httpVersion << "\n";
+						httpVersion = downloadedHeaders->subString(0, i.pos);
+						printf("httpVersion=");httpVersion.printLine();
 						inFirstLine++;
 					}
 				}
@@ -121,8 +122,8 @@ void* htmlLexThreadFunc(void* args)
 				{
 					if (c==' ')
 					{
-						responseCode = atoi(downloadedHeaders->substr(httpVersion.length()+1, i-httpVersion.length()-1).c_str());
-						//std::cout << "responseCode=" << responseCode << "\n";
+						responseCode = atoi(downloadedHeaders->subString(httpVersion.length+1, i.pos-httpVersion.length-1).copy());
+						printf("responseCode=%i\n", responseCode);
 						inFirstLine++;
 					}
 				}
@@ -132,11 +133,11 @@ void* htmlLexThreadFunc(void* args)
 					{
 						if (responseStatus==std::string(""))
 						{
-							responseStatus = downloadedHeaders->substr(httpVersion.length()+1+3+1, i-httpVersion.length()-1-3-1);
-							//std::cout << "responseStatus=" << responseStatus << "\n";
+							responseStatus = downloadedHeaders->subString(httpVersion.length+1+3+1, i.pos-httpVersion.length-1-3-1);
+							printf("responseStatus=");responseStatus.printLine();
 							inFirstLine = 0;
 							inField = 1;
-							field = std::string("");
+							fieldStart = i.pos+1;
 						}
 					}
 				}
@@ -147,16 +148,17 @@ void* htmlLexThreadFunc(void* args)
 				{
 					inField = 0;
 					inValue = 1;
-					value = std::string("");
+					valueStart = i.pos+2;
 					
-					headerFields->push_back(field);
-					//std::cout << "headerField=" << field << "\n";
+					headerFields->push_back(downloadedHeaders->subString(fieldStart, i.pos-fieldStart));
 					i++;
 				}
-				else if (c=='\r' || c=='\n'){}
+				else if (c=='\r' || c=='\n')
+				{
+					fieldStart = i.pos+1;
+				}
 				else
 				{
-					field += c;
 				}
 			}
 			else if (inValue)
@@ -165,13 +167,12 @@ void* htmlLexThreadFunc(void* args)
 				{
 					inValue = 0;
 					inField = 1;
-					field = std::string("");
-					headerValues->push_back(value);
-					//std::cout << "headerValue=" << value << "\n";
+					fieldStart = i.pos+1;
+					
+					headerValues->push_back(downloadedHeaders->subString(valueStart, i.pos-valueStart));
 				}
 				else
 				{
-					value += c;
 				}
 			}
 			i++;
