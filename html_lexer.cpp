@@ -183,7 +183,9 @@ void* htmlLexThreadFunc(void* args)
 	////////////////////
 	// Parse HTML
 	{
-		int i = 0;
+		ConstStrIterator i = downloadedHTML->iterate();
+		
+		
 		int tagType = 0; // 0 = text, 1 = opening, 2 = opening & self-closing, 3 = closing
 		int inTag = 0; // 0 = inside text, 1 = inside tag name, 2 = inside argument field, 3 = inside argument value
 		
@@ -192,7 +194,9 @@ void* htmlLexThreadFunc(void* args)
 		int inArgValueBackslashed = 0; // 0 = no, 1 = yes
 		
 		HTMLTag tag;
-		std::string buffer;
+		
+		//std::string buffer;
+		int bufferStart = -1;
 		
 		int escaped = 0;
 		
@@ -205,10 +209,10 @@ void* htmlLexThreadFunc(void* args)
 		(
 			*downloadingPage
 			||
-			i<downloadedHTML->length()
+			i<downloadedHTML->length
 		)
 		{
-			char c = downloadedHTML->at(i);
+			char c = *i;
 			
 			if (!insideScript && c=='\n' || c=='\t') c = ' ';
 			
@@ -228,7 +232,7 @@ void* htmlLexThreadFunc(void* args)
 				//HTMLTags->pop_back();
 				//tag.text = std::string("");
 				inComment = 0;
-				tag.text = tag.text.substr(1, tag.text.length()-1);
+				tag.text = tag.text.subString(1, tag.text.length-1);
 				i++;
 				continue;
 			}
@@ -244,15 +248,13 @@ void* htmlLexThreadFunc(void* args)
 				continue;
 			}
 			
-			//std::cout << "Char " << c << ": ";
 			if (tagType==0 && inTag==0) // Not inside a tag
 			{
 				if (c=='<' && !insideScript) {	// bla bla <div>
 					tagType = 1;				//         ^
 					inTag = 1;
-					if (tag.text!=std::string(""))
+					if (tag.text.length>0)
 					{
-						//std::cout << "Text node found: " << tag.text << "\n";
 						tag.type = 0;
 						HTMLTags->push_back(tag);
 						tag = HTMLTag();
@@ -302,7 +304,7 @@ void* htmlLexThreadFunc(void* args)
 									slashScript = std::string("");
 									insideScript = 0;
 									tag.type = 0;
-									tag.text = tag.text.substr(0, tag.text.length()-(i-slashScriptStart)-1);
+									tag.text = tag.text.subString(0, tag.text.length-(i-slashScriptStart)-1);
 									HTMLTags->push_back(tag);
 									tag = HTMLTag();
 									tag.type = 3;
@@ -328,7 +330,7 @@ void* htmlLexThreadFunc(void* args)
 				tag.type = tagType;
 				int allArgValuesAreEmpty = 1;
 				for (int j;j<tag.argValues.size();j++) {
-					if (tag.argValues.at(j)!=std::string("")) {
+					if (tag.argValues.at(j).length>0) {
 						allArgValuesAreEmpty = 0;
 						break;
 					}
@@ -355,15 +357,15 @@ void* htmlLexThreadFunc(void* args)
 				} else*/
 				if (tag.text==std::string("")) {
 					std::cout << RED << "Lexer error: Unexpected < - Assumed you meant &lt;\n" << NOCLR;
-					int j = i-1;
+					int j = i.pos-1;
 					for (;;j--)
 					{
-						if (downloadedHTML->at(j) == '<')
+						if (downloadedHTML[j] == '<')
 						{
 							break;
 						}
 					}
-					tag.text = downloadedHTML->substr(j, i-j);
+					tag.text = downloadedHTML->subString(j, i-j);
 					tag.type = 0;
 					HTMLTags->push_back(tag);
 					tag = HTMLTag();
@@ -383,7 +385,7 @@ void* htmlLexThreadFunc(void* args)
 					found12==std::string::npos &&
 					found13==std::string::npos &&
 					(
-						tag.argNames.size()==0 ||
+						tag.argNames.length==0 ||
 						!allArgValuesAreEmpty
 					)
 				)
@@ -402,12 +404,12 @@ void* htmlLexThreadFunc(void* args)
 					int j = i-1;
 					for (;;j--)
 					{
-						if (downloadedHTML->at(j) == '<')
+						if (downloadedHTML[j] == '<')
 						{
 							break;
 						}
 					}
-					tag.text = downloadedHTML->substr(j, i-j);
+					tag.text = downloadedHTML->subString(j, i-j);
 					tag.type = 0;
 					HTMLTags->push_back(tag);
 					tag = HTMLTag();
