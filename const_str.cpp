@@ -48,7 +48,7 @@ ConstStr::ConstStr(char** startBlock, char* startChar, int length, ConstStr* par
 
 void ConstStr::operator = (const std::string& str)
 {
-	if (length!=0 || startChar!=NULL) throw TRIED_TO_ASSIGN_TO_CONSTANT;
+	//if (length!=0 || startChar!=NULL) throw TRIED_TO_ASSIGN_TO_CONSTANT;
 	char* theStr = (char*)malloc(str.size()+1);
 	strcpy(theStr, str.c_str());
 	char** theBlock = new char*;
@@ -59,7 +59,7 @@ void ConstStr::operator = (const std::string& str)
 }
 void ConstStr::operator = (const ConstStr& str)
 {
-	if (length!=0 || startChar!=NULL) throw TRIED_TO_ASSIGN_TO_CONSTANT;
+	//if (length!=0 || startChar!=NULL) throw TRIED_TO_ASSIGN_TO_CONSTANT;
 	this->parent = str.parent;
 	this->startBlock = str.startBlock;
 	this->startChar = str.startChar;

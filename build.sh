@@ -16,6 +16,8 @@ dotCpp=".cpp"	# The files you want to compile
 dotO=".o"		# The extension compiled files get
 
 
+
+
 #---------Don't change below this line if you don't know what you're doing :)
 forceCompileAll=0
 if [ $# -eq 0 ]
@@ -27,7 +29,7 @@ fi
 dotOfiles=""
 compiled=0
 for i in *.cpp; do
-	if [[ $i != test* ]];
+	if [[ $i != test* ]] # && [[ $i != css* ]] && [[ $i != html_yacc* ]];
 	then
 		j="${i/$dotCpp/$dotO}"
 		dotOfiles=$dotOfiles$j" "

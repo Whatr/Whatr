@@ -238,7 +238,6 @@ int main(int argc, char* argv[])
 		}
 	}
 	
-	/*
 	
 	auto time_4 = std::chrono::high_resolution_clock::now();
 	while (lexingPage){}
@@ -252,34 +251,36 @@ int main(int argc, char* argv[])
 		PRINT(The HTML lexer is done! Here are its results:)
 		for (int i=0;i<HTMLTags.size();i++)
 		{
+			printf("i=%i\n", i);
 			HTMLTag tag = HTMLTags[i];
+			printf("tag.type=%i\n", tag.type);
 			if (tag.type==0)
 			{
-				std::cout << GREEN << "Text node: " << NOCLR << tag.text << "\n";
+				std::cout << GREEN << "Text node: " << NOCLR << tag.text.copy() << "\n";
 			}
 			else if (tag.type==1)
 			{
-				std::cout << GREEN << "<" << tag.text;
+				std::cout << GREEN << "<" << tag.text.copy();
 				for (int j=0;j<tag.argNames.size();j++)
 				{
-					std::cout << " " << tag.argNames[j] << "="
-							  << "\"" << tag.argValues[j] << "\"";
+					std::cout << " " << tag.argNames[j].copy() << "="
+							  << "\"" << tag.argValues[j].copy() << "\"";
 				}
 				std::cout << ">\n" << NOCLR;
 			}
 			else if (tag.type==2)
 			{
-				std::cout << GREEN << "<" << tag.text;
+				std::cout << GREEN << "<" << tag.text.copy();
 				for (int j=0;j<tag.argNames.size();j++)
 				{
-					std::cout << " " << tag.argNames[j] << "="
-							  << "\"" << tag.argValues[j] << "\"";
+					std::cout << " " << tag.argNames[j].copy() << "="
+							  << "\"" << tag.argValues[j].copy() << "\"";
 				}
 				std::cout << "/>\n" << NOCLR;
 			}
 			else if (tag.type==3)
 			{
-				std::cout << GREEN << "</" << tag.text << ">\n" << NOCLR;
+				std::cout << GREEN << "</" << tag.text.copy() << ">\n" << NOCLR;
 			}
 			else
 			{
@@ -287,6 +288,8 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
+	/*
+	
 	///////////////////////////////////
 	////// Start thread that yaccs the HTML tags
 	{
