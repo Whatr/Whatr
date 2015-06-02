@@ -606,11 +606,11 @@ void* htmlLexThreadFunc(void* args)
 						ConstStr argValue = downloadedHTML->subString(bufferStart, i.pos-bufferStart);
 						if (argValue[0]=='"')
 						{
-							argValue = argValue.trim('"', '"', '"', '"');
+							argValue = argValue.trim('"', '"', '"', '"', 1);
 						}
 						else if (argValue[0]=='\'')
 						{
-							argValue = argValue.trim('\'', '\'', '\'', '\'');
+							argValue = argValue.trim('\'', '\'', '\'', '\'', 1);
 						}
 						tag.argValues.push_back(argValue);
 						std::cout << "Argument value found: " << tag.argValues.back().copy() << "\n";
