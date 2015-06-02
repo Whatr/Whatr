@@ -20,11 +20,13 @@ public:
 	void operator = (const std::string& str);
 	void operator = (const ConstStr& str);
 	
+	const bool operator -= (const std::string& str2);
+	
 	char* copy();
 	void copyTo(char* startPos);
 	ConstStr subString(int startPos, int lengthChars);
 	ConstStr subString(int startPos);
-	void trim();
+	ConstStr trim(char c1, char c2, char c3, char c4);
 	void print();
 	void printLine();
 	const char operator [] (const int i);

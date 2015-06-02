@@ -196,8 +196,6 @@ void* htmlLexThreadFunc(void* args)
 	////////////////////
 	// Parse HTML
 	{
-		printf("1asd\n");
-		
 		ConstStrIterator i = downloadedHTML->iterate();
 		
 		
@@ -230,7 +228,6 @@ void* htmlLexThreadFunc(void* args)
 		{
 			//printf("2\n");
 			char c = *i;
-			printf("3=%c\n", c);
 			
 			if (!insideScript && c=='\n' || c=='\t') c = ' ';
 			
@@ -263,7 +260,6 @@ void* htmlLexThreadFunc(void* args)
 			
 			if (inComment>=4)
 			{
-				printf("5\n");
 				i++;
 				continue;
 			}
@@ -271,10 +267,10 @@ void* htmlLexThreadFunc(void* args)
 			
 			if (tagType==0 && inTag==0) // Not inside a tag
 			{
+				printf("5\n");
 				if (c=='<' && !insideScript) {	// bla bla <div>
 					tagType = 1;				//         ^
 					inTag = 1;
-					printf("6\n");
 					if (tagTextStart!=-1)
 					{
 						tag.type = 0;
@@ -286,10 +282,19 @@ void* htmlLexThreadFunc(void* args)
 				} else {			// bla bla
 									//      ^
 					//tag.text += c;
-					printf("7\n");
 					if (tagTextStart==-1) tagTextStart = i.pos;
 					if (insideScript) {
-						if (c!=' ' && c!='\t') {
+						if (
+							(c==' ' || c=='\t')
+							&&
+							(
+								slashScript.size()==1 ||	// < /script>
+								slashScript.size()==2 ||	// </ script>
+								slashScript.size()==8		// </script >
+							)
+							) {
+						} else {
+							printf("slashScript=%s\n", slashScript.c_str());
 							if (slashScript.size()==0) {
 								if (c=='<') {
 									slashScript += '<';
@@ -330,8 +335,10 @@ void* htmlLexThreadFunc(void* args)
 									slashScript = std::string("");
 									insideScript = 0;
 									tag.type = 0;
-									tag.text = tag.text.subString(0, tag.text.length-(i.pos-slashScriptStart)-1);
+									tag.text = downloadedHTML->subString(tagTextStart, slashScriptStart-tagTextStart);
+									tagTextStart = -1;
 									HTMLTags->push_back(tag);
+									
 									tag = HTMLTag();
 									tag.type = 3;
 									tag.text = std::string("script");
@@ -448,7 +455,7 @@ void* htmlLexThreadFunc(void* args)
 			else if (tagType==1 && inTag==1) // Inside an opening tag name
 			{
 				printf("9\n");
-				if (c==' ' && tag.text.length==0) { // < div id="bla">
+				if (c==' ' && tagTextStart==i.pos) { // < div id="bla">
 					printf("10\n");
 					// Ignore the space
 					tagTextStart = i.pos+1;
@@ -587,7 +594,16 @@ void* htmlLexThreadFunc(void* args)
 						printf("24\n");
 						// la;sdfkla;lskdfl;kasfdsa ignore the space
 					} else {
-						tag.argValues.push_back(downloadedHTML->subString(bufferStart, i.pos-bufferStart));
+						ConstStr argValue = downloadedHTML->subString(bufferStart, i.pos-bufferStart);
+						if (argValue[0]=='"')
+						{
+							argValue = argValue.trim('"', '"', '"', '"');
+						}
+						else if (argValue[0]=='\'')
+						{
+							argValue = argValue.trim('\'', '\'', '\'', '\'');
+						}
+						tag.argValues.push_back(argValue);
 						std::cout << "Argument value found: " << tag.argValues.back().copy() << "\n";
 						bufferStart = i.pos+1;
 						inTag = 2;
@@ -620,7 +636,16 @@ void* htmlLexThreadFunc(void* args)
 					tag.type = 2;	//                               ^
 					tagType = 2;
 					inTag = 1;
-					tag.argValues.push_back(downloadedHTML->subString(bufferStart, i.pos-bufferStart));
+					ConstStr argValue = downloadedHTML->subString(bufferStart, i.pos-bufferStart);
+					if (argValue[0]=='"')
+					{
+						argValue = argValue.trim('"', '"', '"', '"');
+					}
+					else if (argValue[0]=='\'')
+					{
+						argValue = argValue.trim('\'', '\'', '\'', '\'');
+					}
+					tag.argValues.push_back(argValue);
 					bufferStart = i.pos+1;
 					printf("28\n");
 					//std::cout << "Forward slash in tag outside quotes\n";
@@ -636,8 +661,18 @@ void* htmlLexThreadFunc(void* args)
 							insideScript = 1;
 							slashScript = std::string("");
 						}
-						//std::cout << "Argument value found: " << buffer << "\n";
-						tag.argValues.push_back(downloadedHTML->subString(bufferStart, i.pos-bufferStart));
+						std::cout << "Argument value found!\n";
+						ConstStr argValue = downloadedHTML->subString(bufferStart, i.pos-bufferStart);
+						if (argValue[0]=='"')
+						{
+							argValue = argValue.trim('"', '"', '"', '"');
+						}
+						else if (argValue[0]=='\'')
+						{
+							argValue = argValue.trim('\'', '\'', '\'', '\'');
+						}
+						argValue.printLine();
+						tag.argValues.push_back(argValue);
 						bufferStart = i.pos+1;
 					
 						//std::cout << "Tag <"<<tag.text<<"...> opened\n";

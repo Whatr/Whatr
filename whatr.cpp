@@ -251,25 +251,27 @@ int main(int argc, char* argv[])
 		PRINT(The HTML lexer is done! Here are its results:)
 		for (int i=0;i<HTMLTags.size();i++)
 		{
-			printf("i=%i\n", i);
+			//printf("i=%i\n", i);
 			HTMLTag tag = HTMLTags[i];
-			printf("tag.type=%i\n", tag.type);
+			//printf("tag.type=%i\n", tag.type);
 			if (tag.type==0)
 			{
-				std::cout << GREEN << "Text node: " << NOCLR << tag.text.copy() << "\n";
+				std::cout << GREEN << "Text node: " << NOCLR << '"' << tag.text.copy() << "\"\n";
 			}
 			else if (tag.type==1)
 			{
-				std::cout << GREEN << "<" << tag.text.copy();
+				std::cout << "<" << GREEN << tag.text.copy();
 				for (int j=0;j<tag.argNames.size();j++)
 				{
-					std::cout << " " << tag.argNames[j].copy() << "="
-							  << "\"" << tag.argValues[j].copy() << "\"";
+					std::cout << " " << tag.argNames[j].copy() << NOCLR << "="
+							  << "\"" << GREEN << tag.argValues[j].copy()
+							  << NOCLR << "\"";
 				}
 				std::cout << ">\n" << NOCLR;
 			}
 			else if (tag.type==2)
 			{
+				tag.text.printLine();
 				std::cout << GREEN << "<" << tag.text.copy();
 				for (int j=0;j<tag.argNames.size();j++)
 				{

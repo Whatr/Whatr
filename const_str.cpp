@@ -82,6 +82,34 @@ const bool operator == (const ConstStr& str1, const std::string& str2)
 	return true;
 }
 
+const bool ConstStr::operator -= (const std::string& str2) // Case insensitive cmp
+{
+	if (this->length!=str2.size()) return false;
+	
+	ConstStrIterator i = this->iterate();
+	for (int j=0;j<this->length;j++,i++)
+	{
+		char c1 = *i;
+		char c2 = str2.at(j);
+		if (c1==c2) continue;
+		if (c1>='A')
+		{
+			if (c1<='Z')
+			{
+				if (c1+('a'-'A') == c2) continue;
+				return false;
+			}
+			if (c1>='a' && c1<='z')
+			{
+				if (c1-('a'-'A') == c2) continue;
+				return false;
+			}
+		}
+		return false;
+	}
+	return true;
+}
+
 const bool operator == (const ConstStr& str1, const ConstStr& str2)
 {
 	if (str1.length!=str2.length) return false;
@@ -146,7 +174,7 @@ void ConstStr::copyTo(char* destination) // Copy it
 	int progress = 0;
 	if (*b1 != c1)
 	{
-		int copyLength = c1 - *b1 + BLOCK_SIZE;
+		int copyLength = BLOCK_SIZE - (c1 - *b1);
 		if (copyLength<=length)
 		{
 			memcpy(destination, c1, copyLength);
@@ -198,36 +226,38 @@ ConstStr ConstStr::subString(int startPos, int lengthChars) // Easy :)
 				this
 			);
 }
-void ConstStr::trim() // Easy :)
+ConstStr ConstStr::trim(char c1, char c2, char c3, char c4) // Easy :)
 {
-	while (length>0)
+	ConstStr ret = *this;
+	while (ret.length>0)
 	{
-		if ((*this)[0]==' ' ||
-			(*this)[0]=='\n' ||
-			(*this)[0]=='\t' ||
-			(*this)[0]=='\r')
+		if (ret[0]==c1 ||
+			ret[0]==c2 ||
+			ret[0]==c3 ||
+			ret[0]==c4)
 		{
-			startChar++;
-			if (startChar==(BLOCK_SIZE+*startBlock))
+			ret.startChar++;
+			if (ret.startChar==(BLOCK_SIZE+*(ret.startBlock)))
 			{
-				startBlock++;
-				startChar = *startBlock;
+				ret.startBlock++;
+				ret.startChar = *(ret.startBlock);
 			}
-			length--;
+			ret.length--;
 		}
 		else break;
 	}
-	while (length>0)
+	while (ret.length>0)
 	{
-		if ((*this)[length-1]==' ' ||
-			(*this)[length-1]=='\n' ||
-			(*this)[length-1]=='\t' ||
-			(*this)[length-1]=='\r')
+		if (ret[ret.length-1]==c1 ||
+			ret[ret.length-1]==c2 ||
+			ret[ret.length-1]==c3 ||
+			ret[ret.length-1]==c4)
 		{
-			length--;
+			ret.length--;
 		}
 		else break;
 	}
+	return ret;
 }
 void ConstStr::print()
 {
