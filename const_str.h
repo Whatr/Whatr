@@ -27,6 +27,7 @@ public:
 	ConstStr subString(int startPos, int lengthChars);
 	ConstStr subString(int startPos);
 	ConstStr trim(char c1, char c2, char c3, char c4);
+	ConstStr trim(char c1, char c2, char c3, char c4, int maxChars);
 	void print();
 	void printLine();
 	const char operator [] (const int i);

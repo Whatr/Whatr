@@ -228,8 +228,13 @@ ConstStr ConstStr::subString(int startPos, int lengthChars) // Easy :)
 }
 ConstStr ConstStr::trim(char c1, char c2, char c3, char c4) // Easy :)
 {
+	return this->trim(c1, c2, c3, c4, this->length);
+}	
+ConstStr ConstStr::trim(char c1, char c2, char c3, char c4, int maxChars) // Easy :)
+{
 	ConstStr ret = *this;
-	while (ret.length>0)
+	int count = 0;
+	while (ret.length>0 && count<maxChars)
 	{
 		if (ret[0]==c1 ||
 			ret[0]==c2 ||
@@ -243,10 +248,12 @@ ConstStr ConstStr::trim(char c1, char c2, char c3, char c4) // Easy :)
 				ret.startChar = *(ret.startBlock);
 			}
 			ret.length--;
+			count++;
 		}
 		else break;
 	}
-	while (ret.length>0)
+	count = 0;
+	while (ret.length>0 && count<maxChars)
 	{
 		if (ret[ret.length-1]==c1 ||
 			ret[ret.length-1]==c2 ||
@@ -254,6 +261,7 @@ ConstStr ConstStr::trim(char c1, char c2, char c3, char c4) // Easy :)
 			ret[ret.length-1]==c4)
 		{
 			ret.length--;
+			count++;
 		}
 		else break;
 	}

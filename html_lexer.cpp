@@ -255,7 +255,7 @@ void* htmlLexThreadFunc(void* args)
 			else if (inComment>4 && inComment<7) inComment = 4;
 			
 			
-			//printf("4\n");
+			printf("c=%c\n", c);
 			
 			
 			if (inComment>=4)
@@ -528,16 +528,15 @@ void* htmlLexThreadFunc(void* args)
 						printf("18.1\n");
 						//std::transform(buffer.begin(), buffer.end(), buffer.begin(), ::tolower);
 						tag.argNames.push_back(downloadedHTML->subString(bufferStart, i.pos-bufferStart));
-						std::cout << "Argument name without value found: " << tag.argNames.back().copy() << "\n";
-						tag.argValues.push_back(downloadedHTML->subString(0, 0));
-						bufferStart = -1;
+						std::cout << "Argument name found: " << tag.argNames.back().copy() << "\n";
 					}
+					bufferStart = i.pos+1;
 				} else if (c=='=')
 				{				// <div id="bla">
 					inTag = 3;	//        ^
-					if (bufferStart>=i.pos) {
+					if (tag.argNames.size()>tag.argValues.size()) {
 						printf("19\n");
-						tag.argValues.pop_back();
+						bufferStart = i.pos+1;
 					} else {
 						//std::transform(buffer.begin(), buffer.end(), buffer.begin(), ::tolower);
 						printf("20\n");
@@ -561,6 +560,10 @@ void* htmlLexThreadFunc(void* args)
 					inTag = 0;
 				} else if (c=='>') {
 					printf("22\n");
+					while (tag.argValues.size()<tag.argNames.size())
+					{
+						tag.argValues.push_back(downloadedHTML->subString(0, 0));
+					}
 					if (bufferStart<i.pos)
 					{
 						//std::transform(buffer.begin(), buffer.end(), buffer.begin(), ::tolower);
@@ -584,6 +587,11 @@ void* htmlLexThreadFunc(void* args)
 					std::cout << RED << "Lexer error: " << c << " is not a valid attribute name character!" << NOCLR;
 				} else {		// <div id="bla">
 					//buffer+=c;//      ^
+					
+					while (tag.argNames.size()>tag.argValues.size())
+					{
+						tag.argValues.push_back(downloadedHTML->subString(0, 0));
+					}
 					printf("23\n");
 				}
 			}
@@ -592,6 +600,7 @@ void* htmlLexThreadFunc(void* args)
 				if (c==' ' && !inArgValueQuotes) {
 					if (bufferStart>=i.pos) {
 						printf("24\n");
+						bufferStart = i.pos+1;
 						// la;sdfkla;lskdfl;kasfdsa ignore the space
 					} else {
 						ConstStr argValue = downloadedHTML->subString(bufferStart, i.pos-bufferStart);
