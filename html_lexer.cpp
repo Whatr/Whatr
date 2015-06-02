@@ -228,7 +228,7 @@ void* htmlLexThreadFunc(void* args)
 			i<downloadedHTML->length
 		)
 		{
-			printf("2\n");
+			//printf("2\n");
 			char c = *i;
 			printf("3=%c\n", c);
 			
@@ -258,16 +258,16 @@ void* htmlLexThreadFunc(void* args)
 			else if (inComment>4 && inComment<7) inComment = 4;
 			
 			
-			printf("4\n");
+			//printf("4\n");
 			
 			
 			if (inComment>=4)
 			{
+				printf("5\n");
 				i++;
 				continue;
 			}
 			
-			printf("5\n");
 			
 			if (tagType==0 && inTag==0) // Not inside a tag
 			{
@@ -275,9 +275,10 @@ void* htmlLexThreadFunc(void* args)
 					tagType = 1;				//         ^
 					inTag = 1;
 					printf("6\n");
-					if (tag.text.length>0)
+					if (tagTextStart!=-1)
 					{
 						tag.type = 0;
+						tag.text = downloadedHTML->subString(tagTextStart, i.pos-tagTextStart);
 						HTMLTags->push_back(tag);
 						tag = HTMLTag();
 					}
@@ -286,6 +287,7 @@ void* htmlLexThreadFunc(void* args)
 									//      ^
 					//tag.text += c;
 					printf("7\n");
+					if (tagTextStart==-1) tagTextStart = i.pos;
 					if (insideScript) {
 						if (c!=' ' && c!='\t') {
 							if (slashScript.size()==0) {
@@ -467,7 +469,7 @@ void* htmlLexThreadFunc(void* args)
 					
 					printf("12\n");
 					tag.text = downloadedHTML->subString(tagTextStart, i.pos-tagTextStart);
-					
+					tagTextStart = -1;
 					std::cout << "Tag possibly with arguments found: " << tag.text.copy() << "\n";
 					bufferStart = i.pos+1;
 				} else if (c=='/') {
@@ -476,6 +478,7 @@ void* htmlLexThreadFunc(void* args)
 					{					// </body>
 						tagType = 3;	//  ^
 						std::cout << "Closing tag start detected: </\n";
+						tagTextStart++;
 					}
 					else
 					{					// <br/>
@@ -490,6 +493,7 @@ void* htmlLexThreadFunc(void* args)
 					tag.type = 1;
 					//std::transform(tag.text.begin(), tag.text.end(), tag.text.begin(), ::tolower);
 					tag.text = downloadedHTML->subString(tagTextStart, i.pos-tagTextStart);
+					tagTextStart = -1;
 					printf("14.1\n");
 					if (tag.text==std::string("script"))
 					{
@@ -506,13 +510,15 @@ void* htmlLexThreadFunc(void* args)
 					tag = HTMLTag();
 				} else {			// <div>
 					//tag.text+=c;	//   ^
-					printf("15\n");
+					printf("17\n");
 				}
 			}
 			else if (tagType==1 && inTag==2) // Inside an opening tag argument field
 			{
 				if (c==' ') {
+					printf("18\n");
 					if (bufferStart<i.pos) {
+						printf("18.1\n");
 						//std::transform(buffer.begin(), buffer.end(), buffer.begin(), ::tolower);
 						tag.argNames.push_back(downloadedHTML->subString(bufferStart, i.pos-bufferStart));
 						std::cout << "Argument name without value found: " << tag.argNames.back().copy() << "\n";
@@ -523,16 +529,20 @@ void* htmlLexThreadFunc(void* args)
 				{				// <div id="bla">
 					inTag = 3;	//        ^
 					if (bufferStart>=i.pos) {
+						printf("19\n");
 						tag.argValues.pop_back();
 					} else {
 						//std::transform(buffer.begin(), buffer.end(), buffer.begin(), ::tolower);
+						printf("20\n");
 						tag.argNames.push_back(downloadedHTML->subString(bufferStart, i.pos-bufferStart));
 						std::cout << "Argument name found: " << tag.argNames.back().copy() << "\n";
 						bufferStart = i.pos+1;
 					}
 				} else if (c=='/') {
+					printf("21\n");
 					if (bufferStart<i.pos)
 					{
+						printf("21.1\n");
 						//std::transform(buffer.begin(), buffer.end(), buffer.begin(), ::tolower);
 						tag.argNames.push_back(downloadedHTML->subString(bufferStart, i.pos-bufferStart));
 						tag.argValues.push_back(downloadedHTML->subString(0, 0));
@@ -543,6 +553,7 @@ void* htmlLexThreadFunc(void* args)
 					tagType = 0;
 					inTag = 0;
 				} else if (c=='>') {
+					printf("22\n");
 					if (bufferStart<i.pos)
 					{
 						//std::transform(buffer.begin(), buffer.end(), buffer.begin(), ::tolower);
@@ -566,22 +577,26 @@ void* htmlLexThreadFunc(void* args)
 					std::cout << RED << "Lexer error: " << c << " is not a valid attribute name character!" << NOCLR;
 				} else {		// <div id="bla">
 					//buffer+=c;//      ^
+					printf("23\n");
 				}
 			}
 			else if (tagType==1 && inTag==3) // Inside an opening tag argument value
 			{
 				if (c==' ' && !inArgValueQuotes) {
 					if (bufferStart>=i.pos) {
+						printf("24\n");
 						// la;sdfkla;lskdfl;kasfdsa ignore the space
 					} else {
 						tag.argValues.push_back(downloadedHTML->subString(bufferStart, i.pos-bufferStart));
 						std::cout << "Argument value found: " << tag.argValues.back().copy() << "\n";
 						bufferStart = i.pos+1;
 						inTag = 2;
+						printf("25\n");
 					}
 					inArgValueBackslashed = 0;
 				} else if (c=='"' || c=='\'') {
 					if (!inArgValueQuotes) {
+						printf("26\n");
 						if (bufferStart>=i.pos)	// <div id="bla">
 						{								//         ^
 							inArgValueQuotes = 1;
@@ -590,6 +605,7 @@ void* htmlLexThreadFunc(void* args)
 							inArgValueQuotes = 0;
 						}
 					} else if (inArgValueQuotes) {
+						printf("27\n");
 						if (inArgValueBackslashed)	// <b wc="Mr Fong said\"hi\"">
 						{							//                         ^
 							inArgValueBackslashed = 0;
@@ -606,12 +622,15 @@ void* htmlLexThreadFunc(void* args)
 					inTag = 1;
 					tag.argValues.push_back(downloadedHTML->subString(bufferStart, i.pos-bufferStart));
 					bufferStart = i.pos+1;
+					printf("28\n");
 					//std::cout << "Forward slash in tag outside quotes\n";
 				} else if (c=='>') {
 					if (inArgValueQuotes)	// <b wc="Mr Fong said <hi>">
 					{						//                        ^
+						printf("29\n");
 						// buffer += '>'; // TODO
 					} else {
+						printf("30\n");
 						if (tag.text==std::string("script"))
 						{
 							insideScript = 1;
@@ -634,6 +653,7 @@ void* htmlLexThreadFunc(void* args)
 					}
 					inArgValueBackslashed = 0;
 				} else if (c=='\\' && inArgValueQuotes) {
+					printf("31\n");
 					if (inArgValueBackslashed) {
 						inArgValueBackslashed = 0;
 						//buffer += '\\'; // TODO
@@ -641,6 +661,7 @@ void* htmlLexThreadFunc(void* args)
 						inArgValueBackslashed = 1;
 					}
 				} else {
+					printf("32\n");
 					if (!inArgValueQuotes) {
 						if ((*downloadedHTML)[i.pos-1] == '"') {
 							//buffer += '"'; // TODO
@@ -658,7 +679,10 @@ void* htmlLexThreadFunc(void* args)
 			else if (tagType==2 && inTag==2) {
 				if (c==' '){}
 				else if (c=='>') {
-					//std::cout << "Self-closing tag " << tag.text << " closed.\n";
+					printf("33\n");
+					tag.text = downloadedHTML->subString(tagTextStart, i.pos-tagTextStart);
+					tagTextStart = -1;
+					std::cout << "Self-closing tag " << tag.text.copy() << " closed.\n";
 					tag.type = 2;
 					//std::transform(tag.text.begin(), tag.text.end(), tag.text.begin(), ::tolower);
 
@@ -667,12 +691,14 @@ void* htmlLexThreadFunc(void* args)
 					tagType = 0;
 					inTag = 0;
 				} else {
+					printf("34\n");
 					std::cout << RED << "Lexer error: Unexpected character " << c << " when a > was expected!\n" << NOCLR;
 				}
 			}
 			else if (tagType==2 && inTag==1) {
 				if (c==' '){}
 				else if (c=='>') {
+					printf("35\n");
 					//std::cout << "Self-closing tag " << tag.text << " closed.\n";
 					tag.type = 2;
 					//std::transform(tag.text.begin(), tag.text.end(), tag.text.begin(), ::tolower);
@@ -685,18 +711,22 @@ void* htmlLexThreadFunc(void* args)
 				}
 			} else if (tagType==3 && inTag==1) {
 				if (c==' ' || c=='\n' || c=='\t') {
+					printf("36\n");
 					// Ignore the space
 				} else if (c=='>') {
-					if (tag.text.length==0) {
+					printf("37\n");
+					if (tagTextStart>=i.pos) {
 						std::cout << RED << "Lexer error: Empty closing tag! Ignoring it.\n" << NOCLR;
 						tag.type = 0;
 						tagType = 0;
 						inTag = 0;
 						tag = HTMLTag();
 					} else {
-						//std::cout << "Closing tag closed: " << tag.text << "\n";
 						tag.type = 3;
 						//std::transform(tag.text.begin(), tag.text.end(), tag.text.begin(), ::tolower);
+						tag.text = downloadedHTML->subString(tagTextStart, i.pos-tagTextStart);
+						std::cout << "Closing tag closed: " << tag.text.copy() << "\n";
+						tagTextStart = -1;
 						HTMLTags->push_back(tag);
 						tag = HTMLTag();
 						tagType = 0;
