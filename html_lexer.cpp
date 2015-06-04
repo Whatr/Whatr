@@ -354,7 +354,13 @@ void* htmlLexThreadFunc(void* args)
 				}
 			}
 			else if (tagType && inTag && c=='<' && !inArgValueQuotes)
-			{	// Unexpected <
+			{	// Unexpected <, ignore it
+				HTMLTag tag;
+				tag.type = 0;
+				tag.text = downloadedHTML->subString(i.pos, 1);
+				HTMLTags->push_back(tag);
+				tagTextStart = i.pos+1;
+				/*
 				printf("8\n");
 				if (inTag==3)
 				{
@@ -369,7 +375,31 @@ void* htmlLexThreadFunc(void* args)
 						break;
 					}
 				}
-				std::string untrimmed(tag.text.copy());
+				/*
+				
+						int tagType = 0; // 0 = text, 1 = opening, 2 = opening & self-closing, 3 = closing
+		int inTag = 0; // 0 = inside text, 1 = inside tag name, 2 = inside argument field, 3 = inside argument value
+		
+		int inArgValueQuotes = 0; // 0 = no, 1 = yes
+		char inArgValueQuotesType = 0; // ' or "
+		int inArgValueBackslashed = 0; // 0 = no, 1 = yes
+		
+		HTMLTag tag;
+		
+		//std::string buffer;
+		int bufferStart = -1;
+		int tagTextStart = -1;
+		
+		int escaped = 0;
+		
+		int inComment = 0; // 1 = <, 2 = <!, 3 = <!-, 4 = <!--, 5 = -, 6 = --, 7 = -->
+		int insideScript = 0; // 0 = no, 1 = yes
+		std::string slashScript = std::string("");
+		int slashScriptStart = 0;
+				
+				*//*
+				char* blaStr = tag.text.copy();
+				std::string untrimmed(blaStr);
 				std::string trimmed = trim(untrimmed);
 				std::size_t found1 = trimmed.find(std::string(" "));
 				std::size_t found2 = trimmed.find(std::string(","));
@@ -389,7 +419,7 @@ void* htmlLexThreadFunc(void* args)
 					tag.text==std::string("u") &&
 					allArgValuesAreEmpty) {
 					// <b lorum ipsum</b>
-				} else*/
+				} else*//*
 				if (tag.text.length==0) {
 					std::cout << RED << "Lexer error: Unexpected < - Assumed you meant &lt;\n" << NOCLR;
 					int j = i.pos-1;
@@ -450,7 +480,7 @@ void* htmlLexThreadFunc(void* args)
 					tag = HTMLTag();
 					inTag = 1;
 					tagType = 1;
-				}
+				}*/
 			}
 			else if (tagType==1 && inTag==1) // Inside an opening tag name
 			{
@@ -621,13 +651,14 @@ void* htmlLexThreadFunc(void* args)
 					inArgValueBackslashed = 0;
 				} else if (c=='"' || c=='\'') {
 					if (!inArgValueQuotes) {
-						printf("26\n");
 						if (bufferStart>=i.pos)	// <div id="bla">
-						{								//         ^
+						{						//         ^
 							inArgValueQuotes = 1;
 							inArgValueQuotesType = c;
+							printf("26.1\n");
 						} else {
 							inArgValueQuotes = 0;
+							printf("26.2\n");
 						}
 					} else if (inArgValueQuotes) {
 						printf("27\n");
@@ -706,7 +737,7 @@ void* htmlLexThreadFunc(void* args)
 					}
 				} else {
 					printf("32\n");
-					if (!inArgValueQuotes) {
+					if (!inArgValueQuotes && bufferStart+1>=i.pos) {
 						if ((*downloadedHTML)[i.pos-1] == '"') {
 							//buffer += '"'; // TODO
 							inArgValueQuotes = 1;

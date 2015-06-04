@@ -24,22 +24,6 @@
 #include "html_lexer.h"
 #include "html_yaccer.h"
 
-// trim from start
-static inline std::string &ltrim(std::string &s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-        return s;
-}
-
-// trim from end
-static inline std::string &rtrim(std::string &s) {
-        s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-        return s;
-}
-
-// trim from both ends
-static inline std::string &trim(std::string &s) {
-        return ltrim(rtrim(s));
-}
 void* htmlYaccThreadFunc(void* args)
 {
 	PRINT(htmlYaccThreadFunc start);
@@ -114,7 +98,9 @@ void* htmlYaccThreadFunc(void* args)
 				currentTag->text == std::string("strike") ||
 				currentTag->text == std::string("tt"))
 			{
-				std::cout << RED << "Yacc warning: The <" << currentTag->text << "> tag is deprecated in HTML5.\n" << NOCLR;
+				std::cout << RED << "Yacc warning: The <";
+				currentTag->text.print();
+				std::cout << "> tag is deprecated in HTML5.\n" << NOCLR;
 			}
 		}
 		
@@ -152,7 +138,9 @@ void* htmlYaccThreadFunc(void* args)
 			}
 			else if (currentTag->type==3) // Closing tag
 			{
-				std::cout << RED << "Yacc error: Unexpected closing tag </" << currentTag->text << NOCLR << ">, there are no tags to close.\n";
+				std::cout << RED << "Yacc error: Unexpected closing tag </";
+				currentTag->text.print();
+				std::cout << NOCLR << ">, there are no tags to close.\n";
 			}
 			else
 			{
@@ -183,11 +171,12 @@ void* htmlYaccThreadFunc(void* args)
 					// <head> or directly inside the <html>, we store it in
 					// [std::string misplacedText] and later add it at the top of
 					// the <body>
-					std::string tttttt = trim(currentTag->text);
-					if (tttttt.length()!=0)
+					ConstStr tttttt = currentTag->text.trim(' ', '\t', '\n', '\r');
+					if (tttttt.length!=0)
 					{
-						std::cout << RED << "Yacc error: Misplaced text \""<<tttttt<<"\"\n";
-						misplacedText += tttttt + "\n";
+						std::cout << RED << "TODO TODO TODO TODO\n";
+						//std::cout << RED << "Yacc error: Misplaced text \""<<tttttt<<"\"\n";
+						//misplacedText += tttttt + "\n";
 					}
 				}
 				else
@@ -240,11 +229,17 @@ void* htmlYaccThreadFunc(void* args)
 					}
 					if (!found)
 					{
-						std::cout << RED << "Yacc error: Encountered unmatched closing tag </" << currentTag->text << "> inside <" << currentElement->text << "> tag. Ignoring it.\n" << NOCLR;
+						std::cout << RED << "Yacc error: Encountered unmatched closing tag </";
+						currentTag->text.print();
+						std::cout << "> inside <";
+						currentElement->text.print();
+						std::cout << "> tag. Ignoring it.\n" << NOCLR;
 					}
 					else
 					{
-						std::cout << RED << "Yacc error: Unexpected closing tag </" << currentTag->text << ">! The following closing tags were not there but have been assumed: ";
+						std::cout << RED << "Yacc error: Unexpected closing tag </";
+						currentTag->text.print();
+						std::cout << ">! The following closing tags were not there but have been assumed: ";
 						checkingElement = currentElement;
 						while (checkingElement!=NULL)
 						{
@@ -255,7 +250,7 @@ void* htmlYaccThreadFunc(void* args)
 							}
 							else
 							{
-								std::cout << "</" << checkingElement->text << "> ";
+								std::cout << "</" << checkingElement->text.copy() << "> ";
 							}
 							checkingElement = checkingElement->parent;
 						}
@@ -280,7 +275,7 @@ void* htmlYaccThreadFunc(void* args)
 	}
 	while (currentElement!=NULL)
 	{
-		std::cout << RED << "Yacc error: Unclosed <" << currentElement->text << "> tag! \n" << NOCLR;
+		std::cout << RED << "Yacc error: Unclosed <" << currentElement->text.copy() << "> tag! \n" << NOCLR;
 		currentElement = currentElement->parent;
 	}
 	*yaccingPage = 0;

@@ -63,6 +63,7 @@ public:
 const bool operator == (const ConstStr& str1, const std::string& str2);
 const bool operator == (const ConstStr& str1, const ConstStr& str2);
 const bool operator != (const ConstStr& str1, const std::string& str2);
+const bool operator != (const ConstStr& str1, const ConstStr& str2);
 const bool operator == (const ConstStrIterator& i1, const int& i2);
 const bool operator != (const ConstStrIterator& i1, const int& i2);
 const bool operator <  (const ConstStrIterator& i1, const int& i2);

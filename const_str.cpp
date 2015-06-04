@@ -69,6 +69,10 @@ const bool operator != (const ConstStr& str1, const std::string& str2)
 {
 	return !(str1==str2);
 }
+const bool operator != (const ConstStr& str1, const ConstStr& str2)
+{
+	return !(str1==str2);
+}
 
 const bool operator == (const ConstStr& str1, const std::string& str2)
 {

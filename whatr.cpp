@@ -296,7 +296,7 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
-	/*
+	
 	
 	///////////////////////////////////
 	////// Start thread that yaccs the HTML tags
@@ -324,7 +324,7 @@ int main(int argc, char* argv[])
 			printTree(currentElement, std::string("  "));
 		}
 	}
-	
+	/*
 	auto time_6 = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
@@ -576,20 +576,27 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 {
 	if (currentElement->type==0)
 	{
-		std::cout << tabs << "TEXT[" << currentElement->text << "]" << "\n";
+		std::cout << tabs << "TEXT[";
+		currentElement->text.print();
+		std::cout << "]" << "\n";
 	}
 	else if (currentElement->children.size()==0)
 	{
-		std::cout << tabs << "<" << currentElement->text;
+		std::cout << tabs << "<";
+		currentElement->text.print();
 		for (int i=0;i<currentElement->argNames.size();i++)
 		{
-			std::cout << " " << currentElement->argNames.at(i) <<
-						"=\"" << currentElement->argValues.at(i) << "\"";
+			std::cout << " ";
+			currentElement->argNames.at(i).print();
+			std::cout << "=\"";
+			currentElement->argValues.at(i).print();
+			std::cout << "\"";
 		}
 		std::cout << " computedStyle=\"";
 		for (int i=0;i<currentElement->styleFields.size();i++)
 		{
-			std::cout << currentElement->styleFields.at(i) << ":";
+			currentElement->styleFields.at(i).print();
+			std::cout << ":";
 			printCSSValue(currentElement->styleValues.at(i));
 			std::cout << ";";
 		}
@@ -598,16 +605,21 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 	}
 	else
 	{
-		std::cout << tabs << "<" << currentElement->text;
+		std::cout << tabs << "<";
+		currentElement->text.print();
 		for (int i=0;i<currentElement->argNames.size();i++)
 		{
-			std::cout << " " << currentElement->argNames.at(i) <<
-						"=\"" << currentElement->argValues.at(i) << "\"";
+			std::cout << " ";
+			currentElement->argNames.at(i).print();
+			std::cout << "=\"";
+			currentElement->argValues.at(i).print();
+			std::cout << "\"";
 		}
 		std::cout << " computedStyle=\"";
 		for (int i=0;i<currentElement->styleFields.size();i++)
 		{
-			std::cout << currentElement->styleFields.at(i) << ":";
+			currentElement->styleFields.at(i).print();
+			std::cout << ":";
 			printCSSValue(currentElement->styleValues.at(i));
 			std::cout << ";";
 		}
@@ -617,7 +629,9 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 		{
 			printTree(currentElement->children.at(i), tabs+std::string("  "));
 		}
-		std::cout << tabs << "</" << currentElement->text << ">\n";
+		std::cout << tabs << "</";
+		currentElement->text.print();
+		std::cout << ">\n";
 	}
 }
 

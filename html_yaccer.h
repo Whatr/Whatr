@@ -21,16 +21,16 @@ class HTMLElement
 public:
 	// Html yaccer stuff:
 	int type; // 0 = text, 1 = opening
-	std::string text; // if (type==0) { this is text } else { this is tag name }
-	std::vector<std::string> argNames;
-	std::vector<std::string> argValues;
+	ConstStr text; // if (type==0) { this is text } else { this is tag name }
+	std::vector<ConstStr> argNames;
+	std::vector<ConstStr> argValues;
 	HTMLElement* parent;
 	std::vector<HTMLElement*> children;
 	
 	// TODO add an int containing the index of this element in its parent's children
 	
 	// CSS applyer stuff:
-	std::vector<std::string> styleFields;
+	std::vector<ConstStr> styleFields;
 	std::vector<CSSValue> styleValues;
 	int top = 0, left = 0, bottom = 0, right = 0;
 	CSSDisplay cssDisplay;
