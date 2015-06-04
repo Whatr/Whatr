@@ -17,17 +17,17 @@ class CSSToken
 {
 public:
 	int type; // 0 = string, 1 = operator, 2 = percentage, 3 = number
-	std::string text;
+	ConstStr text;
 };
 class cssLexArgs
 {
 public:
 	int* lexingCSS;
 	std::vector<CSSToken>* CSSTokens;
-	std::string* inputCSS;
+	ConstStr inputCSS;
 	cssLexArgs(int* lexingCSS,
 			std::vector<CSSToken>* CSSTokens,
-			std::string* inputCSS):
+			ConstStr inputCSS):
 		lexingCSS(lexingCSS),
 		CSSTokens(CSSTokens),
 		inputCSS(inputCSS){};

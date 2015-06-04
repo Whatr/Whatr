@@ -21,7 +21,7 @@ class CSSClass
 {
 public:
 	CSSSelector selector;
-	std::vector<std::string> ruleNames;
+	std::vector<ConstStr> ruleNames;
 	std::vector<CSSValue> ruleValues;
 };
 class cssYaccArgs

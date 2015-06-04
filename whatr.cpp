@@ -324,7 +324,7 @@ int main(int argc, char* argv[])
 			printTree(currentElement, std::string("  "));
 		}
 	}
-	/*
+	
 	auto time_6 = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
@@ -349,7 +349,7 @@ int main(int argc, char* argv[])
 					<< t.type << " , " << t.text << "}\n";
 		}
 	}
-	
+	/*
 	auto time_7 = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////

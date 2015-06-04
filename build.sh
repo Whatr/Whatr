@@ -29,7 +29,7 @@ fi
 dotOfiles=""
 compiled=0
 for i in *.cpp; do
-	if [[ $i != test* ]] && [[ $i != css* ]] && [[ $i != renderer* ]];
+	if [[ $i != test* ]] && [[ $i != css_yacc* ]] [[ $i != css_apply* ]] && [[ $i != renderer* ]];
 	then
 		j="${i/$dotCpp/$dotO}"
 		dotOfiles=$dotOfiles$j" "
