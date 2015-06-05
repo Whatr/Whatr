@@ -329,11 +329,13 @@ int ConstStr::findReverse(const char* str)
 	}
 	return -1;
 }
-int ConstStr::findChar(char target)
+
+
+int ConstStr::find(char target)
 {
-	return this->findChar(0, target);
+	return this->find(0, target);
 }
-int ConstStr::findChar(int startPos, char target)
+int ConstStr::find(int startPos, char target)
 {
 	for (ConstStrIterator i = this->iterate(startPos);i<length;i++)
 	{
@@ -341,6 +343,56 @@ int ConstStr::findChar(int startPos, char target)
 	}
 	return -1;
 }
+
+
+int ConstStr::find (ConstStr target)
+{
+	return find(0, target, (char)0);
+}
+int ConstStr::find (ConstStr target, char targetEscapeChar)
+{
+	return find(0, target, targetEscapeChar);
+}
+int ConstStr::find (int startPos, ConstStr target)
+{
+	return find(startPos, target, (char)0);
+}
+int ConstStr::find (int startPos, ConstStr target, char targetEscapeChar)
+{
+	if (target.length > this->length) return -1;
+	if (target.length == this->length) return (target == *this) ? 0 : -1;
+	ConstStrIterator i1 = this->iterate(startPos);	// bladibla
+	ConstStrIterator i2 = target.iterate(); 		// dibs
+	int count = 0;
+	for (int pos=startPos;pos<this->length;pos++)
+	{
+		if (count==0)
+		{
+			if (*i1 == *i2)
+			{
+				count++;	// bladibla
+			}				//    ^
+			
+		}
+		else if (*i1 == *i2)
+		{
+			count++;		// bladibla
+							//     ^^
+			if (count==target.length) return pos-count+1;
+		}
+		else
+		{
+			i1.jump(pos-count+1);
+			i2.backToStart();
+			count = 0;
+		}
+		i1++;
+		if (count>0) i2++;
+	}
+	return -1;
+}
+
+
 ConstStrIterator ConstStr::iterate() const
 {
 	return this->iterate(0);
@@ -355,7 +407,11 @@ ConstStrIterator::ConstStrIterator(const ConstStr& cs, const int startPos):
 	cs(cs)
 {
 	if (startPos<0 || startPos>=cs.length) throw OUT_OF_STRING_BOUNDS;
-	pos = startPos;
+	jump(startPos);
+}
+void ConstStrIterator::jump(int destination)
+{
+	pos = destination;
 	
 	b1 // current block
 	=
@@ -414,6 +470,15 @@ int ConstStrIterator::operator -- (int)
 		c1--;
 	}
 	return pos;
+}
+
+
+void ConstStrIterator::backToStart()
+{
+	pos = 0;
+	b1 = cs.startBlock;
+	c1 = cs.startChar;
+	endC1 = *b1 + BLOCK_SIZE;
 }
 
 const bool operator == (const ConstStrIterator& i1, const int& i2)

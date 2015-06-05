@@ -36,8 +36,13 @@ public:
 	
 	int findReverse (const char* str);
 	
-	int findChar (int startPos, char target);
-	int findChar (char target);
+	int find (int startPos, char target);
+	int find (char target);
+	
+	int find (int startPos, ConstStr target, char targetEscapeChar);
+	int find (ConstStr target, char targetEscapeChar);
+	int find (int startPos, ConstStr target);
+	int find (ConstStr target);
 	
 	ConstStrIterator iterate() const;
 	ConstStrIterator iterate(const int startPos) const;
@@ -59,6 +64,8 @@ public:
 	int operator ++ (int);
 	int operator -- (int);
 	
+	void backToStart();
+	void jump(int destination);
 };
 const bool operator == (const ConstStr& str1, const std::string& str2);
 const bool operator == (const ConstStr& str1, const ConstStr& str2);
