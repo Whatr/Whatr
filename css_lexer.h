@@ -20,6 +20,8 @@ class CSSToken
 public:
 	int type; // 0 = string, 1 = operator, 2 = percentage, 3 = number, 4 = string in double quotes, 5 = string in single quotes
 	ConstStr text;
+	CSSToken():
+		text(ConstStr()){};
 };
 class cssLexArgs
 {

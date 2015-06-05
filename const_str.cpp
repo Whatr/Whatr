@@ -273,6 +273,7 @@ ConstStr ConstStr::trim(char c1, char c2, char c3, char c4, int maxChars) // Eas
 }
 void ConstStr::print()
 {
+	if (length==0) return;
 	char** b1 = this->startBlock;
 	char* c1 = this->startChar;
 	int progress = 0;
@@ -392,6 +393,27 @@ int ConstStr::find (int startPos, ConstStr target, char targetEscapeChar)
 	return -1;
 }
 
+int ConstStr::toInt()
+{
+	char* endptr = startChar+length;
+	return (int)strtol(startChar, &endptr, 10);
+}
+int ConstStr::toInt(const int base)
+{
+	char* endptr = startChar+length;
+	return (int)strtol(startChar, &endptr, base);
+}
+float ConstStr::toFloat()
+{
+	char* endptr = startChar+length;
+	return strtof(startChar, &endptr);
+}
+
+std::ostream& operator << (std::ostream& o, ConstStr& str)
+{
+	str.print();
+	return o;
+}
 
 ConstStrIterator ConstStr::iterate() const
 {

@@ -66,9 +66,9 @@ void* cssLexThreadFunc(void* args)
 		{
 			count++;
 			char c = *i;
-			std::cout << "Now at char " << c << "\n";
+			//std::cout << "Now at char " << c << "\n";
 			
-			printf("status=[cT%i, sL%i, sD%i, bS%i, c%i, iC%i]\n", currentType, seenLetter, seenDigit, bufferStart, count, inComment);
+			//printf("status=[cT%i, sL%i, sD%i, bS%i, c%i, iC%i]\n", currentType, seenLetter, seenDigit, bufferStart, count, inComment);
 			
 			if (inComment==2)
 			{

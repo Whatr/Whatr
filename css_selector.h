@@ -18,8 +18,8 @@
 class CSSSubSelector
 {
 public:
-	std::string str1;
-	std::string str2;
+	ConstStr str1;
+	ConstStr str2;
 	int type;
 	/*
 	type	CSS		meaning								example
@@ -39,6 +39,9 @@ public:
 	11		[a$=b]
 	12		[a*=b]
 	*/
+	CSSSubSelector():
+		str1(ConstStr()),
+		str2(ConstStr()){};
 };
 class CSSSelector
 {

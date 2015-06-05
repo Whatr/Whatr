@@ -351,7 +351,7 @@ int main(int argc, char* argv[])
 			std::cout << "}\n";
 		}
 	}
-	/*
+	
 	auto time_7 = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
@@ -384,7 +384,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	
-	auto time_8 = std::chrono::high_resolution_clock::now();
+	/*auto time_8 = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
 	////// Apply the css

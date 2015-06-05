@@ -44,6 +44,10 @@ public:
 	int find (int startPos, ConstStr target);
 	int find (ConstStr target);
 	
+	int toInt();
+	int toInt(int base);
+	float toFloat();
+	
 	ConstStrIterator iterate() const;
 	ConstStrIterator iterate(const int startPos) const;
 };
@@ -77,6 +81,9 @@ const bool operator <  (const ConstStrIterator& i1, const int& i2);
 const bool operator >  (const ConstStrIterator& i1, const int& i2);
 const bool operator <= (const ConstStrIterator& i1, const int& i2);
 const bool operator >= (const ConstStrIterator& i1, const int& i2);
+
+std::ostream& operator << (std::ostream& o, ConstStr& str);
+
 
 /*
 const bool operator != (const ConstStr& str1, const ConstStr& str2)

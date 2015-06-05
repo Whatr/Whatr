@@ -29,7 +29,7 @@ CSSValue parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
 {
 	// start points to the :
 	// end points to the token before the ;
-	printf("parseRuleValue(..., %i, %i) = (..., %i-%s, %i-%s)\n", start, end, tokens->at(start).type, tokens->at(start).text.c_str(), tokens->at(end).type, tokens->at(end).text.c_str());
+	//printf("parseRuleValue(..., %i, %i) = (..., %i-%s, %i-%s)\n", start, end, tokens->at(start).type, tokens->at(start).text.c_str(), tokens->at(end).type, tokens->at(end).text.c_str());
 	int length = end-start;
 	CSSValue ret;
 	ret.text = 0;
@@ -66,8 +66,7 @@ CSSValue parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
 		else
 		{
 			ret.length = 3;
-			std::string::size_type sz;
-			ret.lengthValue = std::stod(tokens->at(start+1).text, &sz);
+			ret.lengthValue = tokens->at(start+1).text.toInt();
 		}
 	}  
 	else if (length==2) // 20px
@@ -75,26 +74,22 @@ CSSValue parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
 		if (tokens->at(start+2).text==std::string("px"))
 		{
 			ret.length = 1;
-			std::string::size_type sz;
-			ret.lengthValue = std::stod(tokens->at(start+1).text, &sz);
+			ret.lengthValue = tokens->at(start+1).text.toInt();
 		}
 		else if (tokens->at(start+2).text==std::string("em"))
 		{
 			ret.length = 2;
-			std::string::size_type sz;
-			ret.lengthValue = std::stod(tokens->at(start+1).text, &sz);
+			ret.lengthValue = tokens->at(start+1).text.toInt();
 		}
 		else if (tokens->at(start+2).text==std::string("ms"))
 		{
 			ret.time = 1;
-			std::string::size_type sz;
-			ret.timeValue = std::stod(tokens->at(start+1).text, &sz);
+			ret.timeValue = tokens->at(start+1).text.toInt();
 		}
 		else if (tokens->at(start+2).text==std::string("s"))
 		{
 			ret.time = 2;
-			std::string::size_type sz;
-			ret.timeValue = std::stod(tokens->at(start+1).text, &sz);
+			ret.timeValue = tokens->at(start+1).text.toInt();
 		}
 		else
 		{
@@ -180,29 +175,29 @@ void* cssYaccThreadFunc(void* args)
 							sub.type = -1;
 							curS.subSelectors.push_back(sub);*/
 						}
-						if (t.text.at(0)=='#')
+						if (t.text[0]=='#')
 						{
 							std::cout << "Checkpoint 1\n";
 							std::cout << "Encountered ID " << t.text << "\n";
 							CSSSubSelector sub;
 							sub.str1 = std::string("id");
-							sub.str2 = t.text.substr(1);
+							sub.str2 = t.text.subString(1);
 							sub.type = 3;
 							curS.subSelectors.push_back(sub);
 						}
-						else if (t.text.at(0)=='.')
+						else if (t.text[0]=='.')
 						{
 							std::cout << "Checkpoint 2\n";
 							std::cout << "Encountered Class " << t.text << "\n";
 							CSSSubSelector sub;
-							sub.str1 = t.text.substr(1);
+							sub.str1 = t.text.subString(1);
 							sub.type = 1;
 							curS.subSelectors.push_back(sub);
 						}
 						else
 						{
 							std::cout << "Checkpoint 3\n";
-							std::cout << "Encountered tag name " << t.text << "\n";
+							std::cout << "Encountered tag name "<< t.text << "\n";
 							CSSSubSelector sub;
 							sub.str1 = t.text;
 							sub.type = 0;
@@ -413,17 +408,17 @@ void* cssYaccThreadFunc(void* args)
 						}
 						else
 						{
-							std::cout<<RED<<"CSS Yacc error: Unexpected operator "<<t.text<<"\n"<<NOCLR;
+							std::cout << RED << "CSS Yacc error: Unexpected operator " << t.text << "\n" << NOCLR;
 						}
 					}
 					else
 					{
-						std::cout<<RED<<"CSS Yacc fatal error: t.type="<<t.type<<"\n"<<NOCLR;
+						std::cout << RED << "CSS Yacc fatal error: t.type=" << t.type << "\n" << NOCLR;
 					}
 				}
 				else
 				{
-						std::cout<<RED<<"CSS Yacc fatal error: inWhatWhat="<<inWhatWhat<<"\n"<<NOCLR;
+						std::cout << RED << "CSS Yacc fatal error: inWhatWhat=" << inWhatWhat << "\n" << NOCLR;
 				}
 			}
 			else if (inWhat==1) // in rule before :
@@ -519,7 +514,11 @@ void* cssYaccThreadFunc(void* args)
 			std::cout << "curS:\n";
 			for (int i=0;i<curS.subSelectors.size();i++)
 			{
-				std::cout << curS.subSelectors.at(i).str1 << " " << curS.subSelectors.at(i).str2 << " " << curS.subSelectors.at(i).type << "\n";
+				curS.subSelectors.at(i).str1.print();
+				std::cout << "-";
+				std::cout << curS.subSelectors.at(i).str2;
+				std::cout << "-";
+				std::cout << curS.subSelectors.at(i).type << "\n";
 			}
 			i++;
 		}
