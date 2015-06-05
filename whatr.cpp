@@ -45,10 +45,10 @@ void update_screen();
 
 void printCSSValue(CSSValue val)
 {
-	std::cout << "("	<< val.text << ","
-						<< val.length << ","
-						<< val.color << ","
-						<< val.time << ")=("
+	std::cout << "("	<< val.textType << ","
+						<< val.lengthType << ","
+						<< val.colorType << ","
+						<< val.timeType << ")=("
 						<< val.textValue << ","
 						<< val.lengthValue << ","
 						<< std::setw(8)

@@ -29,13 +29,10 @@ CSSValue parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
 {
 	// start points to the :
 	// end points to the token before the ;
-	//printf("parseRuleValue(..., %i, %i) = (..., %i-%s, %i-%s)\n", start, end, tokens->at(start).type, tokens->at(start).text.c_str(), tokens->at(end).type, tokens->at(end).text.c_str());
+	
 	int length = end-start;
 	CSSValue ret;
-	ret.text = 0;
-	ret.length = 0;
-	ret.color = 0;
-	ret.time = 0;
+	memset(&ret, 0, sizeof(ret));
 	if (length<0)
 	{
 		ERROR(CSS error: WTF length of value < 0 wtf impossibru);
@@ -43,80 +40,106 @@ CSSValue parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
 	}
 	else if (length==0)
 	{
-		ERROR(Fatal CSS error: empty rule value);
+		ERROR(CSS warning: Empty rule value);
 		return ret;
 	}
-	else if (length==1) // 20  red  #FFF  #test
-	{
-		if (tokens->at(start+1).text==std::string("red"))
-		{
-			ret.color = 1;
-			ret.colorValue = 0xFF000000;
-		}
-		else if (tokens->at(start+1).text==std::string("green"))
-		{
-			ret.color = 1;
-			ret.colorValue = 0x00FF0000;
-		}
-		else if (tokens->at(start+1).text==std::string("blue"))
-		{
-			ret.color = 1;
-			ret.colorValue = 0x0000FF00;
-		}
-		else
-		{
-			ret.length = 3;
-			ret.lengthValue = tokens->at(start+1).text.toInt();
-		}
-	}  
-	else if (length==2) // 20px
-	{
-		if (tokens->at(start+2).text==std::string("px"))
-		{
-			ret.length = 1;
-			ret.lengthValue = tokens->at(start+1).text.toInt();
-		}
-		else if (tokens->at(start+2).text==std::string("em"))
-		{
-			ret.length = 2;
-			ret.lengthValue = tokens->at(start+1).text.toInt();
-		}
-		else if (tokens->at(start+2).text==std::string("ms"))
-		{
-			ret.time = 1;
-			ret.timeValue = tokens->at(start+1).text.toInt();
-		}
-		else if (tokens->at(start+2).text==std::string("s"))
-		{
-			ret.time = 2;
-			ret.timeValue = tokens->at(start+1).text.toInt();
-		}
-		else
-		{
-			std::cout << RED << "CSS Yaccer error: Unexpected something xD\n" << NOCLR;
-		}
-	}
 	else
 	{
-		std::cout << RED << "CSS Yaccer error: Unexpected something xD\n" << NOCLR;
+		CSSToken current = tokens->at(start+1);
+		CSSToken next = tokens->at(start+2);
+		for (
+			int i=start+1;
+			i<=end;
+			i++,
+			current=tokens->at(i+1),
+			next=tokens->at(i+2)
+			)
+		{
+			int intVal = 12345;
+			if (current.type==TOKEN_TYPE_NUMBER ||
+				current.type==TOKEN_TYPE_PERCENTAGE)
+			{
+				intVal = current.text.toInt();
+			}
+			if (ret.colorType==0)
+			{
+				if (current.type==TOKEN_TYPE_STRING_NO_QUOTES)
+				{
+					if (current.text==std::string("red"))
+						ret.colorValue = 0xFF000000;
+					else if (current.text==std::string("green"))
+						ret.colorValue = 0x00FF0000;
+					else if (current.text==std::string("blue"))
+						ret.colorValue = 0x0000FF00;
+					else if (current.text==std::string("orange"))
+						ret.colorValue = 0xFF880000;
+					else if (current.text==std::string("yellow"))
+						ret.colorValue = 0xFFFF0000;
+					else if (current.text==std::string("purple"))
+						ret.colorValue = 0xFF00FF00;
+					else if (current.text==std::string("white"))
+						ret.colorValue = 0xFFFFFF00;
+					else if (current.text==std::string("black"))
+						ret.colorValue = 0x00000000;
+					else if (current.text==std::string("devil"))
+						ret.colorValue = 0x66666600;
+					else goto noColor;
+					ret.colorType = 1;
+					noColor:;
+				}
+			}
+			if (ret.lengthType==0)
+			{
+				if (current.type==TOKEN_TYPE_NUMBER)
+				{
+					if (next.text-=std::string("px"))
+					{
+						ret.lengthType = LENGTH_TYPE_PX;
+						ret.lengthValue = intVal;
+					}
+					else if (next.text-=std::string("em"))
+					{
+						ret.lengthType = LENGTH_TYPE_EM;
+						ret.lengthValue = intVal;
+					}
+				}
+				else if (current.type==TOKEN_TYPE_PERCENTAGE)
+				{
+					ret.lengthType = LENGTH_TYPE_PERCENT;
+					ret.lengthValue = intVal;
+				}
+			}
+			if (ret.timeType==0)
+			{
+				if (current.type==TOKEN_TYPE_NUMBER)
+				{
+					if (next.text-=std::string("ms"))
+					{
+						ret.timeType = TIME_TYPE_MS;
+						ret.timeValue = current.text.toInt();
+					}
+					else if (next.text-=std::string("s"))
+					{
+						ret.timeType = TIME_TYPE_S;
+						ret.timeValue = current.text.toInt();
+					}
+				}
+			}
+			if (ret.textType==0)
+			{
+				if (current.type==TOKEN_TYPE_STRING_SINGLE_QUOTES)
+				{
+					ret.textType = TEXT_TYPE_SINGLE_QUOTES;
+					ret.textValue = current.text;
+				}
+				else if (current.type==TOKEN_TYPE_STRING_DOUBLE_QUOTES)
+				{
+					ret.textType = TEXT_TYPE_DOUBLE_QUOTES;
+					ret.textValue = current.text;
+				}
+			}
+		}
 	}
-		
-	/*if (t2.type==0) // String
-	{
-
-	}
-	else if (t2.type==1) // Operator
-	{
-			std::cout << RED << "CSS Yaccer error: Unexpected operator " << t2.text << "\n" << NOCLR;
-	}
-	else if (t2.type==2) // Percentage
-	{
-
-	}
-	else
-	{
-		std::cout << RED << "CSS Yaccer error: Unexpected t2.type " << t2.type << "\n" << NOCLR;
-	}*/
 	return ret;
 }
 

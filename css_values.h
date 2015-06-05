@@ -16,31 +16,41 @@
 #include <iostream>
 #include "const_str.h"
 
+enum TimeType
+{
+	TIME_TYPE_NOPE=0,
+	TIME_TYPE_MS,
+	TIME_TYPE_S,
+};
+enum TextType
+{
+	TEXT_TYPE_NOPE=0,
+	TEXT_TYPE_NO_QUOTES,
+	TEXT_TYPE_SINGLE_QUOTES,
+	TEXT_TYPE_DOUBLE_QUOTES,
+};
+enum LengthType
+{
+	LENGTH_TYPE_NOPE=0,
+	LENGTH_TYPE_PX,
+	LENGTH_TYPE_EM,
+	LENGTH_TYPE_PERCENT,
+};
 struct CSSValue
 {
-	// 100:
-	int text;	// 0 = nope, 1 = yup
+	TextType textType;
+	ConstStr textValue;
 	
-	// 101:
-	int length;	// 0 = nope, 1 = px, 2 = em, 3 = %
+	LengthType lengthType;
+	double lengthValue;
 	
-	// 102:
-	int color;	// 0 = nope, 1 = yup
+	TimeType timeType;
+	double timeValue;
 	
-	// 103:
-	int time;	// 0 = nope, 1 = ms, 2 = s
+	int colorType;	// 0 = nope, 1 = yup
+	int colorValue;
 	
-	// 104:
-	int string;	// 0 = nope, 1 = yup
-	
-	union
-	{
-		int textValue;
-		double lengthValue;
-		int colorValue;
-		double timeValue;
-	};
-	ConstStr stringValue;
+	int constant;	// 0 = nope, ....css_values.h
 };
 
 // Used for multiple properties:

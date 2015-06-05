@@ -15,6 +15,8 @@
 
 enum CSSProperty
 {
+	NONE=0,
+	
 	// CSS1
 	COLOR,
 	OPACITY,

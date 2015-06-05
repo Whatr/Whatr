@@ -398,10 +398,26 @@ int ConstStr::toInt()
 	char* endptr = startChar+length;
 	return (int)strtol(startChar, &endptr, 10);
 }
+int ConstStr::toInt(bool* success)
+{
+	char* endptr = startChar+length;
+	int ret = (int)strtol(startChar, &endptr, 10);
+	if (endptr>startChar || ret!=0) *success = true;
+	else *success = false;
+	return ret;
+}
 int ConstStr::toInt(const int base)
 {
 	char* endptr = startChar+length;
 	return (int)strtol(startChar, &endptr, base);
+}
+int ConstStr::toInt(const int base, bool* success)
+{
+	char* endptr = startChar+length;
+	int ret = (int)strtol(startChar, &endptr, base);
+	if (endptr>startChar || ret!=0) *success = true;
+	else *success = false;
+	return ret;
 }
 float ConstStr::toFloat()
 {

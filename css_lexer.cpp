@@ -45,7 +45,7 @@ void* cssLexThreadFunc(void* args)
 	{
 		ConstStrIterator i = inputCSS.iterate();
 		
-		int currentType = -1; // 0 = string, 1 = operator
+		CSSTokenType currentType = TOKEN_TYPE_NOTHING;
 		int seenLetter = 0;
 		int seenDigit = 0;
 		
@@ -100,35 +100,35 @@ void* cssLexThreadFunc(void* args)
 				{
 					inQuotes = 0;
 					CSSToken t;
-					t.type = inQuotes=='"' ? 4 : 5;
+					t.type = inQuotes=='"' ? TOKEN_TYPE_STRING_DOUBLE_QUOTES : TOKEN_TYPE_STRING_SINGLE_QUOTES;
 					t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 					CSSTokens->push_back(t);
 				}
 			}
 			else if (c=='\'' || c=='"')
 			{
-				if (currentType!=-1)
+				if (currentType!=TOKEN_TYPE_NOTHING)
 				{
 					CSSToken t;
 					t.type = currentType;
 					t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 					CSSTokens->push_back(t);
-					currentType = -1;
+					currentType = TOKEN_TYPE_NOTHING;
 				}
 				bufferStart = i.pos+1;
 				inQuotes = c;
 			}
-			else if (currentType==-1)
+			else if (currentType==TOKEN_TYPE_NOTHING)
 			{
 				if (c==' ' || c=='\n' || c=='\t' || c=='\r')
 				{
 					if (CSSTokens->size()>0)
 					{
 						CSSToken tt = CSSTokens->at(CSSTokens->size()-1);
-						if (tt.type!=1 || tt.text!=std::string(" "))
+						if (tt.type!=TOKEN_TYPE_OPERATOR || tt.text!=std::string(" "))
 						{
 							CSSToken t;
-							t.type = 1;
+							t.type = TOKEN_TYPE_OPERATOR;
 							t.text = std::string(" ");
 							CSSTokens->push_back(t);
 						}
@@ -147,7 +147,7 @@ void* cssLexThreadFunc(void* args)
 							c=='=')		// ...or never appear as the first char of a multichar op
 				{
 					CSSToken t;
-					t.type = 1;
+					t.type = TOKEN_TYPE_OPERATOR;
 					t.text = inputCSS.subString(i.pos, 1);
 					CSSTokens->push_back(t);
 				}
@@ -159,7 +159,7 @@ void* cssLexThreadFunc(void* args)
 					c=='^' ||
 					c=='$')
 				{
-					currentType = 1;
+					currentType = TOKEN_TYPE_OPERATOR;
 					bufferStart = i.pos;
 					//buffer += c;
 				}
@@ -170,7 +170,7 @@ void* cssLexThreadFunc(void* args)
 							c=='.'
 						)
 				{
-					currentType = 0;
+					currentType = TOKEN_TYPE_STRING_NO_QUOTES;
 					bufferStart = i.pos;
 					//buffer += c;
 				}
@@ -180,7 +180,7 @@ void* cssLexThreadFunc(void* args)
 					std::cout << RED << "CSS Lexer error: Unexpected character '" << c << "' (in " << currentType << ")\n" << NOCLR;
 				}
 			}
-			else if (currentType==0)
+			else if (currentType==TOKEN_TYPE_STRING_NO_QUOTES)
 			{
 				if (c>='0' && c<='9')
 				{
@@ -210,11 +210,11 @@ void* cssLexThreadFunc(void* args)
 					else // It was a percentage
 					{
 						CSSToken t;
-						t.type = 2;
+						t.type = TOKEN_TYPE_PERCENTAGE;
 						t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 						CSSTokens->push_back(t);
 						bufferStart = i.pos+1;
-						currentType = -1;
+						currentType = TOKEN_TYPE_NOTHING;
 						seenLetter = seenDigit = 0;
 					}
 				}
@@ -224,22 +224,22 @@ void* cssLexThreadFunc(void* args)
 					{
 						std::cout << "elsey 1\n";
 						CSSToken t;
-						t.type = 0;
+						t.type = TOKEN_TYPE_STRING_NO_QUOTES;
 						t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 						CSSTokens->push_back(t);
 						bufferStart = i.pos+1;
-						currentType = -1;
+						currentType = TOKEN_TYPE_NOTHING;
 						seenLetter = seenDigit = 0;
 					}
 					else if (seenDigit) // It was a number
 					{
 						std::cout << "elsey 2\n";
 						CSSToken t;
-						t.type = 3;
+						t.type = TOKEN_TYPE_NUMBER;
 						t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 						CSSTokens->push_back(t);
 						bufferStart = i.pos+1;
-						currentType = -1;
+						currentType = TOKEN_TYPE_NOTHING;
 						seenLetter = seenDigit = 0;
 					}
 					else
@@ -249,7 +249,7 @@ void* cssLexThreadFunc(void* args)
 					if (c==' ' || c=='\n' || c=='\t' || c=='\r')
 					{
 						CSSToken t;
-						t.type = 1;
+						t.type = TOKEN_TYPE_OPERATOR;
 						t.text = std::string(" ");
 						CSSTokens->push_back(t);
 					}
@@ -259,7 +259,7 @@ void* cssLexThreadFunc(void* args)
 					}
 				}
 			}
-			else if (currentType==1)
+			else if (currentType==TOKEN_TYPE_OPERATOR)
 			{
 				if (c=='/'){} // Ignore /
 				else if ((c>='a' && c<='z') ||
@@ -281,33 +281,29 @@ void* cssLexThreadFunc(void* args)
 					))
 				{
 					CSSToken t;
-					t.type = 1;
+					t.type = TOKEN_TYPE_OPERATOR;
 					t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 					CSSTokens->push_back(t);
 					bufferStart = i.pos+1;
-					currentType = -1;
+					currentType = TOKEN_TYPE_NOTHING;
 					seenLetter = seenDigit = 0;
 					continue;
 				}
 				else if (c==' ' || c=='\n' || c=='\t' || c=='\r')
 				{
 					CSSToken t;
-					t.type = 1;
+					t.type = TOKEN_TYPE_OPERATOR;
 					t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 					CSSTokens->push_back(t);
 					bufferStart = i.pos+1;
-					currentType = -1;
+					currentType = TOKEN_TYPE_NOTHING;
 					seenLetter = seenDigit = 0;
 					{
 						CSSToken t;
-						t.type = 1;
+						t.type = TOKEN_TYPE_OPERATOR;
 						t.text = std::string(" ");
 						CSSTokens->push_back(t);
 					}
-				}
-				else
-				{
-					//buffer += c;
 				}
 			}
 			else

@@ -15,10 +15,21 @@
 
 #include "const_str.h"
 
+enum CSSTokenType
+{
+	TOKEN_TYPE_NOTHING,
+	
+	TOKEN_TYPE_STRING_NO_QUOTES,
+	TOKEN_TYPE_OPERATOR,
+	TOKEN_TYPE_PERCENTAGE,
+	TOKEN_TYPE_NUMBER,
+	TOKEN_TYPE_STRING_DOUBLE_QUOTES,
+	TOKEN_TYPE_STRING_SINGLE_QUOTES,
+};
 class CSSToken
 {
 public:
-	int type; // 0 = string, 1 = operator, 2 = percentage, 3 = number, 4 = string in double quotes, 5 = string in single quotes
+	CSSTokenType type; // 0 = string, 1 = operator, 2 = percentage, 3 = number, 4 = string in double quotes, 5 = string in single quotes
 	ConstStr text;
 	CSSToken():
 		text(ConstStr()){};

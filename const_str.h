@@ -46,6 +46,8 @@ public:
 	
 	int toInt();
 	int toInt(int base);
+	int toInt(bool* success);
+	int toInt(int base, bool* success);
 	float toFloat();
 	
 	ConstStrIterator iterate() const;
