@@ -25,26 +25,28 @@
 #include "css_lexer.h"
 #include "css_values.h"
 
-CSSValue parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
+std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
 {
 	// start points to the :
 	// end points to the token before the ;
 	
+	std::vector<CSSValue>* CSSValues = new std::vector<CSSValue>;
+	
 	int length = end-start;
-	CSSValue ret;
-	memset(&ret, 0, sizeof(ret));
 	if (length<0)
 	{
 		ERROR(CSS error: WTF length of value < 0 wtf impossibru);
-		return ret;
+		return CSSValues;
 	}
 	else if (length==0)
 	{
 		ERROR(CSS warning: Empty rule value);
-		return ret;
+		return CSSValues;
 	}
 	else
 	{
+		CSSValue ret;
+		memset(&ret, 0, sizeof(ret));
 		CSSToken current = tokens->at(start+1);
 		CSSToken next = tokens->at(start+2);
 		for (
@@ -61,86 +63,91 @@ CSSValue parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
 			{
 				intVal = current.text.toInt();
 			}
-			if (ret.colorType==0)
+			if (current.type==TOKEN_TYPE_STRING_NO_QUOTES)
 			{
-				if (current.type==TOKEN_TYPE_STRING_NO_QUOTES)
-				{
-					if (current.text==std::string("red"))
-						ret.colorValue = 0xFF000000;
-					else if (current.text==std::string("green"))
-						ret.colorValue = 0x00FF0000;
-					else if (current.text==std::string("blue"))
-						ret.colorValue = 0x0000FF00;
-					else if (current.text==std::string("orange"))
-						ret.colorValue = 0xFF880000;
-					else if (current.text==std::string("yellow"))
-						ret.colorValue = 0xFFFF0000;
-					else if (current.text==std::string("purple"))
-						ret.colorValue = 0xFF00FF00;
-					else if (current.text==std::string("white"))
-						ret.colorValue = 0xFFFFFF00;
-					else if (current.text==std::string("black"))
-						ret.colorValue = 0x00000000;
-					else if (current.text==std::string("devil"))
-						ret.colorValue = 0x66666600;
-					else goto noColor;
-					ret.colorType = 1;
-					noColor:;
-				}
+				if (current.text==std::string("red"))
+					ret.colorValue = 0xFF000000;
+				else if (current.text==std::string("green"))
+					ret.colorValue = 0x00FF0000;
+				else if (current.text==std::string("blue"))
+					ret.colorValue = 0x0000FF00;
+				else if (current.text==std::string("orange"))
+					ret.colorValue = 0xFF880000;
+				else if (current.text==std::string("yellow"))
+					ret.colorValue = 0xFFFF0000;
+				else if (current.text==std::string("purple"))
+					ret.colorValue = 0xFF00FF00;
+				else if (current.text==std::string("white"))
+					ret.colorValue = 0xFFFFFF00;
+				else if (current.text==std::string("black"))
+					ret.colorValue = 0x00000000;
+				else if (current.text==std::string("devil"))
+					ret.colorValue = 0x66666600;
+				else goto noColor;
+				ret.colorType = 1;
+				goto foundValue;
+				noColor:;
 			}
-			if (ret.lengthType==0)
+			if (current.type==TOKEN_TYPE_NUMBER)
 			{
-				if (current.type==TOKEN_TYPE_NUMBER)
+				if (next.text-=std::string("px"))
 				{
-					if (next.text-=std::string("px"))
-					{
-						ret.lengthType = LENGTH_TYPE_PX;
-						ret.lengthValue = intVal;
-					}
-					else if (next.text-=std::string("em"))
-					{
-						ret.lengthType = LENGTH_TYPE_EM;
-						ret.lengthValue = intVal;
-					}
-				}
-				else if (current.type==TOKEN_TYPE_PERCENTAGE)
-				{
-					ret.lengthType = LENGTH_TYPE_PERCENT;
+					ret.lengthType = LENGTH_TYPE_PX;
 					ret.lengthValue = intVal;
+					i++;
+					goto foundValue;
+				}
+				else if (next.text-=std::string("em"))
+				{
+					ret.lengthType = LENGTH_TYPE_EM;
+					ret.lengthValue = intVal;
+					i++;
+					goto foundValue;
 				}
 			}
-			if (ret.timeType==0)
+			else if (current.type==TOKEN_TYPE_PERCENTAGE)
 			{
-				if (current.type==TOKEN_TYPE_NUMBER)
-				{
-					if (next.text-=std::string("ms"))
-					{
-						ret.timeType = TIME_TYPE_MS;
-						ret.timeValue = current.text.toInt();
-					}
-					else if (next.text-=std::string("s"))
-					{
-						ret.timeType = TIME_TYPE_S;
-						ret.timeValue = current.text.toInt();
-					}
-				}
+				ret.lengthType = LENGTH_TYPE_PERCENT;
+				ret.lengthValue = intVal;
+				goto foundValue;
 			}
-			if (ret.textType==0)
+			if (current.type==TOKEN_TYPE_NUMBER)
 			{
-				if (current.type==TOKEN_TYPE_STRING_SINGLE_QUOTES)
+				if (next.text-=std::string("ms"))
 				{
-					ret.textType = TEXT_TYPE_SINGLE_QUOTES;
-					ret.textValue = current.text;
+					ret.timeType = TIME_TYPE_MS;
+					ret.timeValue = current.text.toInt();
+					i++;
+					goto foundValue;
 				}
-				else if (current.type==TOKEN_TYPE_STRING_DOUBLE_QUOTES)
+				else if (next.text-=std::string("s"))
 				{
-					ret.textType = TEXT_TYPE_DOUBLE_QUOTES;
-					ret.textValue = current.text;
+					ret.timeType = TIME_TYPE_S;
+					ret.timeValue = current.text.toInt();
+					i++;
+					goto foundValue;
 				}
 			}
+			if (current.type==TOKEN_TYPE_STRING_SINGLE_QUOTES)
+			{
+				ret.textType = TEXT_TYPE_SINGLE_QUOTES;
+				ret.textValue = current.text;
+				goto foundValue;
+			}
+			else if (current.type==TOKEN_TYPE_STRING_DOUBLE_QUOTES)
+			{
+				ret.textType = TEXT_TYPE_DOUBLE_QUOTES;
+				ret.textValue = current.text;
+				goto foundValue;
+			}
+			std::cout	<< RED << "CSS Syntax error. Unexpected token "
+						<< current.text << "\n" << NOCLR;
+			foundValue:
+			CSSValues->push_back(ret);
+			memset(&ret, 0, sizeof(ret));
 		}
 	}
-	return ret;
+	return CSSValues;
 }
 
 void* cssYaccThreadFunc(void* args)
