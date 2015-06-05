@@ -49,7 +49,7 @@ void* cssApplyThreadFunc(void* args)
 		{
 			for (int i=0;i<c->ruleNames.size();i++)
 			{
-				std::string name = c->ruleNames.at(i);
+				ConstStr name = c->ruleNames.at(i);
 				CSSValue value = c->ruleValues.at(i);
 				std::cout << "CSSSelect returned: ";
 				std::cout << (*el)->text << "\n";

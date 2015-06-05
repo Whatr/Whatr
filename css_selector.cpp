@@ -18,6 +18,7 @@
 #include "log_funcs.hpp"
 #include "html_yaccer.h"
 #include "css_selector.h"
+#include "const_str.h"
 
 std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 {
@@ -34,6 +35,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 	{
 		if (ss->type == -1)
 		{
+			std::cout << "ss->type=-1 & op=" << op << "\n";
 			if (ss->str1==std::string(" ")) op = ' ';
 			else if (ss->str1==std::string(">")) op = '>';
 			else if (ss->str1==std::string("+")) op = '+';
@@ -45,6 +47,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 		}
 		else if (ss->type == 10) // *
 		{
+			std::cout << "ss->type=10\n";
 			/*
 			Select all elements. Every single one.
 			*/
@@ -59,6 +62,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 			*/
 			if (op==' ' || op=='>') // Select children
 			{
+				std::cout << "Selecting children\n";
 				std::vector<HTMLElement*> newVector;
 				for (	std::vector<HTMLElement*>::iterator els=selected.begin();
 						els!=selected.end();
@@ -72,6 +76,7 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 			}
 			else if (op=='+' || op=='~') // Select siblings
 			{
+				std::cout << "Selecting siblings\n";
 				std::vector<HTMLElement*> newVector;
 				for (	std::vector<HTMLElement*>::iterator els=selected.begin();
 						els!=selected.end();
@@ -121,7 +126,19 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 		}
 		else
 		{
-				std::cout << RED << "TODO: ss type=" << ss->type << " str1=" << ss->str1 << " op=" << ((int)op) << "\n" << NOCLR;
+			/*
+			Select children of elements in the current selection that match ss
+			*/
+			std::vector<HTMLElement*> newVector;
+			for (	std::vector<HTMLElement*>::iterator els=selected.begin();
+					els!=selected.end();
+					els++)
+			{
+				std::vector<HTMLElement*> them = CSSSelect2(&**els, *ss, true);
+				std::copy (them.begin(), them.end(), std::back_inserter(newVector));
+			}
+			selected = newVector;
+			//std::cout << RED << "TODO: ss type=" << ss->type << " str1=" << ss->str1 << " op=" << (op==0 ? '0' : op) << ":\n" << NOCLR;
 		}
 		first = false;
 	}
@@ -142,16 +159,18 @@ void CSSSelectAll(HTMLElement* top, std::vector<HTMLElement*>* dest)
 std::vector<HTMLElement*> CSSSelectSiblings(HTMLElement* from, CSSSubSelector ss, bool directlyAfter)
 {
 	PRINT(Entering CSSSelectSiblings...);
-	//std::cout << "from=<" << from->text << ">\n";
+	std::cout << "from=<" << from->text << ">\n";
 	std::vector<HTMLElement*> ret;
+	if (from->parent==NULL) return ret; // The <document> has no siblings
 	bool started = false;
 	for (	std::vector<HTMLElement*>::iterator els=from->parent->children.begin();
 						els!=from->parent->children.end();
 						els++)
 	{
+		std::cout << "loop\n";
 		if ((*els)->type==1)
 		{
-			//std::cout << "@ child <" << (*els)->text << ">\n";
+			std::cout << "@ child <" << (*els)->text << ">\n";
 			if (!started && *els==from) started = true;
 			else if (started)
 			{
@@ -211,7 +230,7 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 		break;
 		case 2:		// elements that have an str1 attribute
 		{
-			for (	std::vector<std::string>::iterator args=el->argNames.begin();
+			for (	std::vector<ConstStr>::iterator args=el->argNames.begin();
 					args!=el->argNames.end();
 					args++)
 			{
@@ -222,8 +241,8 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 		break;
 		case 3:		// elements that have an str1 attribute and where str1 = str2
 		{
-			std::vector<std::string>::iterator args = el->argNames .begin();
-			std::vector<std::string>::iterator vals = el->argValues.begin();
+			std::vector<ConstStr>::iterator args = el->argNames .begin();
+			std::vector<ConstStr>::iterator vals = el->argValues.begin();
 			for (;	args!=el->argNames.end();
 					args++, vals++)
 			{
@@ -234,21 +253,21 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 		}
 		case 4:		// ~=		elements having a str1 attribute and where str1 contains str2 as part of a space-seperated list
 		{
-			std::vector<std::string>::iterator args = el->argNames .begin();
-			std::vector<std::string>::iterator vals = el->argValues.begin();
+			std::vector<ConstStr>::iterator args = el->argNames .begin();
+			std::vector<ConstStr>::iterator vals = el->argValues.begin();
 			for (;	args!=el->argNames.end();
 					args++, vals++)
 			{
 				if (*args == ss->str1)
 				{
-					size_t foundLoc = vals->find(ss->str2);
-					if (foundLoc == std::string::npos)
+					int foundLoc = vals->find(ss->str2);
+					if (foundLoc == -1)
 					{
 						// arg="a b c"
 						// checking for "qwertyuiop"
 						return false;
 					}
-					if (vals->length() == ss->str2.length())
+					if (vals->length == ss->str2.length)
 					{
 						// arg="a"
 						// checking for "a"
@@ -258,15 +277,15 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 					{
 						// arg="a b c"
 						// checking for "a"
-						return vals->at(ss->str2.length())==' ';
+						return (*vals)[ss->str2.length]==' ';
 					}
 					if (
-							vals->at(foundLoc-1)==' '
+							(*vals)[foundLoc-1]==' '
 							&&
 							(
-								foundLoc+ss->str2.length()==vals->length()
+								foundLoc+ss->str2.length==vals->length
 								||
-								vals->at(foundLoc+ss->str2.length())==' '
+								(*vals)[foundLoc+ss->str2.length]==' '
 							)
 						)
 					{
@@ -282,22 +301,22 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 		break;
 		case 5:		// |=		elements having a str1 attribute and where str1 starts with str2 as part of a hyphen-seperated list
 		{
-			std::vector<std::string>::iterator args = el->argNames .begin();
-			std::vector<std::string>::iterator vals = el->argValues.begin();
+			std::vector<ConstStr>::iterator args = el->argNames .begin();
+			std::vector<ConstStr>::iterator vals = el->argValues.begin();
 			for (;	args!=el->argNames.end();
 					args++, vals++)
 			{
 				if (*args == ss->str1)
 				{
-					if (vals->length() < ss->str2.length()) return false;
+					if (vals->length < ss->str2.length) return false;
 					return
 						(
-							vals->substr(0, ss->str2.length()) == ss->str2
+							vals->subString(0, ss->str2.length) == ss->str2
 							&&
 							(
-								vals->length() == ss->str2.length()
+								vals->length == ss->str2.length
 								||
-								vals->at(ss->str2.length()) == '-'
+								(*vals)[ss->str2.length] == '-'
 							)
 						);
 				}
@@ -307,15 +326,15 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 		break;
 		case 6:		// ^=		elements having a str1 attribute and where str1 starts with str2
 		{
-			std::vector<std::string>::iterator args = el->argNames .begin();
-			std::vector<std::string>::iterator vals = el->argValues.begin();
+			std::vector<ConstStr>::iterator args = el->argNames .begin();
+			std::vector<ConstStr>::iterator vals = el->argValues.begin();
 			for (;	args!=el->argNames.end();
 					args++, vals++)
 			{
 				if (*args == ss->str1)
 				{
-					if (vals->length() < ss->str2.length()) return false;
-					return vals->substr(0, ss->str2.length()) == ss->str2;
+					if (vals->length < ss->str2.length) return false;
+					return vals->subString(0, ss->str2.length) == ss->str2;
 				}
 			}
 			return false;
@@ -323,15 +342,15 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 		break;
 		case 11:	// $=		elements having a str1 attribute and where str1 ends with str2
 		{
-			std::vector<std::string>::iterator args = el->argNames .begin();
-			std::vector<std::string>::iterator vals = el->argValues.begin();
+			std::vector<ConstStr>::iterator args = el->argNames .begin();
+			std::vector<ConstStr>::iterator vals = el->argValues.begin();
 			for (;	args!=el->argNames.end();
 					args++, vals++)
 			{
 				if (*args == ss->str1)
 				{
-					if (vals->length() < ss->str2.length()) return false;
-					return vals->substr(vals->length() - ss->str2.length(), ss->str2.length()) == ss->str2;
+					if (vals->length < ss->str2.length) return false;
+					return vals->subString(vals->length - ss->str2.length, ss->str2.length) == ss->str2;
 				}
 			}
 			return false;
@@ -339,14 +358,14 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 		break;
 		case 12:	// *=		elements having a str1 attribute and where str1 contains str2
 		{
-			std::vector<std::string>::iterator args = el->argNames .begin();
-			std::vector<std::string>::iterator vals = el->argValues.begin();
+			std::vector<ConstStr>::iterator args = el->argNames .begin();
+			std::vector<ConstStr>::iterator vals = el->argValues.begin();
 			for (;	args!=el->argNames.end();
 					args++, vals++)
 			{
 				if (*args == ss->str1)
 				{
-					return vals->find(ss->str2) != std::string::npos;
+					return vals->find(ss->str2) != -1;
 				}
 			}
 			return false;

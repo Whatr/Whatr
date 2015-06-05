@@ -97,7 +97,7 @@ std::vector<ConstStr> headerValues;
 //----------------------------
 pthread_t htmlYaccThread;
 int yaccingPage = 0;
-std::vector<HTMLElement*> HTMLElements;
+HTMLElement document;
 //----------------------------
 
 //----------------------------
@@ -297,6 +297,10 @@ int main(int argc, char* argv[])
 		}
 	}
 	
+	// Pseudo-element that encapsulates everything
+	document.parent = NULL;
+	document.text = std::string("document");
+	document.type = 1;
 	
 	///////////////////////////////////
 	////// Start thread that yaccs the HTML tags
@@ -305,7 +309,7 @@ int main(int argc, char* argv[])
 		htmlYaccArgs args(&lexingPage,
 						&yaccingPage,
 						&HTMLTags,
-						&HTMLElements);
+						&document);
 		if (pthread_create(&htmlYaccThread, NULL, htmlYaccThreadFunc, &args))
 		{
 			ERROR(Failed to create HTML yacc thread!);
@@ -318,9 +322,9 @@ int main(int argc, char* argv[])
 	////// Wait until the yaccing is done, then print the HTML element tree
 	{
 		while (yaccingPage){};
-		for (int i=0;i<HTMLElements.size();i++)
+		for (int i=0;i<document.children.size();i++)
 		{
-			HTMLElement* currentElement = HTMLElements.at(i);
+			HTMLElement* currentElement = document.children.at(i);
 			printTree(currentElement, std::string("  "));
 		}
 	}
@@ -333,7 +337,7 @@ int main(int argc, char* argv[])
 		// TODO make it find all styles
 		//							<html>			<head>			<style>
 		lexingCSS = 1;
-		HTMLElement* style = HTMLElements.at(0)->children.at(0)->children.at(0)->children.at(0);
+		HTMLElement* style = document.children.at(0)->children.at(0)->children.at(0)->children.at(0);
 		cssLexArgs args(&lexingCSS, &CSSTokens, style->text);
 		if (pthread_create(&cssLexThread, NULL, cssLexThreadFunc, &args))
 		{
@@ -384,25 +388,23 @@ int main(int argc, char* argv[])
 		}
 	}
 	
-	/*auto time_8 = std::chrono::high_resolution_clock::now();
+	auto time_8 = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
 	////// Apply the css
 	{
-		for (int i=0;i<HTMLElements.size();i++)
+		applyingCSS = 1;
+		cssApplyArgs args(&applyingCSS, &CSSClasses, &document);
+		if (pthread_create(&cssApplyThread, NULL, cssApplyThreadFunc, &args))
 		{
-			applyingCSS = 1;
-			cssApplyArgs args(&applyingCSS, &CSSClasses, HTMLElements.at(i));
-			if (pthread_create(&cssApplyThread, NULL, cssApplyThreadFunc, &args))
-			{
-				ERROR(Failed to create CSS yacc thread!);
-				return 0;
-			}
-			while(applyingCSS){};
-			printTree(HTMLElements.at(i), std::string("  "));
+			ERROR(Failed to create CSS yacc thread!);
+			return 0;
 		}
+		while(applyingCSS){};
+		printTree(&document, std::string("  "));
 	}
 	
+	/*
 	auto time_9 = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
@@ -579,7 +581,7 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 	if (currentElement->type==0)
 	{
 		std::cout << tabs << "TEXT[";
-		currentElement->text.print();
+		currentElement->text.trim(' ', '\t', '\n', '\r').print();
 		std::cout << "]" << "\n";
 	}
 	else if (currentElement->children.size()==0)

@@ -14,7 +14,7 @@
 #define css_values_included yes
 
 #include <iostream>
-#include <string>
+#include "const_str.h"
 
 struct CSSValue
 {
@@ -31,7 +31,7 @@ struct CSSValue
 	int time;	// 0 = nope, 1 = ms, 2 = s
 	
 	// 104:
-	//int url;	// 0 = nope, 1 = yup
+	int string;	// 0 = nope, 1 = yup
 	
 	union
 	{
@@ -39,8 +39,8 @@ struct CSSValue
 		double lengthValue;
 		int colorValue;
 		double timeValue;
-		//std::string urlValue;
 	};
+	ConstStr stringValue;
 };
 
 // Used for multiple properties:

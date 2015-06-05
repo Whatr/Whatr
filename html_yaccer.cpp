@@ -32,7 +32,9 @@ void* htmlYaccThreadFunc(void* args)
 	int* lexingPage = l->lexingPage;
 	int* yaccingPage = l->yaccingPage;
 	std::vector<HTMLTag>* HTMLTags = l->HTMLTags;
-	std::vector<HTMLElement*>* HTMLElements = l->HTMLElements;
+	HTMLElement* document = l->document;
+	std::vector<HTMLElement*>* HTMLElements = &(document->children);
+	
 	*yaccingPage = 1;
 	
 	std::string misplacedText = std::string("");
@@ -112,7 +114,7 @@ void* htmlYaccThreadFunc(void* args)
 				HTMLElement* el = new HTMLElement();
 				el->type = 0;
 				el->text = currentTag->text;
-				el->parent = NULL;
+				el->parent = document;
 				HTMLElements->push_back(el);
 			}
 			else if (currentTag->type==1) // Opening tag
@@ -120,7 +122,7 @@ void* htmlYaccThreadFunc(void* args)
 				HTMLElement* el = new HTMLElement();
 				el->type = 1;
 				el->text = currentTag->text;
-				el->parent = NULL;
+				el->parent = document;
 				el->argNames = currentTag->argNames;
 				el->argValues = currentTag->argValues;
 				HTMLElements->push_back(el);
@@ -131,7 +133,7 @@ void* htmlYaccThreadFunc(void* args)
 				HTMLElement* el = new HTMLElement();
 				el->type = 1;
 				el->text = currentTag->text;
-				el->parent = NULL;
+				el->parent = document;
 				el->argNames = currentTag->argNames;
 				el->argValues = currentTag->argValues;
 				HTMLElements->push_back(el);
