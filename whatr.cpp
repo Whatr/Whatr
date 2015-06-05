@@ -334,7 +334,7 @@ int main(int argc, char* argv[])
 		//							<html>			<head>			<style>
 		lexingCSS = 1;
 		HTMLElement* style = HTMLElements.at(0)->children.at(0)->children.at(0)->children.at(0);
-		cssLexArgs args(&lexingCSS, &CSSTokens, &(style->text));
+		cssLexArgs args(&lexingCSS, &CSSTokens, style->text);
 		if (pthread_create(&cssLexThread, NULL, cssLexThreadFunc, &args))
 		{
 			ERROR(Failed to create CSS lex thread!);
@@ -346,7 +346,9 @@ int main(int argc, char* argv[])
 		{
 			CSSToken t = CSSTokens.at(i);
 			std::cout << "CSSTokens[" << i << "]={"
-					<< t.type << " , " << t.text << "}\n";
+					<< t.type << " , ";
+			t.text.print();
+			std::cout << "}\n";
 		}
 	}
 	/*

@@ -22,6 +22,7 @@
 
 #include "log_funcs.hpp"
 #include "css_lexer.h"
+#include "const_str.h"
 
 void* cssLexThreadFunc(void* args)
 {
@@ -31,36 +32,43 @@ void* cssLexThreadFunc(void* args)
 	
 	int* lexingCSS = c->lexingCSS;
 	std::vector<CSSToken>* CSSTokens = c->CSSTokens;
-	std::string* inputCSS = c->inputCSS;
+	ConstStr inputCSS = c->inputCSS;
 	
 	
 	*lexingCSS = 1;
 	PRINT(cssLexThreadFunc has set lexingCss=1);
-	std::cout << "Lexing css:\n" << *inputCSS << "\n";
+	std::cout << "Lexing css:\n";
+	inputCSS.printLine();
 	
 	////////////////////
 	// Lex CSS
 	{
-		int i = 0;
+		ConstStrIterator i = inputCSS.iterate();
 		
 		int currentType = -1; // 0 = string, 1 = operator
 		int seenLetter = 0;
 		int seenDigit = 0;
 		
-		std::string buffer = std::string("");
+		//std::string buffer = std::string("");
+		int bufferStart = -1;
 		
 		int count = 0;
 		
 		int inComment = 0;
 		
+		char inQuotes = 0;
+		bool backslashing = false;
+		
 		while
 		(
-			i<inputCSS->length() && count < 10000
+			i.pos<inputCSS.length && count < 10000
 		)
 		{
 			count++;
-			char c = inputCSS->at(i);
-			//std::cout << "Now at char " << c << "\n";
+			char c = *i;
+			std::cout << "Now at char " << c << "\n";
+			
+			printf("status=[cT%i, sL%i, sD%i, bS%i, c%i, iC%i]\n", currentType, seenLetter, seenDigit, bufferStart, count, inComment);
 			
 			if (inComment==2)
 			{
@@ -79,10 +87,36 @@ void* cssLexThreadFunc(void* args)
 				inComment++;
 			}
 			else if (inComment){}
-			else if (c=='*' && i>0 && inputCSS->at(i-1)=='/')
+			else if (c=='*' && i>0 && inputCSS[i.pos-1]=='/')
 			{
 				std::cout << GREEN << "CSS lexer notice: Starting comment...\n" << NOCLR;
 				inComment = 1;
+			}
+			else if (inQuotes)
+			{
+				if (backslashing) backslashing = false;
+				else if (c=='\\') backslashing = true;
+				else if (c==inQuotes)
+				{
+					inQuotes = 0;
+					CSSToken t;
+					t.type = inQuotes=='"' ? 4 : 5;
+					t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
+					CSSTokens->push_back(t);
+				}
+			}
+			else if (c=='\'' || c=='"')
+			{
+				if (currentType!=-1)
+				{
+					CSSToken t;
+					t.type = currentType;
+					t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
+					CSSTokens->push_back(t);
+					currentType = -1;
+				}
+				bufferStart = i.pos+1;
+				inQuotes = c;
 			}
 			else if (currentType==-1)
 			{
@@ -114,7 +148,7 @@ void* cssLexThreadFunc(void* args)
 				{
 					CSSToken t;
 					t.type = 1;
-					t.text = std::string("")+c;
+					t.text = inputCSS.subString(i.pos, 1);
 					CSSTokens->push_back(t);
 				}
 				else if (
@@ -126,7 +160,8 @@ void* cssLexThreadFunc(void* args)
 					c=='$')
 				{
 					currentType = 1;
-					buffer += c;
+					bufferStart = i.pos;
+					//buffer += c;
 				}
 				else if (	(c>='a' && c<='z') ||
 							(c>='0' && c<='9') ||
@@ -136,7 +171,8 @@ void* cssLexThreadFunc(void* args)
 						)
 				{
 					currentType = 0;
-					buffer += c;
+					bufferStart = i.pos;
+					//buffer += c;
 				}
 				else if (c=='/'){} // Ignore /
 				else
@@ -148,20 +184,20 @@ void* cssLexThreadFunc(void* args)
 			{
 				if (c>='0' && c<='9')
 				{
-					buffer += c;
+					//buffer += c;
 					seenDigit = 1;
 				}
 				else if (((c>='a' && c<='z') ||
 						  (c>='A' && c<='Z'))
 						&& (seenLetter || !seenDigit))
 				{
-					buffer += c;
+					//buffer += c;
 					seenLetter = 1;
 				}
 				else if ((c=='-' && !seenDigit) ||
-						 (c=='.' && (buffer.size()==0 || seenDigit)))
+						 (c=='.' && (bufferStart>=i.pos || seenDigit)))
 				{
-					buffer += c;
+					//buffer += c;
 				}
 				else if (c=='/') {} // Ignore /
 				else if (c=='%')
@@ -175,9 +211,9 @@ void* cssLexThreadFunc(void* args)
 					{
 						CSSToken t;
 						t.type = 2;
-						t.text = buffer;
+						t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 						CSSTokens->push_back(t);
-						buffer = std::string("");
+						bufferStart = i.pos+1;
 						currentType = -1;
 						seenLetter = seenDigit = 0;
 					}
@@ -186,21 +222,23 @@ void* cssLexThreadFunc(void* args)
 				{
 					if (seenLetter) // It was a string
 					{
+						std::cout << "elsey 1\n";
 						CSSToken t;
 						t.type = 0;
-						t.text = buffer;
+						t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 						CSSTokens->push_back(t);
-						buffer = std::string("");
+						bufferStart = i.pos+1;
 						currentType = -1;
 						seenLetter = seenDigit = 0;
 					}
 					else if (seenDigit) // It was a number
 					{
+						std::cout << "elsey 2\n";
 						CSSToken t;
 						t.type = 3;
-						t.text = buffer;
+						t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 						CSSTokens->push_back(t);
-						buffer = std::string("");
+						bufferStart = i.pos+1;
 						currentType = -1;
 						seenLetter = seenDigit = 0;
 					}
@@ -244,9 +282,9 @@ void* cssLexThreadFunc(void* args)
 				{
 					CSSToken t;
 					t.type = 1;
-					t.text = buffer;
+					t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 					CSSTokens->push_back(t);
-					buffer = std::string("");
+					bufferStart = i.pos+1;
 					currentType = -1;
 					seenLetter = seenDigit = 0;
 					continue;
@@ -255,9 +293,9 @@ void* cssLexThreadFunc(void* args)
 				{
 					CSSToken t;
 					t.type = 1;
-					t.text = buffer;
+					t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 					CSSTokens->push_back(t);
-					buffer = std::string("");
+					bufferStart = i.pos+1;
 					currentType = -1;
 					seenLetter = seenDigit = 0;
 					{
@@ -269,7 +307,7 @@ void* cssLexThreadFunc(void* args)
 				}
 				else
 				{
-					buffer += c;
+					//buffer += c;
 				}
 			}
 			else

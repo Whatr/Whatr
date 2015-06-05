@@ -13,10 +13,12 @@
 #ifndef css_lexer_included
 #define css_lexer_included yes
 
+#include "const_str.h"
+
 class CSSToken
 {
 public:
-	int type; // 0 = string, 1 = operator, 2 = percentage, 3 = number
+	int type; // 0 = string, 1 = operator, 2 = percentage, 3 = number, 4 = string in double quotes, 5 = string in single quotes
 	ConstStr text;
 };
 class cssLexArgs
