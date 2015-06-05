@@ -187,7 +187,7 @@ void* cssYaccThreadFunc(void* args)
 			{
 				if (inWhatWhat==0)
 				{
-					if (t.type==0) // Current token is a string
+					if (t.type==TOKEN_TYPE_STRING_NO_QUOTES) // Current token is a string
 					{
 						std::cout << "Checkpoint\n";
 						if (curS.subSelectors.size()>0 && curS.subSelectors.back().type!=-1) // Not an op
@@ -227,7 +227,7 @@ void* cssYaccThreadFunc(void* args)
 							curS.subSelectors.push_back(sub);
 						}
 					}
-					else if (t.type==1)
+					else if (t.type==TOKEN_TYPE_OPERATOR)
 					{
 						std::cout << "Encountered Operator " << t.text << "\n";
 						if (t.text==std::string("*"))
@@ -292,7 +292,7 @@ void* cssYaccThreadFunc(void* args)
 				}
 				else if (inWhatWhat==1)
 				{
-					if (t.type==0) // Current token is a string
+					if (t.type==TOKEN_TYPE_STRING_NO_QUOTES) // Current token is a string
 					{
 						if (curSS.type==-2) // If the operator has not been seen yet
 						{
@@ -303,7 +303,7 @@ void* cssYaccThreadFunc(void* args)
 							curSS.str2 = t.text;
 						}
 					}
-					else if (t.type==1) // Current token is an operator
+					else if (t.type==TOKEN_TYPE_OPERATOR) // Current token is an operator
 					{
 						if (t.text==std::string("]"))
 						{
@@ -354,7 +354,7 @@ void* cssYaccThreadFunc(void* args)
 				}
 				else if (inWhatWhat==2)
 				{
-					if (t.type==0) // Current token is a string
+					if (t.type==TOKEN_TYPE_STRING_NO_QUOTES) // Current token is a string
 					{
 						if (curSS.type==8) // Inside a :lang(...) structure
 						{
@@ -416,7 +416,7 @@ void* cssYaccThreadFunc(void* args)
 							}
 						}
 					}
-					else if (t.type==1) // The current token is an operator
+					else if (t.type==TOKEN_TYPE_OPERATOR) // The current token is an operator
 					{
 						if (t.text==std::string("("))
 						{
@@ -446,7 +446,7 @@ void* cssYaccThreadFunc(void* args)
 			}
 			else if (inWhat==1) // in rule before :
 			{
-				if (t.type==0) // Current token is a string
+				if (t.type==TOKEN_TYPE_STRING_NO_QUOTES) // Current token is a string
 				{
 					if (curC.ruleNames.size()!=curC.ruleValues.size())
 					{
@@ -458,7 +458,7 @@ void* cssYaccThreadFunc(void* args)
 						curC.ruleNames.push_back(t.text);
 					}
 				}
-				else if (t.type==1) // Current token is an op
+				else if (t.type==TOKEN_TYPE_OPERATOR) // Current token is an op
 				{
 					if (t.text==std::string(":"))
 					{
@@ -489,7 +489,7 @@ void* cssYaccThreadFunc(void* args)
 			}
 			else if (inWhat==2) // in rule after :
 			{
-				if (t.type==0) // Current token is a string
+				if (t.type==TOKEN_TYPE_STRING_NO_QUOTES) // Current token is a string
 				{
 					/*if (curC.ruleNames.size()==curC.ruleValues.size())
 					{
@@ -500,7 +500,7 @@ void* cssYaccThreadFunc(void* args)
 						std::cout << "Test :)";
 					}*/
 				}
-				else if (t.type==1) // Current token is an op
+				else if (t.type==TOKEN_TYPE_OPERATOR) // Current token is an op
 				{
 					if (t.text==std::string(";"))
 					{
