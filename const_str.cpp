@@ -73,7 +73,11 @@ const bool operator != (const ConstStr& str1, const ConstStr& str2)
 {
 	return !(str1==str2);
 }
-
+const bool operator == (const ConstStr& str1, const char& str2)
+{
+	return	( str1.length==1 ) &&
+			( *(str1.startChar) == str2 );
+}
 const bool operator == (const ConstStr& str1, const std::string& str2)
 {
 	if (str1.length!=str2.size()) return false;

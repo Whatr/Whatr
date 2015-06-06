@@ -73,6 +73,7 @@ public:
 	void backToStart();
 	void jump(int destination);
 };
+const bool operator == (const ConstStr& str1, const char& str2);
 const bool operator == (const ConstStr& str1, const std::string& str2);
 const bool operator == (const ConstStr& str1, const ConstStr& str2);
 const bool operator != (const ConstStr& str1, const std::string& str2);

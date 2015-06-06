@@ -115,14 +115,14 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 	{
 		CSSValue ret;
 		memset(&ret, 0, sizeof(ret));
-		CSSToken current = tokens->at(start+1);
-		CSSToken next = tokens->at(start+2);
+		CSSToken current = tokens->at(start);
+		CSSToken next = tokens->at(start+1);
 		for (
 			int i=start+1;
 			i<=end;
 			i++,
-			current=tokens->at(i+1),
-			next=tokens->at(i+2)
+			current=tokens->at(i),
+			next=tokens->at(i+1)
 			)
 		{
 			int intVal = 12345;
@@ -151,6 +151,41 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 					ret.colorValue = 0x00000000;
 				else if (current.text==std::string("devil"))
 					ret.colorValue = 0x66666600;
+				else if (current.text==std::string("rgb"))
+				{ // rgb(0, 0, 0)
+					if (next.type==TOKEN_TYPE_OPERATOR &&
+						next.text=='(')
+					{
+						CSSToken iPlus2 = tokens->at(i+2);
+						CSSToken iPlus3 = tokens->at(i+3);
+						CSSToken iPlus4 = tokens->at(i+4);
+						CSSToken iPlus5 = tokens->at(i+5);
+						CSSToken iPlus6 = tokens->at(i+6);
+						CSSToken iPlus7 = tokens->at(i+7);
+						if (iPlus3.type==TOKEN_TYPE_OPERATOR &&
+							iPlus3.text==',' &&
+							iPlus5.type==TOKEN_TYPE_OPERATOR &&
+							iPlus5.text==',' &&
+							iPlus7.type==TOKEN_TYPE_OPERATOR &&
+							iPlus7.text==')' &&
+							iPlus2.type==TOKEN_TYPE_NUMBER &&
+							iPlus4.type==TOKEN_TYPE_NUMBER &&
+							iPlus6.type==TOKEN_TYPE_NUMBER)
+						{
+							ret.colorValue =	(0x01000000*iPlus2.text.toInt()) |
+												(0x00010000*iPlus4.text.toInt()) |
+												(0x00000100*iPlus6.text.toInt());
+						}
+						else
+						{
+							std::cout << RED << "CSS syntax error: expectefd (int,int,int) after rgb\n" << NOCLR;
+						}
+					}
+					else
+					{
+						std::cout << RED << "CSS Yacc error: expected ( after rgb\n" << NOCLR;
+					}
+				}
 				else goto noColor;
 				ret.colorType = 1;
 				goto foundValue;
