@@ -379,9 +379,9 @@ int main(int argc, char* argv[])
 				std::cout << ss.str1 << " " << ss.str2 << " " << ss.type << "\n";
 			}
 			std::cout << "--- Class rules:\n";
-			for (int j=0;j<CSSClasses.at(i).ruleNames.size();j++)
+			for (int j=0;j<CSSClasses.at(i).ruleProperties.size();j++)
 			{
-				std::cout << CSSClasses.at(i).ruleNames.at(j) << ": ";
+				std::cout << CSSClasses.at(i).ruleProperties.at(j) << ": ";
 				printCSSValue(CSSClasses.at(i).ruleValues.at(j));
 				std::cout << "\n";
 			}
@@ -599,7 +599,7 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 		std::cout << " computedStyle=\"";
 		for (int i=0;i<currentElement->styleFields.size();i++)
 		{
-			currentElement->styleFields.at(i).print();
+			std::cout << currentElement->styleFields.at(i);
 			std::cout << ":";
 			printCSSValue(currentElement->styleValues.at(i));
 			std::cout << ";";
@@ -622,7 +622,7 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 		std::cout << " computedStyle=\"";
 		for (int i=0;i<currentElement->styleFields.size();i++)
 		{
-			currentElement->styleFields.at(i).print();
+			std::cout << currentElement->styleFields.at(i);
 			std::cout << ":";
 			printCSSValue(currentElement->styleValues.at(i));
 			std::cout << ";";

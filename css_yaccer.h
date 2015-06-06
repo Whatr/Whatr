@@ -16,12 +16,13 @@
 #include "css_lexer.h"
 #include "css_selector.h"
 #include "css_values.h"
+#include "css_properties.h"
 
 class CSSClass
 {
 public:
 	CSSSelector selector;
-	std::vector<ConstStr> ruleNames;
+	std::vector<CSSProperty> ruleProperties;
 	std::vector<CSSValue> ruleValues;
 };
 class cssYaccArgs

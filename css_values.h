@@ -36,6 +36,13 @@ enum LengthType
 	LENGTH_TYPE_EM,
 	LENGTH_TYPE_PERCENT,
 };
+
+enum CSSConstant
+{
+	NOPE=0,
+	
+};
+
 struct CSSValue
 {
 	TextType textType;
@@ -50,9 +57,10 @@ struct CSSValue
 	int colorType;	// 0 = nope, 1 = yup
 	int colorValue;
 	
-	int constant;	// 0 = nope, ....css_values.h
+	CSSConstant constant;	// 0 = nope, ....css_values.h
 };
 
+/*
 // Used for multiple properties:
 struct CSSLineStyle // CSS1 border-style, CSS2 outline-style, CSS3 column-rule-style
 { enum {
@@ -139,7 +147,7 @@ struct CSSBackfaceVisibility // CSS3
 { enum {
 	VISIBLE, // Default
 	HIDDEN,
-}; };*/
+}; };*//*
 struct CSSBackgroundAttachment // CSS1
 { enum {
 	SCROLL, // Default
@@ -168,7 +176,7 @@ struct CSSBackgroundImage // CSS1
 	PADDING_BOX, // Default
 	BORDER_BOX,
 	CONTENT_BOX,
-}; };*/
+}; };*//*
 struct CSSBackgroundPositionX // CSS1
 { enum {
 	LEFT,
@@ -198,7 +206,7 @@ struct CSSBackgroundRepeat // CSS1
 	COVER,
 	CONTAIN,
 	VAL_LENGTH=101,
-}; };*/
+}; };*//*
 
 struct CSSBorderCollapse // CSS2
 { enum {
@@ -220,7 +228,7 @@ struct CSSBoxSizing // CSS3
 { enum {
 	CONTENT_BOX, // Default
 	BORDER_BOX,
-}; };*/
+}; };*//*
 struct CSSCaptionSide // CSS2
 { enum {
 	TOP, // Default
@@ -242,7 +250,7 @@ struct CSSColumnSpan // CSS3
 { enum {
 	ONE, // Default
 	ALL,
-}; };*/
+}; };*//*
 struct CSSDirection // CSS2
 { enum {
 	LTR, // Default
@@ -286,7 +294,7 @@ struct CSSFlexWrap // CSS3
 	NOWRAP, // Default
 	WRAP,
 	WRAP_REVERSE,
-}; };*/
+}; };*//*
 struct CSSFloat // CSS1
 { enum {
 	NONE, // Default
@@ -304,7 +312,7 @@ struct CSSFloat // CSS1
 	EXPANDED,
 	EXTRA_EXPANDED,
 	ULTRA_EXPANDED,
-}; };*/
+}; };*//*
 struct CSSFontStyle // CSS1
 { enum {
 	NORMAL, // Default
@@ -348,7 +356,7 @@ struct CSSJustifyContent // CSS3
 	CENTER,
 	SPACE_BETWEEN,
 	SPACE_AROUND,
-}; };*/
+}; };*//*
 struct CSSListStylePosition // CSS1
 { enum {
 	INSIDE,
@@ -416,7 +424,7 @@ struct CSSResize // CSS3
 	HORIZONTAL,
 	VERTICAL,
 }; };
-*/
+*//*
 struct CSSTableLayout // CSS2
 { enum {
 	AUTO, // Default
@@ -464,7 +472,7 @@ struct CSSTextJustify // CSS3
 	KASHIDA,
 	TRIM,
 	NONE,
-}; };*/
+}; };*//*
 struct CSSTextTransform // CSS1
 { enum {
 	NONE,
@@ -476,7 +484,7 @@ struct CSSTextTransform // CSS1
 { enum {
 	FLAT,
 	PRESERVE_3D,
-}; };*/
+}; };*//*
 struct CSSUnicodeBidi // CSS2
 { enum {
 	NORMAL, // Default

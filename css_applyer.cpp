@@ -47,9 +47,9 @@ void* cssApplyThreadFunc(void* args)
 					el!=applyToList.end();
 					el++)
 		{
-			for (int i=0;i<c->ruleNames.size();i++)
+			for (int i=0;i<c->ruleProperties.size();i++)
 			{
-				ConstStr name = c->ruleNames.at(i);
+				CSSProperty name = c->ruleProperties.at(i);
 				CSSValue value = c->ruleValues.at(i);
 				std::cout << "CSSSelect returned: ";
 				std::cout << (*el)->text << "\n";

@@ -24,6 +24,74 @@
 #include "css_yaccer.h"
 #include "css_lexer.h"
 #include "css_values.h"
+#include "css_properties.h"
+
+CSSProperty parseRuleName(ConstStr name)
+{
+	if (name-=std::string("COLOR")) return COLOR;
+	if (name-=std::string("OPACITY")) return OPACITY;
+	if (name-=std::string("BACKGROUND")) return BACKGROUND;
+	if (name-=std::string("BACKGROUND-ATTACHMENT")) return BACKGROUND_ATTACHMENT;
+	if (name-=std::string("BACKGROUND-COLOR")) return BACKGROUND_COLOR;
+	if (name-=std::string("BACKGROUND-IMAGE")) return BACKGROUND_IMAGE;
+	if (name-=std::string("BACKGROUND-POSITION")) return BACKGROUND_POSITION;
+	if (name-=std::string("BACKGROUND-REPEAT")) return BACKGROUND_REPEAT;
+	if (name-=std::string("BORDER")) return BORDER;
+	if (name-=std::string("BORDER-COLOR")) return BORDER_COLOR;
+	if (name-=std::string("BORDER-STYLE")) return BORDER_STYLE;
+	if (name-=std::string("BORDER-WIDTH")) return BORDER_WIDTH;
+	if (name-=std::string("BORDER-TOP")) return BORDER_TOP;
+	if (name-=std::string("BORDER-LEFT")) return BORDER_LEFT;
+	if (name-=std::string("BORDER-RIGHT")) return BORDER_RIGHT;
+	if (name-=std::string("BORDER-BOTTOM")) return BORDER_BOTTOM;
+	if (name-=std::string("BORDER-BOTTOM-COLOR")) return BORDER_BOTTOM_COLOR;
+	if (name-=std::string("BORDER-BOTTOM-STYLE")) return BORDER_BOTTOM_STYLE;
+	if (name-=std::string("BORDER-BOTTOM-WIDTH")) return BORDER_BOTTOM_WIDTH;
+	if (name-=std::string("BORDER-TOP-COLOR")) return BORDER_TOP_COLOR;
+	if (name-=std::string("BORDER-TOP-STYLE")) return BORDER_TOP_STYLE;
+	if (name-=std::string("BORDER-TOP-WIDTH")) return BORDER_TOP_WIDTH;
+	if (name-=std::string("BORDER-LEFT-COLOR")) return BORDER_LEFT_COLOR;
+	if (name-=std::string("BORDER-LEFT-STYLE")) return BORDER_LEFT_STYLE;
+	if (name-=std::string("BORDER-LEFT-WIDTH")) return BORDER_LEFT_WIDTH;
+	if (name-=std::string("BORDER-RIGHT-COLOR")) return BORDER_RIGHT_COLOR;
+	if (name-=std::string("BORDER-RIGHT-STYLE")) return BORDER_RIGHT_STYLE;
+	if (name-=std::string("BORDER-RIGHT-WIDTH")) return BORDER_RIGHT_WIDTH;
+	if (name-=std::string("CLEAR")) return CLEAR;
+	if (name-=std::string("DISPLAY")) return DISPLAY;
+	if (name-=std::string("FLOAT")) return FLOAT;
+	if (name-=std::string("HEIGHT")) return HEIGHT;
+	if (name-=std::string("WIDTH")) return WIDTH;
+	if (name-=std::string("PADDING")) return PADDING;
+	if (name-=std::string("PADDING-BOTTOM")) return PADDING_BOTTOM;
+	if (name-=std::string("PADDING-LEFT")) return PADDING_LEFT;
+	if (name-=std::string("PADDING-RIGHT")) return PADDING_RIGHT;
+	if (name-=std::string("PADDING-TOP")) return PADDING_TOP;
+	if (name-=std::string("VERTICAL-ALIGN")) return VERTICAL_ALIGN;
+	if (name-=std::string("MARGIN")) return MARGIN;
+	if (name-=std::string("MARGIN-BOTTOM")) return MARGIN_BOTTOM;
+	if (name-=std::string("MARGIN-TOP")) return MARGIN_TOP;
+	if (name-=std::string("MARGIN-LEFT")) return MARGIN_LEFT;
+	if (name-=std::string("MARGIN-RIGHT")) return MARGIN_RIGHT;
+	if (name-=std::string("LETTER-SPACING")) return LETTER_SPACING;
+	if (name-=std::string("LINE-HEIGHT")) return LINE_HEIGHT;
+	if (name-=std::string("TEXT-ALIGN")) return TEXT_ALIGN;
+	if (name-=std::string("TEXT-TRANSFORM")) return TEXT_TRANSFORM;
+	if (name-=std::string("TEXT-INDENT")) return TEXT_INDENT;
+	if (name-=std::string("WHITE-SPACE")) return WHITE_SPACE;
+	if (name-=std::string("WORD-SPACING")) return WORD_SPACING;
+	if (name-=std::string("TEXT-DECORATION")) return TEXT_DECORATION;
+	if (name-=std::string("FONT")) return FONT;
+	if (name-=std::string("FONT-FAMILY")) return FONT_FAMILY;
+	if (name-=std::string("FONT-SIZE")) return FONT_SIZE;
+	if (name-=std::string("FONT-STYLE")) return FONT_STYLE;
+	if (name-=std::string("FONT-VARIANT")) return FONT_VARIANT;
+	if (name-=std::string("FONT-WEIGHT")) return FONT_WEIGHT;
+	if (name-=std::string("LIST-STYLE")) return LIST_STYLE;
+	if (name-=std::string("LIST-STYLE-IMAGE")) return LIST_STYLE_IMAGE;
+	if (name-=std::string("LIST-STYLE-POSITION")) return LIST_STYLE_POSITION;
+	if (name-=std::string("LIST-STYLE-TYPE")) return LIST_STYLE_TYPE;
+	return NONE;
+}
 
 std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
 {
@@ -455,14 +523,14 @@ void* cssYaccThreadFunc(void* args)
 			{
 				if (t.type==TOKEN_TYPE_STRING_NO_QUOTES) // Current token is a string
 				{
-					if (curC.ruleNames.size()!=curC.ruleValues.size())
+					if (curC.ruleProperties.size()!=curC.ruleValues.size())
 					{
 						std::cout << RED << "CSS Yacc error: Unexpected string " << t.text << "\n" << NOCLR;
 					}
 					else
 					{
+						curC.ruleProperties.push_back(parseRuleName(t.text));
 						std::cout << "Added rule name " << t.text << "\n";
-						curC.ruleNames.push_back(t.text);
 					}
 				}
 				else if (t.type==TOKEN_TYPE_OPERATOR) // Current token is an op
@@ -513,7 +581,108 @@ void* cssYaccThreadFunc(void* args)
 					{
 						std::cout << "Encountered ; - now in rule before :\n";
 						inWhat = 1;
-						curC.ruleValues.push_back(parseRuleValue(CSSTokens, ruleValueStartI, i-1));
+						std::vector<CSSValue>* CSSValues = parseRuleValue(CSSTokens, ruleValueStartI, i-1);
+						CSSProperty prop = curC.ruleProperties.back();
+						if (prop >= COMBOS)
+						{
+#define PUSHV curC.ruleValues.push_back(*v)
+							curC.ruleProperties.pop_back();
+							// It's a combo css property, like 'border' or 'padding'
+							switch (prop)
+							{
+								case BORDER:
+								for (std::vector<CSSValue>::iterator v
+									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+								{
+									if (v->lengthType!=LENGTH_TYPE_NOPE)
+									{
+						curC.ruleProperties.push_back(BORDER_TOP_WIDTH);PUSHV;
+						curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH);PUSHV;
+						curC.ruleProperties.push_back(BORDER_LEFT_WIDTH);PUSHV;
+						curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH);PUSHV;
+									}
+									else if (v->colorType)
+									{
+						curC.ruleProperties.push_back(BORDER_TOP_COLOR);PUSHV;
+						curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR);PUSHV;
+						curC.ruleProperties.push_back(BORDER_LEFT_COLOR);PUSHV;
+						curC.ruleProperties.push_back(BORDER_RIGHT_COLOR);PUSHV;
+									}
+									else if (v->constant)
+									{
+						curC.ruleProperties.push_back(BORDER_TOP_STYLE);PUSHV;
+						curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE);PUSHV;
+						curC.ruleProperties.push_back(BORDER_LEFT_STYLE);PUSHV;
+						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE);PUSHV;
+									}
+								}
+								break;
+								case BORDER_TOP:
+								for (std::vector<CSSValue>::iterator v
+									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+								{
+									if (v->lengthType!=LENGTH_TYPE_NOPE)
+						curC.ruleProperties.push_back(BORDER_TOP_WIDTH), PUSHV;
+									else if (v->colorType)
+						curC.ruleProperties.push_back(BORDER_TOP_COLOR), PUSHV;
+									else if (v->constant)
+						curC.ruleProperties.push_back(BORDER_TOP_STYLE), PUSHV;
+								}
+								break;
+								case BORDER_BOTTOM:
+								for (std::vector<CSSValue>::iterator v
+									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+								{
+									if (v->lengthType!=LENGTH_TYPE_NOPE)
+						curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH), PUSHV;
+									else if (v->colorType)
+						curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR), PUSHV;
+									else if (v->constant)
+						curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE), PUSHV;
+								}
+								break;
+								case BORDER_LEFT:
+								for (std::vector<CSSValue>::iterator v
+									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+								{
+									if (v->lengthType!=LENGTH_TYPE_NOPE)
+						curC.ruleProperties.push_back(BORDER_LEFT_WIDTH), PUSHV;
+									else if (v->colorType)
+						curC.ruleProperties.push_back(BORDER_LEFT_COLOR), PUSHV;
+									else if (v->constant)
+						curC.ruleProperties.push_back(BORDER_LEFT_STYLE), PUSHV;
+								}
+								break;
+								case BORDER_RIGHT:
+								for (std::vector<CSSValue>::iterator v
+									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+								{
+									if (v->lengthType!=LENGTH_TYPE_NOPE)
+						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE), PUSHV;
+									else if (v->colorType)
+						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE), PUSHV;
+									else if (v->constant)
+						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE), PUSHV;
+								}
+								break;
+								default:
+								std::cout << RED << "CSS Yacc error: Todo combo " << prop << NOCLR;
+								break;
+							}
+						}
+						else
+						{
+							// It's a single css property, like 'border-top-width'
+							if (CSSValues->size()==1)
+							{
+								curC.ruleValues.push_back(CSSValues->at(0));
+							}
+							else
+							{
+								std::cout << RED << "CSS Yacc error: Incorrect amount of CSS values supplied!\n" << NOCLR;
+								
+							}
+						}
 					}
 					else if (t.text==std::string("}"))
 					{

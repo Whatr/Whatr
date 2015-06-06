@@ -15,6 +15,7 @@
 
 #include "html_lexer.h"
 #include "css_values.h"
+#include "css_properties.h"
 
 class HTMLElement
 {
@@ -30,11 +31,12 @@ public:
 	// TODO add an int containing the index of this element in its parent's children
 	
 	// CSS applyer stuff:
-	std::vector<ConstStr> styleFields;
+	std::vector<CSSProperty> styleFields;
 	std::vector<CSSValue> styleValues;
-	int top = 0, left = 0, bottom = 0, right = 0;
-	CSSDisplay cssDisplay;
-	CSSPosition cssPosition;
+	
+	CSSValue cssTop, cssLeft, cssBottom, cssRight;
+	CSSConstant cssDisplay;
+	CSSConstant cssPosition;
 	
 	
 	// Prerenderer stuff:
