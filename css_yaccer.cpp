@@ -93,10 +93,30 @@ CSSProperty parseRuleName(ConstStr name)
 	return NONE;
 }
 
-std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, int end)
+bool canTakeColor(CSSProperty prop)
+{
+	return
+	prop == COLOR ||
+	prop == BACKGROUND_COLOR ||
+	prop == BORDER_BOTTOM_COLOR ||
+	prop == BORDER_TOP_COLOR ||
+	prop == BORDER_LEFT_COLOR ||
+	prop == BORDER_RIGHT_COLOR ||
+	prop == BORDER ||
+	prop == BORDER_COLOR ||
+	prop == BORDER_LEFT ||
+	prop == BORDER_RIGHT ||
+	prop == BORDER_TOP ||
+	prop == BORDER_BOTTOM;
+}
+
+std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, int end, CSSProperty prop)
+// The prop parameter is purely to limit the amount of string matching for constants
 {
 	// start points to the :
 	// end points to the token before the ;
+	
+	bool acceptColor = canTakeColor(prop);
 	
 	std::vector<CSSValue>* CSSValues = new std::vector<CSSValue>;
 	
@@ -133,25 +153,160 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 			}
 			if (current.type==TOKEN_TYPE_STRING_NO_QUOTES)
 			{
-				if (current.text==std::string("red"))
-					ret.colorValue = 0xFF000000;
-				else if (current.text==std::string("green"))
-					ret.colorValue = 0x00FF0000;
-				else if (current.text==std::string("blue"))
-					ret.colorValue = 0x0000FF00;
-				else if (current.text==std::string("orange"))
-					ret.colorValue = 0xFF880000;
-				else if (current.text==std::string("yellow"))
-					ret.colorValue = 0xFFFF0000;
-				else if (current.text==std::string("purple"))
-					ret.colorValue = 0xFF00FF00;
-				else if (current.text==std::string("white"))
-					ret.colorValue = 0xFFFFFF00;
-				else if (current.text==std::string("black"))
-					ret.colorValue = 0x00000000;
-				else if (current.text==std::string("devil"))
-					ret.colorValue = 0x66666600;
-				else if (current.text==std::string("url"))
+				if (acceptColor)
+				{
+#define evalColor(x,y) if(current.text-=std::string(x))ret.colorValue=y
+					     evalColor("AliceBlue", 0xF0F8FF00);
+					else evalColor("AntiqueWhite", 0xFAEBD700);
+					else evalColor("Aqua", 0x00FFFF00);
+					else evalColor("Aquamarine", 0x7FFFD400);
+					else evalColor("Azure", 0xF0FFFF00);
+					else evalColor("Beige", 0xF5F5DC00);
+					else evalColor("Bisque", 0xFFE4C400);
+					else evalColor("Black", 0x00000000);
+					else evalColor("BlanchedAlmond", 0xFFEBCD00);
+					else evalColor("Blue", 0x0000FF00);
+					else evalColor("BlueViolet", 0x8A2BE200);
+					else evalColor("Brown", 0xA52A2A00);
+					else evalColor("BurlyWood", 0xDEB88700);
+					else evalColor("CadetBlue", 0x5F9EA000);
+					else evalColor("Chartreuse", 0x7FFF0000);
+					else evalColor("Chocolate", 0xD2691E00);
+					else evalColor("Coral", 0xFF7F5000);
+					else evalColor("CornflowerBlue", 0x6495ED00);
+					else evalColor("Cornsilk", 0xFFF8DC00);
+					else evalColor("Crimson", 0xDC143C00);
+					else evalColor("Cyan", 0x00FFFF00);
+					else evalColor("DarkBlue", 0x00008B00);
+					else evalColor("DarkCyan", 0x008B8B00);
+					else evalColor("DarkGoldenRod", 0xB8860B00);
+					else evalColor("DarkGray", 0xA9A9A900);
+					else evalColor("DarkGreen", 0x00640000);
+					else evalColor("DarkKhaki", 0xBDB76B00);
+					else evalColor("DarkMagenta", 0x8B008B00);
+					else evalColor("DarkOliveGreen", 0x556B2F00);
+					else evalColor("DarkOrange", 0xFF8C0000);
+					else evalColor("DarkOrchid", 0x9932CC00);
+					else evalColor("DarkRed", 0x8B000000);
+					else evalColor("DarkSalmon", 0xE9967A00);
+					else evalColor("DarkSeaGreen", 0x8FBC8F00);
+					else evalColor("DarkSlateBlue", 0x483D8B00);
+					else evalColor("DarkSlateGray", 0x2F4F4F00);
+					else evalColor("DarkTurquoise", 0x00CED100);
+					else evalColor("DarkViolet", 0x9400D300);
+					else evalColor("DeepPink", 0xFF149300);
+					else evalColor("DeepSkyBlue", 0x00BFFF00);
+					else evalColor("DimGray", 0x69696900);
+					else evalColor("DodgerBlue", 0x1E90FF00);
+					else evalColor("FireBrick", 0xB2222200);
+					else evalColor("FloralWhite", 0xFFFAF000);
+					else evalColor("ForestGreen", 0x228B2200);
+					else evalColor("Fuchsia", 0xFF00FF00);
+					else evalColor("Gainsboro", 0xDCDCDC00);
+					else evalColor("GhostWhite", 0xF8F8FF00);
+					else evalColor("Gold", 0xFFD70000);
+					else evalColor("GoldenRod", 0xDAA52000);
+					else evalColor("Gray", 0x80808000);
+					else evalColor("Green", 0x00800000);
+					else evalColor("GreenYellow", 0xADFF2F00);
+					else evalColor("HoneyDew", 0xF0FFF000);
+					else evalColor("HotPink", 0xFF69B400);
+					else evalColor("IndianRed ", 0xCD5C5C00);
+					else evalColor("Indigo  ", 0x4B008200);
+					else evalColor("Ivory", 0xFFFFF000);
+					else evalColor("Khaki", 0xF0E68C00);
+					else evalColor("Lavender", 0xE6E6FA00);
+					else evalColor("LavenderBlush", 0xFFF0F500);
+					else evalColor("LawnGreen", 0x7CFC0000);
+					else evalColor("LemonChiffon", 0xFFFACD00);
+					else evalColor("LightBlue", 0xADD8E600);
+					else evalColor("LightCoral", 0xF0808000);
+					else evalColor("LightCyan", 0xE0FFFF00);
+					else evalColor("LightGoldenRodYellow", 0xFAFAD200);
+					else evalColor("LightGray", 0xD3D3D300);
+					else evalColor("LightGreen", 0x90EE9000);
+					else evalColor("LightPink", 0xFFB6C100);
+					else evalColor("LightSalmon", 0xFFA07A00);
+					else evalColor("LightSeaGreen", 0x20B2AA00);
+					else evalColor("LightSkyBlue", 0x87CEFA00);
+					else evalColor("LightSlateGray", 0x77889900);
+					else evalColor("LightSteelBlue", 0xB0C4DE00);
+					else evalColor("LightYellow", 0xFFFFE000);
+					else evalColor("Lime", 0x00FF0000);
+					else evalColor("LimeGreen", 0x32CD3200);
+					else evalColor("Linen", 0xFAF0E600);
+					else evalColor("Magenta", 0xFF00FF00);
+					else evalColor("Maroon", 0x80000000);
+					else evalColor("MediumAquaMarine", 0x66CDAA00);
+					else evalColor("MediumBlue", 0x0000CD00);
+					else evalColor("MediumOrchid", 0xBA55D300);
+					else evalColor("MediumPurple", 0x9370DB00);
+					else evalColor("MediumSeaGreen", 0x3CB37100);
+					else evalColor("MediumSlateBlue", 0x7B68EE00);
+					else evalColor("MediumSpringGreen", 0x00FA9A00);
+					else evalColor("MediumTurquoise", 0x48D1CC00);
+					else evalColor("MediumVioletRed", 0xC7158500);
+					else evalColor("MidnightBlue", 0x19197000);
+					else evalColor("MintCream", 0xF5FFFA00);
+					else evalColor("MistyRose", 0xFFE4E100);
+					else evalColor("Moccasin", 0xFFE4B500);
+					else evalColor("NavajoWhite", 0xFFDEAD00);
+					else evalColor("Navy", 0x00008000);
+					else evalColor("OldLace", 0xFDF5E600);
+					else evalColor("Olive", 0x80800000);
+					else evalColor("OliveDrab", 0x6B8E2300);
+					else evalColor("Orange", 0xFFA50000);
+					else evalColor("OrangeRed", 0xFF450000);
+					else evalColor("Orchid", 0xDA70D600);
+					else evalColor("PaleGoldenRod", 0xEEE8AA00);
+					else evalColor("PaleGreen", 0x98FB9800);
+					else evalColor("PaleTurquoise", 0xAFEEEE00);
+					else evalColor("PaleVioletRed", 0xDB709300);
+					else evalColor("PapayaWhip", 0xFFEFD500);
+					else evalColor("PeachPuff", 0xFFDAB900);
+					else evalColor("Peru", 0xCD853F00);
+					else evalColor("Pink", 0xFFC0CB00);
+					else evalColor("Plum", 0xDDA0DD00);
+					else evalColor("PowderBlue", 0xB0E0E600);
+					else evalColor("Purple", 0x80008000);
+					else evalColor("RebeccaPurple", 0x66339900);
+					else evalColor("Red", 0xFF000000);
+					else evalColor("RosyBrown", 0xBC8F8F00);
+					else evalColor("RoyalBlue", 0x4169E100);
+					else evalColor("SaddleBrown", 0x8B451300);
+					else evalColor("Salmon", 0xFA807200);
+					else evalColor("SandyBrown", 0xF4A46000);
+					else evalColor("SeaGreen", 0x2E8B5700);
+					else evalColor("SeaShell", 0xFFF5EE00);
+					else evalColor("Sienna", 0xA0522D00);
+					else evalColor("Silver", 0xC0C0C000);
+					else evalColor("SkyBlue", 0x87CEEB00);
+					else evalColor("SlateBlue", 0x6A5ACD00);
+					else evalColor("SlateGray", 0x70809000);
+					else evalColor("Snow", 0xFFFAFA00);
+					else evalColor("SpringGreen", 0x00FF7F00);
+					else evalColor("SteelBlue", 0x4682B400);
+					else evalColor("Tan", 0xD2B48C00);
+					else evalColor("Teal", 0x00808000);
+					else evalColor("Thistle", 0xD8BFD800);
+					else evalColor("Tomato", 0xFF634700);
+					else evalColor("Turquoise", 0x40E0D000);
+					else evalColor("Violet", 0xEE82EE00);
+					else evalColor("Wheat", 0xF5DEB300);
+					else evalColor("White", 0xFFFFFF00);
+					else evalColor("WhiteSmoke", 0xF5F5F500);
+					else evalColor("Yellow", 0xFFFF0000);
+					else evalColor("YellowGreen", 0x9ACD32);
+					else evalColor("devil", 0x66666600);
+					else goto notAColorName;
+				}
+				// If it's a color name:
+				ret.colorType = 1;
+				goto foundValue;
+				
+				// Else:
+				notAColorName:
+				if (current.text==std::string("url"))
 				{
 					CSSToken iPlus2 = tokens->at(i+2);
 					CSSToken iPlus3 = tokens->at(i+3);
@@ -657,8 +812,8 @@ void* cssYaccThreadFunc(void* args)
 					{
 						std::cout << "Encountered ; - now in rule before :\n";
 						inWhat = 1;
-						std::vector<CSSValue>* CSSValues = parseRuleValue(CSSTokens, ruleValueStartI, i-1);
 						CSSProperty prop = curC.ruleProperties.back();
+						std::vector<CSSValue>* CSSValues = parseRuleValue(CSSTokens, ruleValueStartI, i-1, prop);
 						if (prop >= COMBOS)
 						{
 							#define PUSHV curC.ruleValues.push_back(*v)
@@ -826,7 +981,7 @@ void* cssYaccThreadFunc(void* args)
 						curC.ruleValues.push_back((*CSSValues)[3]);
 								else
 								{
-									std::cout << "CSS syntax error: padding property has to supply 1, 2, 3 or 4 values. Not " << CSSValues->size() << "\n";
+									std::cout << "CSS syntax error: property has to supply 1, 2, 3 or 4 values. Not " << CSSValues->size() << "\n";
 								}
 								}break;
 								default:
