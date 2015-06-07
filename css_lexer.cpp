@@ -99,11 +99,11 @@ void* cssLexThreadFunc(void* args)
 				else if (c=='\\') backslashing = true;
 				else if (c==inQuotes)
 				{
-					inQuotes = 0;
 					CSSToken t;
 					t.type = inQuotes=='"' ? TOKEN_TYPE_STRING_DOUBLE_QUOTES : TOKEN_TYPE_STRING_SINGLE_QUOTES;
 					t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 					CSSTokens->push_back(t);
+					inQuotes = 0;
 				}
 			}
 			else if (c=='\'' || c=='"')

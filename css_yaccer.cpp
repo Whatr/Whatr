@@ -151,6 +151,27 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 					ret.colorValue = 0x00000000;
 				else if (current.text==std::string("devil"))
 					ret.colorValue = 0x66666600;
+				else if (current.text==std::string("url"))
+				{
+					CSSToken iPlus2 = tokens->at(i+2);
+					CSSToken iPlus3 = tokens->at(i+3);
+					if (next.type==TOKEN_TYPE_OPERATOR &&
+						next.text=='(' &&
+						(iPlus2.type==TOKEN_TYPE_STRING_SINGLE_QUOTES ||
+						 iPlus2.type==TOKEN_TYPE_STRING_DOUBLE_QUOTES) &&
+						iPlus3.type==TOKEN_TYPE_OPERATOR &&
+						iPlus3.text==')')
+					{
+						ret.textType = TEXT_TYPE_URL;
+						ret.textValue = iPlus2.text;
+						i += 3;
+						goto foundValue;
+					}
+					else
+					{
+						std::cout << RED << "CSS syntax error: expected ('string') after url\n" << NOCLR;
+					}
+				}
 				else if (current.text==std::string("rgb") ||
 						 current.text==std::string("rgba"))
 				{ // rgb(0, 0, 0)
@@ -168,8 +189,9 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 						{
 							iPlus8 = tokens->at(i+8);
 							iPlus9 = tokens->at(i+9);
+							i += 9;
 						}
-						i += 7;
+						else i += 7;
 						if (iPlus3.type==TOKEN_TYPE_OPERATOR &&
 							iPlus5.type==TOKEN_TYPE_OPERATOR &&
 							iPlus7.type==TOKEN_TYPE_OPERATOR &&
@@ -200,12 +222,13 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 						}
 						else
 						{
-							std::cout << RED << "CSS syntax error: expectefd (int,int,int) after rgb\n" << NOCLR;
+							if (current.text.length==3) std::cout << RED << "CSS syntax error: expected (int,int,int) after rgb\n" << NOCLR;
+							else std::cout << RED << "CSS syntax error: expected (int,int,int,int) after rgba\n" << NOCLR;
 						}
 					}
 					else
 					{
-						std::cout << RED << "CSS Yacc error: expected ( after rgb\n" << NOCLR;
+						std::cout << RED << "CSS syntax error: expected ( after rgb\n" << NOCLR;
 					}
 				}
 				else goto noColor;
@@ -638,7 +661,7 @@ void* cssYaccThreadFunc(void* args)
 						CSSProperty prop = curC.ruleProperties.back();
 						if (prop >= COMBOS)
 						{
-#define PUSHV curC.ruleValues.push_back(*v)
+							#define PUSHV curC.ruleValues.push_back(*v)
 							curC.ruleProperties.pop_back();
 							// It's a combo css property, like 'border' or 'padding'
 							switch (prop)
@@ -668,6 +691,7 @@ void* cssYaccThreadFunc(void* args)
 						curC.ruleProperties.push_back(BORDER_LEFT_STYLE);PUSHV;
 						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE);PUSHV;
 									}
+									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
 								}
 								break;
 								case BORDER_TOP:
@@ -680,6 +704,7 @@ void* cssYaccThreadFunc(void* args)
 						curC.ruleProperties.push_back(BORDER_TOP_COLOR), PUSHV;
 									else if (v->constant)
 						curC.ruleProperties.push_back(BORDER_TOP_STYLE), PUSHV;
+									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
 								}
 								break;
 								case BORDER_BOTTOM:
@@ -692,6 +717,7 @@ void* cssYaccThreadFunc(void* args)
 						curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR), PUSHV;
 									else if (v->constant)
 						curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE), PUSHV;
+									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
 								}
 								break;
 								case BORDER_LEFT:
@@ -704,6 +730,7 @@ void* cssYaccThreadFunc(void* args)
 						curC.ruleProperties.push_back(BORDER_LEFT_COLOR), PUSHV;
 									else if (v->constant)
 						curC.ruleProperties.push_back(BORDER_LEFT_STYLE), PUSHV;
+									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
 								}
 								break;
 								case BORDER_RIGHT:
@@ -716,8 +743,70 @@ void* cssYaccThreadFunc(void* args)
 						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE), PUSHV;
 									else if (v->constant)
 						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE), PUSHV;
+									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
 								}
 								break;
+								case BACKGROUND:
+								for (std::vector<CSSValue>::iterator v
+									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+								{
+									if (v->colorType)
+						curC.ruleProperties.push_back(BACKGROUND_COLOR), PUSHV;
+									else if (v->textType==TEXT_TYPE_URL)
+						curC.ruleProperties.push_back(BACKGROUND_IMAGE), PUSHV;
+									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
+								}
+								case MARGIN:
+								case PADDING:{
+								CSSProperty top = (prop==MARGIN)
+												? MARGIN_TOP : PADDING_TOP;
+								CSSProperty bottom = (prop==MARGIN)
+												? MARGIN_BOTTOM : PADDING_BOTTOM;
+								CSSProperty left = (prop==MARGIN)
+												? MARGIN_LEFT : PADDING_LEFT;
+								CSSProperty right = (prop==MARGIN)
+												? MARGIN_RIGHT : PADDING_RIGHT;
+								if (CSSValues->size()==1) // TRBL
+						curC.ruleProperties.push_back(top),
+						curC.ruleProperties.push_back(right),
+						curC.ruleProperties.push_back(bottom),
+						curC.ruleProperties.push_back(left),
+						curC.ruleValues.push_back((*CSSValues)[0]),
+						curC.ruleValues.push_back((*CSSValues)[0]),
+						curC.ruleValues.push_back((*CSSValues)[0]),
+						curC.ruleValues.push_back((*CSSValues)[0]);
+								else if (CSSValues->size()==2) // TB RL
+						curC.ruleProperties.push_back(top),
+						curC.ruleProperties.push_back(bottom),
+						curC.ruleProperties.push_back(right),
+						curC.ruleProperties.push_back(left),
+						curC.ruleValues.push_back((*CSSValues)[0]),
+						curC.ruleValues.push_back((*CSSValues)[0]),
+						curC.ruleValues.push_back((*CSSValues)[1]),
+						curC.ruleValues.push_back((*CSSValues)[1]);
+								else if (CSSValues->size()==3) // T RL B
+						curC.ruleProperties.push_back(top),
+						curC.ruleProperties.push_back(right),
+						curC.ruleProperties.push_back(left),
+						curC.ruleProperties.push_back(bottom),
+						curC.ruleValues.push_back((*CSSValues)[0]),
+						curC.ruleValues.push_back((*CSSValues)[1]),
+						curC.ruleValues.push_back((*CSSValues)[1]),
+						curC.ruleValues.push_back((*CSSValues)[2]);
+								else if (CSSValues->size()==4) // T R B L
+						curC.ruleProperties.push_back(top),
+						curC.ruleProperties.push_back(right),
+						curC.ruleProperties.push_back(bottom),
+						curC.ruleProperties.push_back(left),
+						curC.ruleValues.push_back((*CSSValues)[0]),
+						curC.ruleValues.push_back((*CSSValues)[1]),
+						curC.ruleValues.push_back((*CSSValues)[2]),
+						curC.ruleValues.push_back((*CSSValues)[3]);
+								else
+								{
+									std::cout << "CSS syntax error: padding property has to supply 1, 2, 3 or 4 values. Not " << CSSValues->size() << "\n";
+								}
+								}break;
 								default:
 								std::cout << RED << "CSS Yacc error: Todo combo " << prop << NOCLR;
 								break;
