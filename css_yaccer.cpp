@@ -756,16 +756,38 @@ void* cssYaccThreadFunc(void* args)
 						curC.ruleProperties.push_back(BACKGROUND_IMAGE), PUSHV;
 									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
 								}
+								case BORDER_COLOR:
+								case BORDER_WIDTH:
+								case BORDER_STYLE:
 								case MARGIN:
 								case PADDING:{
-								CSSProperty top = (prop==MARGIN)
-												? MARGIN_TOP : PADDING_TOP;
-								CSSProperty bottom = (prop==MARGIN)
-												? MARGIN_BOTTOM : PADDING_BOTTOM;
-								CSSProperty left = (prop==MARGIN)
-												? MARGIN_LEFT : PADDING_LEFT;
-								CSSProperty right = (prop==MARGIN)
-												? MARGIN_RIGHT : PADDING_RIGHT;
+								CSSProperty top, bottom, left, right;
+								if (prop==MARGIN)
+									(top = MARGIN_TOP),
+									(bottom = MARGIN_BOTTOM),
+									(left = MARGIN_LEFT),
+									(right = MARGIN_RIGHT);
+								if (prop==PADDING)
+									(top = PADDING_TOP),
+									(bottom = PADDING_BOTTOM),
+									(left = PADDING_LEFT),
+									(right = PADDING_RIGHT);
+								if (prop==BORDER_COLOR)
+									(top = BORDER_TOP_COLOR),
+									(bottom = BORDER_BOTTOM_COLOR),
+									(left = BORDER_LEFT_COLOR),
+									(right = BORDER_RIGHT_COLOR);
+								if (prop==BORDER_WIDTH)
+									(top = BORDER_TOP_WIDTH),
+									(bottom = BORDER_BOTTOM_WIDTH),
+									(left = BORDER_LEFT_WIDTH),
+									(right = BORDER_RIGHT_WIDTH);
+								if (prop==BORDER_STYLE)
+									(top = BORDER_TOP_STYLE),
+									(bottom = BORDER_BOTTOM_STYLE),
+									(left = BORDER_LEFT_STYLE),
+									(right = BORDER_RIGHT_STYLE);
+								
 								if (CSSValues->size()==1) // TRBL
 						curC.ruleProperties.push_back(top),
 						curC.ruleProperties.push_back(right),
