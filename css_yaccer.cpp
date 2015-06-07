@@ -151,7 +151,8 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 					ret.colorValue = 0x00000000;
 				else if (current.text==std::string("devil"))
 					ret.colorValue = 0x66666600;
-				else if (current.text==std::string("rgb"))
+				else if (current.text==std::string("rgb") ||
+						 current.text==std::string("rgba"))
 				{ // rgb(0, 0, 0)
 					if (next.type==TOKEN_TYPE_OPERATOR &&
 						next.text=='(')
@@ -162,13 +163,29 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 						CSSToken iPlus5 = tokens->at(i+5);
 						CSSToken iPlus6 = tokens->at(i+6);
 						CSSToken iPlus7 = tokens->at(i+7);
+						CSSToken iPlus8, iPlus9;
+						if (current.text.length==4) // rgba
+						{
+							iPlus8 = tokens->at(i+8);
+							iPlus9 = tokens->at(i+9);
+						}
 						i += 7;
 						if (iPlus3.type==TOKEN_TYPE_OPERATOR &&
-							iPlus3.text==',' &&
 							iPlus5.type==TOKEN_TYPE_OPERATOR &&
-							iPlus5.text==',' &&
 							iPlus7.type==TOKEN_TYPE_OPERATOR &&
-							iPlus7.text==')' &&
+							iPlus3.text==',' &&
+							iPlus5.text==',' &&
+							(
+								(	current.text.length==3 &&
+									iPlus7.text==')'	)
+								||
+								(	current.text.length==4 &&
+									iPlus7.text==',' &&
+									iPlus9.type==TOKEN_TYPE_OPERATOR &&
+									iPlus9.text==')' &&
+									iPlus8.type==TOKEN_TYPE_NUMBER	)
+							)
+							&&
 							iPlus2.type==TOKEN_TYPE_NUMBER &&
 							iPlus4.type==TOKEN_TYPE_NUMBER &&
 							iPlus6.type==TOKEN_TYPE_NUMBER)
@@ -176,6 +193,10 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 							ret.colorValue =	(0x01000000*iPlus2.text.toInt()) |
 												(0x00010000*iPlus4.text.toInt()) |
 												(0x00000100*iPlus6.text.toInt());
+							if (current.text.length==4)
+							{
+								ret.colorValue |= (0x00000001*iPlus8.text.toInt());
+							}
 						}
 						else
 						{
