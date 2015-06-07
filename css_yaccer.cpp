@@ -115,8 +115,8 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 	{
 		CSSValue ret;
 		memset(&ret, 0, sizeof(ret));
-		CSSToken current = tokens->at(start);
-		CSSToken next = tokens->at(start+1);
+		CSSToken current = tokens->at(start+1);
+		CSSToken next = tokens->at(start+2);
 		for (
 			int i=start+1;
 			i<=end;
@@ -153,7 +153,6 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 					ret.colorValue = 0x66666600;
 				else if (current.text==std::string("rgb"))
 				{ // rgb(0, 0, 0)
-					std::cout << "rgb lol\n";
 					if (next.type==TOKEN_TYPE_OPERATOR &&
 						next.text=='(')
 					{
@@ -163,6 +162,7 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 						CSSToken iPlus5 = tokens->at(i+5);
 						CSSToken iPlus6 = tokens->at(i+6);
 						CSSToken iPlus7 = tokens->at(i+7);
+						i += 7;
 						if (iPlus3.type==TOKEN_TYPE_OPERATOR &&
 							iPlus3.text==',' &&
 							iPlus5.type==TOKEN_TYPE_OPERATOR &&
@@ -300,7 +300,6 @@ void* cssYaccThreadFunc(void* args)
 				{
 					if (t.type==TOKEN_TYPE_STRING_NO_QUOTES) // Current token is a string
 					{
-						std::cout << "Checkpoint\n";
 						if (curS.subSelectors.size()>0 && curS.subSelectors.back().type!=-1) // Not an op
 						{
 							/*std::cout << "Encountered space operator\n";
@@ -311,7 +310,6 @@ void* cssYaccThreadFunc(void* args)
 						}
 						if (t.text[0]=='#')
 						{
-							std::cout << "Checkpoint 1\n";
 							std::cout << "Encountered ID " << t.text << "\n";
 							CSSSubSelector sub;
 							sub.str1 = std::string("id");
@@ -321,7 +319,6 @@ void* cssYaccThreadFunc(void* args)
 						}
 						else if (t.text[0]=='.')
 						{
-							std::cout << "Checkpoint 2\n";
 							std::cout << "Encountered Class " << t.text << "\n";
 							CSSSubSelector sub;
 							sub.str1 = t.text.subString(1);
@@ -330,7 +327,6 @@ void* cssYaccThreadFunc(void* args)
 						}
 						else
 						{
-							std::cout << "Checkpoint 3\n";
 							std::cout << "Encountered tag name "<< t.text << "\n";
 							CSSSubSelector sub;
 							sub.str1 = t.text;
