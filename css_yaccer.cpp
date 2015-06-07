@@ -153,6 +153,7 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 					ret.colorValue = 0x66666600;
 				else if (current.text==std::string("rgb"))
 				{ // rgb(0, 0, 0)
+					std::cout << "rgb lol\n";
 					if (next.type==TOKEN_TYPE_OPERATOR &&
 						next.text=='(')
 					{
@@ -729,10 +730,6 @@ void* cssYaccThreadFunc(void* args)
 					else if (t.text==std::string(" "))
 					{
 						// Ignore whitespaces
-					}
-					else
-					{
-						std::cout << RED << "CSS Yacc error: Unexpected operator " << t.text << NOCLR << "\n";
 					}
 				}
 				else
