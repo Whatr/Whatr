@@ -171,6 +171,7 @@ void* cssLexThreadFunc(void* args)
 					//buffer += c;
 				}
 				else if (	(c>='a' && c<='z') ||
+							(c>='A' && c<='Z') ||
 							(c>='0' && c<='9') ||
 							c=='#' ||
 							c=='-' ||

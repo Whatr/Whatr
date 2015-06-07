@@ -155,7 +155,7 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 			{
 				if (acceptColor)
 				{
-#define evalColor(x,y) if(current.text-=std::string(x))ret.colorValue=y
+#define evalColor(x,y) if(current.text.equalsIgnoreCase(std::string(x),'-'))ret.colorValue=y
 					     evalColor("AliceBlue", 0xF0F8FF00);
 					else evalColor("AntiqueWhite", 0xFAEBD700);
 					else evalColor("Aqua", 0x00FFFF00);

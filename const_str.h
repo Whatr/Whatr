@@ -21,6 +21,8 @@ public:
 	void operator = (const ConstStr& str);
 	
 	const bool operator -= (const std::string& str2);
+	const bool equalsIgnoreCase (const std::string& str2);
+	const bool equalsIgnoreCase (const std::string& str2, char ignoreCharInStr2);
 	
 	char* copy();
 	void copyTo(char* startPos);
@@ -69,6 +71,8 @@ public:
 	char operator * ();
 	int operator ++ (int);
 	int operator -- (int);
+	void operator += (int plus);
+	void operator -= (int minus);
 	
 	void backToStart();
 	void jump(int destination);

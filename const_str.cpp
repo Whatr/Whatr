@@ -90,15 +90,32 @@ const bool operator == (const ConstStr& str1, const std::string& str2)
 	return true;
 }
 
-const bool ConstStr::operator -= (const std::string& str2) // Case insensitive cmp
+const bool ConstStr::operator -= (const std::string& str2)
 {
-	if (this->length!=str2.size()) return false;
+	return this->equalsIgnoreCase(str2);
+}
+const bool ConstStr::equalsIgnoreCase (const std::string& str2) // Case insensitive cmp
+{
+	return this->equalsIgnoreCase(str2, 0);
+}
+const bool ConstStr::equalsIgnoreCase (const std::string& str2, char ignoreChar) // Case insensitive cmp
+{
+	if (ignoreChar==0 && this->length != str2.size()) return false;
 	
 	ConstStrIterator i = this->iterate();
-	for (int j=0;j<this->length;j++,i++)
+	char c1 = 0, c2 = 0;
+	for (int j=0;(i.pos<this->length)&&(j<str2.length());i+=(c2!=ignoreChar),j+=(c1!=ignoreChar))
 	{
-		char c1 = *i;
-		char c2 = str2.at(j);
+		c1 = *i;
+		c2 = str2.at(j);
+		if (c1==ignoreChar && c2==ignoreChar)
+		{
+			i++;
+			j++;
+			continue;
+		}
+		if (c1==ignoreChar) continue;
+		if (c2==ignoreChar) continue;
 		if (c1==c2) continue;
 		if (c1>='A')
 		{
@@ -444,7 +461,6 @@ ConstStrIterator ConstStr::iterate(const int startPos) const
 	return ConstStrIterator(*this, startPos);
 }
 
-
 ConstStrIterator::ConstStrIterator(const ConstStr& cs, const int startPos):
 	cs(cs)
 {
@@ -514,6 +530,14 @@ int ConstStrIterator::operator -- (int)
 	return pos;
 }
 
+void ConstStrIterator::operator += (int plus)
+{
+	this->jump(this->pos + plus);
+}
+void ConstStrIterator::operator -= (int minus)
+{
+	this->jump(this->pos - minus);
+}
 
 void ConstStrIterator::backToStart()
 {
