@@ -917,6 +917,19 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 					i++;
 					goto foundValue;
 				}
+				else if (next.text-=std::string("pt"))
+				{
+					ret.lengthType = LENGTH_TYPE_PT;
+					ret.lengthValue = intVal;
+					i++;
+					goto foundValue;
+				}
+				else
+				{
+					ret.lengthType = LENGTH_TYPE_UNKNOWN;
+					ret.lengthValue = intVal;
+					goto foundValue;
+				}
 			}
 			else if (current.type==TOKEN_TYPE_PERCENTAGE)
 			{
@@ -1494,6 +1507,78 @@ void* cssYaccThreadFunc(void* args)
 									std::cout << "CSS syntax error: property has to supply 1, 2, 3 or 4 values. Not " << CSSValues->size() << "\n";
 								}
 								}break;
+								case LIST_STYLE:
+								for (std::vector<CSSValue>::iterator v
+									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+								{
+									if (v->textType==TEXT_TYPE_NO_QUOTES)
+									{
+										if (v->constant==INSIDE ||
+											v->constant==OUTSIDE)
+										// list-style-position
+						curC.ruleProperties.push_back(LIST_STYLE_POSITION), PUSHV;
+										else // list-style-type
+						curC.ruleProperties.push_back(LIST_STYLE_TYPE), PUSHV;
+									}
+									else if (v->textType==TEXT_TYPE_URL)
+									{
+						curC.ruleProperties.push_back(LIST_STYLE_IMAGE), PUSHV;
+									}
+									else
+									{
+										std::cout << "CSS syntax error: list-style only takes specific words and one url\n";
+									}
+								}
+								break;
+								case FONT:
+								for (std::vector<CSSValue>::iterator v
+									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+								{
+									if (v->textType==TEXT_TYPE_NO_QUOTES)
+									{
+										if (v->constant>_FONT_STYLE_START &&
+										    v->constant<_FONT_STYLE_END)
+						curC.ruleProperties.push_back(FONT_STYLE), PUSHV;
+										else if (v->constant>_FONT_VARIANT_START &&
+										         v->constant<_FONT_VARIANT_END)
+						curC.ruleProperties.push_back(FONT_VARIANT), PUSHV;
+										else if (v->constant>_FONT_WEIGHT_START &&
+										         v->constant<_FONT_WEIGHT_END)
+						curC.ruleProperties.push_back(FONT_WEIGHT), PUSHV;
+										else
+										{
+											std::cout << RED << "CSS syntax error: invalid word in font property\n" << NOCLR;
+										}
+									}
+									else if (v->colorType)
+									{
+						curC.ruleProperties.push_back(COLOR), PUSHV;
+									}
+									else if (v->lengthType!=LENGTH_TYPE_NOPE)
+									{
+										if (v->lengthType==LENGTH_TYPE_UNKNOWN &&
+											(
+												v->lengthValue==100 ||
+												v->lengthValue==200 ||
+												v->lengthValue==300 ||
+												v->lengthValue==400 ||
+												v->lengthValue==500 ||
+												v->lengthValue==600 ||
+												v->lengthValue==700 ||
+												v->lengthValue==800 ||
+												v->lengthValue==900
+											)
+										)
+						curC.ruleProperties.push_back(FONT_WEIGHT), PUSHV;
+										else
+						curC.ruleProperties.push_back(FONT_SIZE), PUSHV;
+									}
+									else
+									{
+										std::cout << "CSS syntax error: font property received something it doesn't like\n";
+									}
+								}
+								break;
 								default:
 								std::cout << RED << "CSS Yacc error: Todo combo " << prop << NOCLR;
 								break;
