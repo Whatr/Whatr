@@ -198,7 +198,8 @@ void* cssLexThreadFunc(void* args)
 					seenDigit = 1;
 				}
 				else if (((c>='a' && c<='z') ||
-						  (c>='A' && c<='Z'))
+						  (c>='A' && c<='Z') ||
+						  (c=='#'))
 						&& (seenLetter || !seenDigit))
 				{
 					//buffer += c;
@@ -290,14 +291,15 @@ void* cssLexThreadFunc(void* args)
 					c==',' ||
 					c=='>' ||
 					c=='+' ||
-					c==':'
+					c==':' ||
+					c=='#'
 					))
 				{
 					CSSToken t;
 					t.type = TOKEN_TYPE_OPERATOR;
 					t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
 					CSSTokens->push_back(t);
-					bufferStart = i.pos+1;
+					bufferStart = i.pos;
 					currentType = TOKEN_TYPE_NOTHING;
 					seenLetter = seenDigit = 0;
 					continue;

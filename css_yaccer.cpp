@@ -151,38 +151,31 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 			{
 				intVal = current.text.toInt();
 			}
-			if (current.type==TOKEN_TYPE_OPERATOR &&
-				current.text=='#')
+			if (current.type==TOKEN_TYPE_STRING_NO_QUOTES &&
+				current.text[0]=='#')
 			{
-				if (next.type==TOKEN_TYPE_STRING_NO_QUOTES)
+				if (current.text.length==4) // #ABC
 				{
-					if (next.text.length==3) // #ABC
-					{
-						ret.colorValue =
-						0x11000000 * next.text.subString(0, 1).toInt(16) +
-						0x00110000 * next.text.subString(1, 1).toInt(16) +
-						0x00001100 * next.text.subString(2, 1).toInt(16) ;
-						ret.colorType = 1;
-						goto foundValue;
-					}
-					else if (next.text.length==6) // #ABCDEF
-					{
-						ret.colorValue =
-						0x01000000 * next.text.subString(0, 2).toInt(16) +
-						0x00010000 * next.text.subString(2, 2).toInt(16) +
-						0x00000100 * next.text.subString(4, 2).toInt(16) ;
-						ret.colorType = 1;
-						goto foundValue;
-					}
-					else
-					{
-						std::cout << RED << "CSS syntax error: expected 3 or 6 hex characters after #\n" << NOCLR;
-						
-					}
+					char tempHex[7];
+					tempHex[6] = 0;
+					current.text.subString(1).copyTo(&tempHex[0]);
+					tempHex[4] = tempHex[5] = tempHex[2];
+					tempHex[2] = tempHex[3] = tempHex[1];
+					tempHex[1] = tempHex[0];
+					ret.colorValue = ((int)strtol(&tempHex[0], NULL, 10)) << 8;
+					ret.colorType = 1;
+					goto foundValue;
+				}
+				else if (current.text.length==7) // #ABCDEF
+				{
+					ret.colorValue = current.text.subString(1).toInt(16) << 8;
+					ret.colorType = 1;
+					goto foundValue;
 				}
 				else
 				{
 					std::cout << RED << "CSS syntax error: expected 3 or 6 hex characters after #\n" << NOCLR;
+					
 					ret.colorValue = 0xFF000000;
 				}
 			}
