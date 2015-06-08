@@ -162,7 +162,7 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 					tempHex[4] = tempHex[5] = tempHex[2];
 					tempHex[2] = tempHex[3] = tempHex[1];
 					tempHex[1] = tempHex[0];
-					ret.colorValue = ((int)strtol(&tempHex[0], NULL, 10)) << 8;
+					ret.colorValue = ((int)strtol(&tempHex[0], NULL, 16)) << 8;
 					ret.colorType = 1;
 					goto foundValue;
 				}
