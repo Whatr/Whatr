@@ -334,6 +334,110 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 				
 				// Else:
 				notAColorName:
+				if (prop==BORDER ||
+					prop==BORDER_STYLE ||
+					prop==BORDER_LEFT ||
+					prop==BORDER_BOTTOM ||
+					prop==BORDER_RIGHT ||
+					prop==BORDER_TOP ||
+					prop==BORDER_LEFT_STYLE ||
+					prop==BORDER_RIGHT_STYLE ||
+					prop==BORDER_BOTTOM_STYLE ||
+					prop==BORDER_TOP_STYLE)
+				{
+					     if (current.text-=std::string("none"))
+						ret.constant = NONE_LINE_STYLE;
+					else if (current.text-=std::string("hidden"))
+						ret.constant = HIDDEN;
+					else if (current.text-=std::string("dotted"))
+						ret.constant = DOTTED;
+					else if (current.text-=std::string("dashed"))
+						ret.constant = DASHED;
+					else if (current.text-=std::string("solid"))
+						ret.constant = SOLID;
+					else if (current.text-=std::string("double"))
+						ret.constant = DOUBLE;
+					else if (current.text-=std::string("groove"))
+						ret.constant = GROOVE;
+					else if (current.text-=std::string("ridge"))
+						ret.constant = RIDGE;
+					else if (current.text-=std::string("inset"))
+						ret.constant = INSET;
+					else if (current.text-=std::string("outset"))
+						ret.constant = OUTSET;
+					else goto notALineStyle;
+				}
+				// If it's a line style:
+				goto foundValue;
+				
+				// Else:
+				notALineStyle:
+				if (prop==LIST_STYLE ||
+					prop==LIST_STYLE_POSITION)
+				{
+					     if (current.text-=std::string("inside"))
+						ret.constant = INSIDE;
+					else if (current.text-=std::string("outside"))
+						ret.constant = OUTSIDE;
+					else goto notAListStylePosition;
+				}
+				// If it's a list style position:
+				goto foundValue;
+				
+				// Else:
+				notAListStylePosition:
+				if (prop==LIST_STYLE ||
+					prop==LIST_STYLE_TYPE)
+				{
+					     if (current.text-=std::string("disc"))
+						ret.constant = DISC;
+					else if (current.text-=std::string("armenian"))
+						ret.constant = ARMENIAN;
+					else if (current.text-=std::string("circle"))
+						ret.constant = CIRCLE;
+					else if (current.text-=std::string("cjk-ideographic")) // wtf
+						ret.constant = CJK_IDEOGRAPHIC; // lol wtf
+					else if (current.text-=std::string("decimal"))
+						ret.constant = DECIMAL;
+					else if (current.text-=std::string("decimal-leading-zero"))
+						ret.constant = DECIMAL_LEADING_ZERO;
+					else if (current.text-=std::string("georgian"))
+						ret.constant = GEORGIAN;
+					else if (current.text-=std::string("hebrew"))
+						ret.constant = HEBREW;
+					else if (current.text-=std::string("hiragana"))
+						ret.constant = HIRAGANA;
+					else if (current.text-=std::string("hiragana-iroha"))
+						ret.constant = HIRAGANA_IROHA;
+					else if (current.text-=std::string("katakana"))
+						ret.constant = KATAKANA;
+					else if (current.text-=std::string("katakana-iroha"))
+						ret.constant = KATAKANA_IROHA;
+					else if (current.text-=std::string("lower-alpha"))
+						ret.constant = LOWER_ALPHA;
+					else if (current.text-=std::string("lower-greek"))
+						ret.constant = LOWER_GREEK;
+					else if (current.text-=std::string("lower-latin"))
+						ret.constant = LOWER_LATIN;
+					else if (current.text-=std::string("lower-roman"))
+						ret.constant = LOWER_ROMAN;
+					else if (current.text-=std::string("none"))
+						ret.constant = NONE_LIST_STYLE_TYPE;
+					else if (current.text-=std::string("square"))
+						ret.constant = SQUARE;
+					else if (current.text-=std::string("upper-alpha"))
+						ret.constant = UPPER_ALPHA;
+					else if (current.text-=std::string("upper-latin"))
+						ret.constant = UPPER_LATIN;
+					else if (current.text-=std::string("upper-roman"))
+						ret.constant = UPPER_ROMAN;
+					else goto notAListStyleType;
+				}
+				// If it's a list style type
+				goto foundValue;
+				
+				// Else
+				notAListStyleType:
 				if (current.text==std::string("url"))
 				{
 					CSSToken iPlus2 = tokens->at(i+2);
