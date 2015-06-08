@@ -181,6 +181,16 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 			}
 			if (current.type==TOKEN_TYPE_STRING_NO_QUOTES)
 			{
+				if (current.text-=std::string("initial"))
+				{
+					ret.constant = INITIAL;
+					goto foundValue;
+				}
+				if (current.text-=std::string("inherit"))
+				{
+					ret.constant = INHERIT;
+					goto foundValue;
+				}
 				if (acceptColor)
 				{
 #define evalColor(x,y) if(current.text.equalsIgnoreCase(std::string(x),'-'))ret.colorValue=y
@@ -328,6 +338,7 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 					else evalColor("devil", 0x66666600);
 					else goto notAColorName;
 				}
+				else goto notAColorName;
 				// If it's a color name:
 				ret.colorType = 1;
 				goto foundValue;
@@ -367,6 +378,7 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 						ret.constant = OUTSET;
 					else goto notALineStyle;
 				}
+				else goto notALineStyle;
 				// If it's a line style:
 				goto foundValue;
 				
@@ -381,6 +393,7 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 						ret.constant = OUTSIDE;
 					else goto notAListStylePosition;
 				}
+				else goto notAListStylePosition;
 				// If it's a list style position:
 				goto foundValue;
 				
@@ -433,11 +446,78 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 						ret.constant = UPPER_ROMAN;
 					else goto notAListStyleType;
 				}
+				else goto notAListStyleType;
 				// If it's a list style type
 				goto foundValue;
 				
 				// Else
 				notAListStyleType:
+				if (prop==BACKGROUND ||
+					prop==BACKGROUND_REPEAT)
+				{
+					     if (current.text-=std::string("repeat"))
+						ret.constant = REPEAT;
+					else if (current.text-=std::string("repeat-x"))
+						ret.constant = REPEAT_X;
+					else if (current.text-=std::string("repeat-y"))
+						ret.constant = REPEAT_Y;
+					else if (current.text-=std::string("no-repeat"))
+						ret.constant = NO_REPEAT;
+					else if (current.text-=std::string("round"))
+						ret.constant = ROUND;
+					else if (current.text-=std::string("space"))
+						ret.constant = SPACE;
+					else goto notABackgroundRepeat;
+				}
+				else goto notABackgroundRepeat;
+				// If it's a background repeat
+				goto foundValue;
+				
+				// Else
+				notABackgroundRepeat:
+				if (prop==BACKGROUND ||
+					prop==BACKGROUND_ATTACHMENT)
+				{
+					     if (current.text-=std::string("scroll"))
+						ret.constant = SCROLL;
+					else if (current.text-=std::string("local"))
+						ret.constant = LOCAL;
+					else if (current.text-=std::string("fixed"))
+						ret.constant = FIXED;
+					else goto notABackgroundAttachment;
+				}
+				else goto notABackgroundAttachment;
+				// If it's a background attachment
+				goto foundValue;
+				
+				// Else
+				notABackgroundAttachment:
+				if (prop==BACKGROUND ||
+					prop==BACKGROUND_POSITION)
+				{
+					if (current.text-=std::string("left"))
+					{
+						ret.lengthType = LENGTH_TYPE_PERCENT;
+						ret.lengthValue = 0;
+					}
+					else if (current.text-=std::string("center"))
+					{
+						ret.lengthType = LENGTH_TYPE_PERCENT;
+						ret.lengthValue = 50;
+					}
+					else if (current.text-=std::string("right"))
+					{
+						ret.lengthType = LENGTH_TYPE_PERCENT;
+						ret.lengthValue = 100;
+					}
+					else goto notABackgroundPosition;
+				}
+				else goto notABackgroundPosition;
+				// If it's a background position
+				goto foundValue;
+				
+				// Else
+				notABackgroundPosition:
 				if (current.text==std::string("url"))
 				{
 					CSSToken iPlus2 = tokens->at(i+2);

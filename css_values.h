@@ -42,7 +42,11 @@ enum CSSConstant
 {
 	NOPE=0,
 	
-	// Line Styles
+	// Global
+	INITIAL,
+	INHERIT,
+	
+	// border-style
 	NONE_LINE_STYLE,
 	HIDDEN,
 	DOTTED,
@@ -54,10 +58,11 @@ enum CSSConstant
 	INSET,
 	OUTSET,
 	
+	// list-style-position
 	INSIDE,
 	OUTSIDE,
 	
-	// List style types
+	// list-style-type
 	DISC,
 	ARMENIAN,
 	CIRCLE,
@@ -79,6 +84,19 @@ enum CSSConstant
 	UPPER_ALPHA,
 	UPPER_LATIN,
 	UPPER_ROMAN,
+	
+	// background-repeat
+	REPEAT,
+	SPACE,
+	ROUND,
+	REPEAT_Y,
+	REPEAT_X,
+	NO_REPEAT,
+	
+	// background-attachment
+	SCROLL,
+	LOCAL,
+	FIXED,
 };
 
 struct CSSValue
