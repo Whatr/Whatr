@@ -492,6 +492,304 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 				
 				// Else
 				notABackgroundAttachment:
+				if (prop==VERTICAL_ALIGN)
+				{
+					     if (current.text-=std::string("baseline"))
+						ret.constant = BASELINE;
+					else if (current.text-=std::string("top"))
+						ret.constant = TOP;
+					else if (current.text-=std::string("text-top"))
+						ret.constant = TEXT_TOP;
+					else if (current.text-=std::string("text-bottom"))
+						ret.constant = TEXT_BOTTOM;
+					else if (current.text-=std::string("super"))
+						ret.constant = SUPER;
+					else if (current.text-=std::string("sub"))
+						ret.constant = SUB;
+					else if (current.text-=std::string("middle"))
+						ret.constant = MIDDLE;
+					else if (current.text-=std::string("bottom"))
+						ret.constant = BOTTOM;
+					else goto notAVerticalAlign;
+				}
+				else goto notAVerticalAlign;
+				// If it's a clear
+				goto foundValue;
+				
+				// Else
+				notAVerticalAlign:
+				if (prop==FLOAT)
+				{
+					     if (current.text-=std::string("none"))
+						ret.constant = NONE_FLOAT;
+					else if (current.text-=std::string("left"))
+						ret.constant = LEFT_FLOAT;
+					else if (current.text-=std::string("right"))
+						ret.constant = RIGHT_FLOAT;
+					else goto notAFloat;
+				}
+				else goto notAFloat;
+				// If it's a clear
+				goto foundValue;
+				
+				// Else
+				notAFloat:
+				if (prop==CLEAR)
+				{
+					     if (current.text-=std::string("none"))
+						ret.constant = NONE_CLEAR;
+					else if (current.text-=std::string("left"))
+						ret.constant = LEFT_CLEAR;
+					else if (current.text-=std::string("right"))
+						ret.constant = RIGHT_CLEAR;
+					else if (current.text-=std::string("both"))
+						ret.constant = BOTH;
+					else goto notAClear;
+				}
+				else goto notAClear;
+				// If it's a clear
+				goto foundValue;
+				
+				// Else
+				notAClear:
+				if (prop==TEXT_INDENT)
+				{
+					     if (current.text-=std::string("hanging"))
+						ret.constant = HANGING;
+					else if (current.text-=std::string("each-line"))
+						ret.constant = EACH_LINE;
+					else goto notATextIndent;
+				}
+				else goto notATextIndent;
+				// If it's a text ident
+				goto foundValue;
+				
+				// Else
+				notATextIndent:
+				if (prop==FONT ||
+					prop==FONT_STYLE)
+				{
+					     if (current.text-=std::string("normal"))
+						ret.constant = NORMAL_FONT_STYLE;
+					else if (current.text-=std::string("oblique"))
+						ret.constant = OBLIQUE;
+					else if (current.text-=std::string("italic"))
+						ret.constant = ITALIC;
+					else goto notAFontStyle;
+				}
+				else goto notAFontStyle;
+				// If it's a font style
+				goto foundValue;
+				
+				// Else
+				notAFontStyle:
+				if (prop==FONT ||
+					prop==FONT_WEIGHT)
+				{
+					     if (current.text-=std::string("normal"))
+						ret.constant = NORMAL_FONT_WEIGHT;
+					else if (current.text-=std::string("lighter"))
+						ret.constant = LIGHTER;
+					else if (current.text-=std::string("bolder"))
+						ret.constant = BOLDER;
+					else if (current.text-=std::string("bold"))
+						ret.constant = BOLD;
+					else goto notAFontWeight;
+				}
+				else goto notAFontWeight;
+				// If it's a font weight
+				goto foundValue;
+				
+				// Else
+				notAFontWeight:
+				if (prop==FONT ||
+					prop==FONT_VARIANT)
+				{
+					     if (current.text-=std::string("normal"))
+						ret.constant = NORMAL_FONT_VARIANT;
+					else if (current.text-=std::string("unicase"))
+						ret.constant = UNICASE;
+					else if (current.text-=std::string("titling-caps"))
+						ret.constant = TITLING_CAPS;
+					else if (current.text-=std::string("small-caps"))
+						ret.constant = SMALL_CAPS;
+					else if (current.text-=std::string("petite-caps"))
+						ret.constant = PETITE_CAPS;
+					else if (current.text-=std::string("all-small-caps"))
+						ret.constant = ALL_SMALL_CAPS;
+					else if (current.text-=std::string("all-petite-caps"))
+						ret.constant = ALL_PETITE_CAPS;
+					else goto notAFontVariant;
+				}
+				else goto notAFontVariant;
+				// If it's a font variant
+				goto foundValue;
+				
+				// Else
+				notAFontVariant:
+				if (prop==FONT ||
+					prop==FONT_SIZE)
+				{
+					     if (current.text-=std::string("medium"))
+						ret.constant = MEDIUM;
+					else if (current.text-=std::string("xx-small"))
+						ret.constant = XX_SMALL;
+					else if (current.text-=std::string("xx-large"))
+						ret.constant = XX_LARGE;
+					else if (current.text-=std::string("x-small"))
+						ret.constant = X_SMALL;
+					else if (current.text-=std::string("x-large"))
+						ret.constant = X_LARGE;
+					else if (current.text-=std::string("smaller"))
+						ret.constant = SMALLER;
+					else if (current.text-=std::string("small"))
+						ret.constant = SMALL;
+					else if (current.text-=std::string("larger"))
+						ret.constant = LARGER;
+					else if (current.text-=std::string("large"))
+						ret.constant = LARGE;
+					else goto notAFontSize;
+				}
+				else goto notAFontSize;
+				// If it's a font size
+				goto foundValue;
+				
+				// Else
+				notAFontSize:
+				if (prop==TEXT_DECORATION)
+				{
+					     if (current.text-=std::string("none"))
+						ret.constant = NONE_TEXT_DECORATION;
+					else if (current.text-=std::string("underline"))
+						ret.constant = UNDERLINE;
+					else if (current.text-=std::string("overline"))
+						ret.constant = OVERLINE;
+					else if (current.text-=std::string("line-through"))
+						ret.constant = LINE_THROUGH;
+					else goto notATextDecoration;
+				}
+				else goto notATextDecoration;
+				// If it's a text decoration
+				goto foundValue;
+				
+				// Else
+				notATextDecoration:
+				if (prop==WHITE_SPACE ||
+					prop==WORD_SPACING)
+				{
+					     if (current.text-=std::string("normal"))
+						ret.constant = NORMAL;
+					else if (prop==WORD_SPACING) goto notAWhiteSpace;
+					else if (current.text-=std::string("pre-wrap"))
+						ret.constant = PRE_WRAP;
+					else if (current.text-=std::string("pre-line"))
+						ret.constant = PRE_LINE;
+					else if (current.text-=std::string("pre"))
+						ret.constant = PRE;
+					else if (current.text-=std::string("nowrap"))
+						ret.constant = NOWRAP;
+					else goto notAWhiteSpace;
+				}
+				else goto notAWhiteSpace;
+				// If it's a white space or word spacing
+				goto foundValue;
+				
+				// Else
+				notAWhiteSpace:
+				if (prop==TEXT_TRANSFORM)
+				{
+					     if (current.text-=std::string("none"))
+						ret.constant = NONE_TEXT_TRANSFORM;
+					else if (current.text-=std::string("uppercase"))
+						ret.constant = UPPERCASE;
+					else if (current.text-=std::string("lowercase"))
+						ret.constant = LOWERCASE;
+					else if (current.text-=std::string("full-width"))
+						ret.constant = FULL_WIDTH;
+					else if (current.text-=std::string("capitalize"))
+						ret.constant = CAPITALIZE;
+					else goto notATextTransform;
+				}
+				else goto notATextTransform;
+				// If it's a clear
+				goto foundValue;
+				
+				// Else
+				notATextTransform:
+				if (prop==TEXT_ALIGN)
+				{
+					     if (current.text-=std::string("start"))
+						ret.constant = START_TEXT_ALIGN;
+					else if (current.text-=std::string("end"))
+						ret.constant = END_TEXT_ALIGN;
+					else if (current.text-=std::string("left"))
+						ret.constant = LEFT_TEXT_ALIGN;
+					else if (current.text-=std::string("right"))
+						ret.constant = RIGHT_TEXT_ALIGN;
+					else if (current.text-=std::string("match-parent"))
+						ret.constant = MATCH_PARENT;
+					else if (current.text-=std::string("justify"))
+						ret.constant = JUSTIFY;
+					else if (current.text-=std::string("center"))
+						ret.constant = CENTER_TEXT_ALIGN;
+					else goto notATextAlign;
+				}
+				else goto notATextAlign;
+				// If it's a text-align
+				goto foundValue;
+				
+				// Else
+				notATextAlign:
+				if (prop==DISPLAY)
+				{
+					     if (current.text-=std::string("inline"))
+						ret.constant = INLINE;
+					else if (current.text-=std::string("table-row-group"))
+						ret.constant = TABLE_ROW_GROUP;
+					else if (current.text-=std::string("table-row"))
+						ret.constant = TABLE_ROW;
+					else if (current.text-=std::string("table-header-group"))
+						ret.constant = TABLE_HEADER_GROUP;
+					else if (current.text-=std::string("table-footer-group"))
+						ret.constant = TABLE_FOOTER_GROUP;
+					else if (current.text-=std::string("table-column-group"))
+						ret.constant = TABLE_COLUMN_GROUP;
+					else if (current.text-=std::string("table-column"))
+						ret.constant = TABLE_COLUMN;
+					else if (current.text-=std::string("table-cell"))
+						ret.constant = TABLE_CELL;
+					else if (current.text-=std::string("table-caption"))
+						ret.constant = TABLE_CAPTION;
+					else if (current.text-=std::string("table"))
+						ret.constant = TABLE;
+					else if (current.text-=std::string("run-in"))
+						ret.constant = RUN_IN;
+					else if (current.text-=std::string("none"))
+						ret.constant = NONE_DISPLAY;
+					else if (current.text-=std::string("list-item"))
+						ret.constant = LIST_ITEM;
+					else if (current.text-=std::string("inline-table"))
+						ret.constant = INLINE_TABLE;
+					else if (current.text-=std::string("inline-flex"))
+						ret.constant = INLINE_FLEX;
+					else if (current.text-=std::string("inline-block"))
+						ret.constant = INLINE_BLOCK;
+					else if (current.text-=std::string("flex"))
+						ret.constant = FLEX;
+					else if (current.text-=std::string("container"))
+						ret.constant = CONTAINER;
+					else if (current.text-=std::string("compact"))
+						ret.constant = COMPACT;
+					else if (current.text-=std::string("block"))
+						ret.constant = BLOCK;
+					else goto notADisplay;
+				}
+				else goto notADisplay;
+				// If it's a display
+				goto foundValue;
+				
+				// Else
+				notADisplay:
 				if (prop==BACKGROUND ||
 					prop==BACKGROUND_POSITION)
 				{
