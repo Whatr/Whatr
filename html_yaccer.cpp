@@ -105,6 +105,7 @@ void* htmlYaccThreadFunc(void* args)
 				HTMLElement* el = new HTMLElement();
 				el->type = 1;
 				el->text = currentTag->text;
+				el->tag = currentTag->tag;
 				el->parent = document;
 				el->argNames = currentTag->argNames;
 				el->argValues = currentTag->argValues;
@@ -116,6 +117,7 @@ void* htmlYaccThreadFunc(void* args)
 				HTMLElement* el = new HTMLElement();
 				el->type = 1;
 				el->text = currentTag->text;
+				el->tag = currentTag->tag;
 				el->parent = document;
 				el->argNames = currentTag->argNames;
 				el->argValues = currentTag->argValues;
@@ -134,7 +136,7 @@ void* htmlYaccThreadFunc(void* args)
 		}
 		else
 		{
-			if (currentElement->text == std::string("body") &&
+			if (currentElement->tag == TAG_BODY &&
 				currentElement->children.size() == 0)
 			{
 				if (misplacedText.length()!=0)
@@ -149,8 +151,8 @@ void* htmlYaccThreadFunc(void* args)
 			}
 			if (currentTag->type==0) // Text node
 			{
-				if (currentElement->text == std::string("html") ||
-					currentElement->text == std::string("head"))
+				if (currentElement->tag == TAG_HTML ||
+					currentElement->tag == TAG_HEAD)
 				{
 					// If text has accidentally been placed directly inside the
 					// <head> or directly inside the <html>, we store it in
@@ -179,6 +181,7 @@ void* htmlYaccThreadFunc(void* args)
 				HTMLElement* el = new HTMLElement();
 				el->type = 1;
 				el->text = currentTag->text;
+				el->tag = currentTag->tag;
 				el->parent = currentElement;
 				el->argNames = currentTag->argNames;
 				el->argValues = currentTag->argValues;
@@ -191,6 +194,7 @@ void* htmlYaccThreadFunc(void* args)
 				HTMLElement* el = new HTMLElement();
 				el->type = 1;
 				el->text = currentTag->text;
+				el->tag = currentTag->tag;
 				el->parent = currentElement;
 				el->argNames = currentTag->argNames;
 				el->argValues = currentTag->argValues;
@@ -198,7 +202,7 @@ void* htmlYaccThreadFunc(void* args)
 			}
 			else if (currentTag->type==3) // Closing tag
 			{
-				if (currentElement->text!=currentTag->text)
+				if (currentElement->tag!=currentTag->tag)
 				{
 					int found = 0;
 					HTMLElement* checkingElement = currentElement;
@@ -206,7 +210,7 @@ void* htmlYaccThreadFunc(void* args)
 					{
 						checkingElement = checkingElement->parent;
 						if (checkingElement==NULL) break;
-						if (checkingElement->text==currentTag->text)
+						if (checkingElement->tag==currentTag->tag)
 						{
 							found = 1;
 							break;
@@ -228,7 +232,7 @@ void* htmlYaccThreadFunc(void* args)
 						checkingElement = currentElement;
 						while (checkingElement!=NULL)
 						{
-							if (checkingElement->text==currentTag->text)
+							if (checkingElement->tag==currentTag->tag)
 							{
 								found = 1;
 								break;
