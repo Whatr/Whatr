@@ -29,6 +29,42 @@
 CSSProperty parseRuleName(ConstStr name)
 {
 	if (name-=std::string("color")) return COLOR;
+	
+	if (name-=std::string("clip")) return CLIP;
+	if (name-=std::string("bottom")) return BOTTOM;
+	if (name-=std::string("top")) return TOP;
+	if (name-=std::string("left")) return LEFT;
+	if (name-=std::string("right")) return RIGHT;
+	if (name-=std::string("position")) return POSITION;
+	if (name-=std::string("visibility")) return VISIBILITY;
+	if (name-=std::string("z-index")) return Z_INDEX;
+	if (name-=std::string("max-height")) return MAX_HEIGHT;
+	if (name-=std::string("max-width")) return MAX_WIDTH;
+	if (name-=std::string("min-height")) return MIN_HEIGHT;
+	if (name-=std::string("min-width")) return MIN_WIDTH;
+	//if (name-=std::string("overflow")) return OVERFLOW;
+	if (name-=std::string("direction")) return DIRECTION;
+	if (name-=std::string("unicode-bidi")) return UNICODE_BIDI;
+	if (name-=std::string("border-collapse")) return BORDER_COLLAPSE;
+	if (name-=std::string("border-spacing")) return BORDER_SPACING;
+	if (name-=std::string("caption-side")) return CAPTION_SIDE;
+	if (name-=std::string("empty-cells")) return EMPTY_CELLS;
+	if (name-=std::string("table-layout")) return TABLE_LAYOUT;
+	if (name-=std::string("counter-increment")) return COUNTER_INCREMENT;
+	if (name-=std::string("counter-reset")) return COUNTER_RESET;
+	if (name-=std::string("content")) return CONTENT;
+	if (name-=std::string("cursor")) return CURSOR;
+	if (name-=std::string("outline-color")) return OUTLINE_COLOR;
+	if (name-=std::string("outline-style")) return OUTLINE_STYLE;
+	if (name-=std::string("outline-width")) return OUTLINE_WIDTH;
+	if (name-=std::string("outline")) return OUTLINE;
+	if (name-=std::string("widows")) return WIDOWS;
+	if (name-=std::string("orphans")) return ORPHANS;
+	if (name-=std::string("page-break-after")) return PAGE_BREAK_AFTER;
+	if (name-=std::string("page-break-before")) return PAGE_BREAK_BEFORE;
+	if (name-=std::string("page-break-inside")) return PAGE_BREAK_INSIDE;
+	if (name-=std::string("quotes")) return QUOTES;
+	
 	if (name-=std::string("opacity")) return OPACITY;
 	if (name-=std::string("background")) return BACKGROUND;
 	if (name-=std::string("background-attachment")) return BACKGROUND_ATTACHMENT;
@@ -500,7 +536,7 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 					     if (current.text-=std::string("baseline"))
 						ret.constant = BASELINE;
 					else if (current.text-=std::string("top"))
-						ret.constant = TOP;
+						ret.constant = TOP_VALIGN;
 					else if (current.text-=std::string("text-top"))
 						ret.constant = TEXT_TOP;
 					else if (current.text-=std::string("text-bottom"))
@@ -512,7 +548,7 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 					else if (current.text-=std::string("middle"))
 						ret.constant = MIDDLE;
 					else if (current.text-=std::string("bottom"))
-						ret.constant = BOTTOM;
+						ret.constant = BOTTOM_VALIGN;
 					else goto notAVerticalAlign;
 				}
 				else goto notAVerticalAlign;

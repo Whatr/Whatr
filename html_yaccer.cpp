@@ -314,7 +314,7 @@ void HTMLElement::applyCSSDefaults()
 	cssPaddingTop.lengthValue =
 	cssPaddingLeft.lengthValue =
 	cssPaddingRight.lengthValue = 5;
-	cssVerticalAlign = TOP;
+	cssVerticalAlign = TOP_VALIGN;
 	cssMarginBottom.lengthType =
 	cssMarginTop.lengthType =
 	cssMarginLeft.lengthType =

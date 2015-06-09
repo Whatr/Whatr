@@ -135,13 +135,13 @@ enum CSSConstant
 	
 	// vertical-align
 	BASELINE,
-	TOP,
+	TOP_VALIGN,
 	TEXT_TOP,
 	TEXT_BOTTOM,
 	SUPER,
 	SUB,
 	MIDDLE,
-	BOTTOM,
+	BOTTOM_VALIGN,
 	
 	// text-align
 	START_TEXT_ALIGN,
