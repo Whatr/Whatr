@@ -274,6 +274,59 @@ void* htmlYaccThreadFunc(void* args)
 }
 void HTMLElement::applyCSSDefaults()
 { // http://www.w3.org/TR/CSS2/sample.html
+	cssTop.lengthType =
+	cssBottom.lengthType =
+	cssLeft.lengthType =
+	cssRight.lengthType = LENGTH_TYPE_PX;
+	cssTop.lengthValue =
+	cssBottom.lengthValue =
+	cssLeft.lengthValue =
+	cssRight.lengthValue = 0;
+	cssColor = 0x00000000; // black
+	cssBackgroundColor = 0xFFFFFF00; // white
+	cssBackgroundAttachment = SCROLL;
+	cssBackgroundRepeat = REPEAT;
+	memset(&cssBackgroundPositionX, 0, sizeof(CSSValue));
+	memset(&cssBackgroundPositionY, 0, sizeof(CSSValue));
+	cssBackgroundImage = ConstStr();
+	cssBorderBottomColor =
+	cssBorderTopColor =
+	cssBorderLeftColor =
+	cssBorderRightColor = 0xFFFFFF00; // white
+	cssBorderBottomStyle =
+	cssBorderTopStyle =
+	cssBorderLeftStyle =
+	cssBorderRightStyle = NONE_LINE_STYLE;
+	cssClear = NONE_CLEAR;
+	cssDisplay = INLINE;
+	cssFloat = NONE_FLOAT;
+	cssFontVariant = NORMAL_FONT_VARIANT;
+	cssFontStyle = NORMAL_FONT_STYLE;
+	cssFontWeight = NORMAL_FONT_WEIGHT;
+	cssFontSize.lengthType = LENGTH_TYPE_PT;
+	cssFontSize.lengthValue = 12;
+	cssWidth.lengthType = cssHeight.lengthType = LENGTH_TYPE_NOPE;
+	cssPaddingBottom.lengthType =
+	cssPaddingTop.lengthType =
+	cssPaddingLeft.lengthType =
+	cssPaddingRight.lengthType = LENGTH_TYPE_PX;
+	cssPaddingBottom.lengthValue =
+	cssPaddingTop.lengthValue =
+	cssPaddingLeft.lengthValue =
+	cssPaddingRight.lengthValue = 5;
+	cssVerticalAlign = TOP;
+	cssMarginBottom.lengthType =
+	cssMarginTop.lengthType =
+	cssMarginLeft.lengthType =
+	cssMarginRight.lengthType = LENGTH_TYPE_PX;
+	cssMarginBottom.lengthValue =
+	cssMarginTop.lengthValue =
+	cssMarginLeft.lengthValue =
+	cssMarginRight.lengthValue = 0;
+	cssTextAlign = START_TEXT_ALIGN;
+	cssTextTransform = NONE_TEXT_TRANSFORM;
+	cssTextDecorationLine = NONE_TEXT_DECORATION;
+	
 	switch (this->tag)
 	{
 		case TAG_HTML:
@@ -382,8 +435,7 @@ void HTMLElement::applyCSSDefaults()
 		break;
 		case TAG_KBD:
 		case TAG_SAMP:
-			cssFontFamily.textType = TEXT_TYPE_NO_QUOTES;
-			cssFontFamily.textValue = std::string("monospace"); // TODO
+			cssFontFamily = std::string("monospace"); // TODO
 		break;
 		case TAG_PRE: cssWhiteSpace = PRE; break;
 		case TAG_BUTTON:

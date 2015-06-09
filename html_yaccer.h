@@ -47,15 +47,20 @@ public:
 	int cssBorderBottomColor, cssBorderTopColor, cssBorderLeftColor, cssBorderRightColor;
 	CSSConstant cssBorderBottomStyle, cssBorderTopStyle, cssBorderLeftStyle, cssBorderRightStyle;
 	CSSValue cssBorderBottomWidth, cssBorderTopWidth, cssBorderLeftWidth, cssBorderRightWidth;
-	CSSValue cssClear;
+	CSSConstant cssClear;
 	CSSConstant cssDisplay;
 	CSSConstant cssFloat;
+	CSSConstant cssFontVariant, cssFontStyle, cssFontStretch, cssFontWeight;
+	CSSValue cssFontSize;
+	ConstStr cssFontFamily;
 	CSSValue cssWidth, cssHeight;
 	CSSValue cssPaddingBottom, cssPaddingTop, cssPaddingLeft, cssPaddingRight;
 	CSSConstant cssVerticalAlign;
 	CSSValue cssMarginBottom, cssMarginTop, cssMarginLeft, cssMarginRight;
 	CSSValue cssLetterSpacing;
 	CSSValue cssLineHeight;
+	CSSConstant cssListStyleType, cssListStylePosition;
+	ConstStr cssListStyleImage;
 	CSSConstant cssPosition;
 	CSSConstant cssTextAlign;
 	CSSConstant cssTextTransform;
@@ -64,14 +69,7 @@ public:
 	CSSConstant cssWhiteSpace;
 	CSSValue cssWordSpacing;
 	CSSConstant cssTextDecorationLine, cssTextDecorationStyle, cssTextDecorationColor;
-	CSSConstant cssFontStyle;
-	CSSConstant cssFontVariant;
-	CSSConstant cssFontWeight;
-	CSSConstant cssFontStretch;
-	CSSValue cssFontSize;
-	CSSValue cssFontFamily;
 	CSSValue cssBorderSpacing;
-	CSSConstant cssListStyleType;
 	
 	void applyCSSDefaults();
 	
