@@ -68,7 +68,8 @@ public:
 	CSSConstant cssTextIndentType;
 	CSSConstant cssWhiteSpace;
 	CSSValue cssWordSpacing;
-	CSSConstant cssTextDecorationLine, cssTextDecorationStyle, cssTextDecorationColor;
+	CSSConstant cssTextDecorationLine, cssTextDecorationStyle;
+	int cssTextDecorationColor;
 	CSSValue cssBorderSpacing;
 	
 	void applyCSSDefaults();
