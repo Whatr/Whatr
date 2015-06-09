@@ -22,24 +22,34 @@
 
 std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 {
+	std::vector<std::vector<HTMLElement*>*> selections;
 	std::cout << "Entering CSSSelect(...,...)...\n";
-	std::vector<HTMLElement*> selected;
+	std::vector<HTMLElement*>* selected = new std::vector<HTMLElement*>;
 	std::cout << "Selecting from <" << from->text << "> elememt:\n";
 	
 	char op = ' ';
 	bool first = true;
 	
-	selected.push_back(from);
+	selected->push_back(from);
 	
 	for (std::vector<CSSSubSelector>::iterator ss=selector->subSelectors.begin(); ss!=selector->subSelectors.end(); ss++)
 	{
 		if (ss->type == -1)
 		{
 			std::cout << "ss->type=-1 & op=" << op << "\n";
-			if (ss->str1==std::string(" ")) op = ' ';
-			else if (ss->str1==std::string(">")) op = '>';
-			else if (ss->str1==std::string("+")) op = '+';
-			else if (ss->str1==std::string("~")) op = '~';
+			if (ss->str1==' ') op = ' ';
+			else if (ss->str1=='>') op = '>';
+			else if (ss->str1=='+') op = '+';
+			else if (ss->str1=='~') op = '~';
+			else if (ss->str1==',')
+			{
+				selections.push_back(selected);
+				selected = new std::vector<HTMLElement*>;
+				selected->push_back(from);
+				op = ' ';
+				first = true;
+				continue;
+			}
 			else
 			{
 				std::cout << RED << "TODO: op=" << ss->str1 << "\n" << NOCLR;
@@ -51,8 +61,8 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 			/*
 			Select all elements. Every single one.
 			*/
-			selected = std::vector<HTMLElement*>();
-			CSSSelectAll(from, &selected);
+			selected = new std::vector<HTMLElement*>;
+			CSSSelectAll(from, selected);
 			op = '\0';
 		}
 		else if (ss->type == 0)
@@ -63,37 +73,36 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 			if (op==' ' || op=='>') // Select children
 			{
 				std::cout << "Selecting children\n";
-				std::vector<HTMLElement*> newVector;
-				for (	std::vector<HTMLElement*>::iterator els=selected.begin();
-						els!=selected.end();
+				std::vector<HTMLElement*>* newVector = new std::vector<HTMLElement*>;
+				for (	std::vector<HTMLElement*>::iterator els=selected->begin();
+						els!=selected->end();
 						els++)
 				{
 					std::vector<HTMLElement*> addThis = CSSSelect2(*els, *ss, op==' ');
-					//std::cout << "addThis.size()==" << addThis.size() << "\n";
-					newVector.insert(newVector.end(), addThis.begin(), addThis.end());
+					newVector->insert(newVector->end(), addThis.begin(), addThis.end());
 				}
 				selected = newVector;
 			}
 			else if (op=='+' || op=='~') // Select siblings
 			{
 				std::cout << "Selecting siblings\n";
-				std::vector<HTMLElement*> newVector;
-				for (	std::vector<HTMLElement*>::iterator els=selected.begin();
-						els!=selected.end();
+				std::vector<HTMLElement*>* newVector = new std::vector<HTMLElement*>;
+				for (	std::vector<HTMLElement*>::iterator els=selected->begin();
+						els!=selected->end();
 						els++)
 				{
 					std::vector<HTMLElement*> addThis = CSSSelectSiblings(*els, *ss, op=='+');
-					newVector.insert(newVector.end(), addThis.begin(), addThis.end());
+					newVector->insert(newVector->end(), addThis.begin(), addThis.end());
 				}
-				selected = std::vector<HTMLElement*>();
+				selected = new std::vector<HTMLElement*>;
 				// Add all non-duplicates from newVector to selected
-				for (	std::vector<HTMLElement*>::iterator els=newVector.begin();
-						els!=newVector.end();
+				for (	std::vector<HTMLElement*>::iterator els=newVector->begin();
+						els!=newVector->end();
 						els++)
 				{
-					if (std::find(selected.begin(), selected.end(), *els) == selected.end())
+					if (std::find(selected->begin(), selected->end(), *els) == selected->end())
 					{
-						selected.push_back(*els);
+						selected->push_back(*els);
 					}
 				}
 			}
@@ -104,46 +113,44 @@ std::vector<HTMLElement*> CSSSelect(HTMLElement* from, CSSSelector* selector)
 			}
 			op = '\0';
 		}
-		else if (	op=='\0'
-					/*(ss->type >= 2 && ss->type <= 6) ||
-					ss->type == 11 ||
-					ss->type==12*/
-				)
+		else if (op=='\0')
 		{
 			/*
 			Use ss to select elements from the current selection that match it
 			*/
-			//std::cout << "case 2|3|4|5|6|11|12\nop = " << ((int)op) << "\n";
-			std::vector<HTMLElement*> newVector;
-			for (	std::vector<HTMLElement*>::iterator els=selected.begin();
-					els!=selected.end();
+			std::vector<HTMLElement*>* newVector = new std::vector<HTMLElement*>;
+			for (	std::vector<HTMLElement*>::iterator els=selected->begin();
+					els!=selected->end();
 					els++)
 			{
-				if (applies(&*ss, *els)) newVector.push_back(*els);
+				if (applies(&*ss, *els)) newVector->push_back(*els);
 			}
 			selected = newVector;
-			//std::cout << "break case 2|3|4|5|6|11|12\n";
 		}
 		else
 		{
 			/*
 			Select children of elements in the current selection that match ss
 			*/
-			std::vector<HTMLElement*> newVector;
-			for (	std::vector<HTMLElement*>::iterator els=selected.begin();
-					els!=selected.end();
+			std::vector<HTMLElement*>* newVector = new std::vector<HTMLElement*>;
+			for (	std::vector<HTMLElement*>::iterator els=selected->begin();
+					els!=selected->end();
 					els++)
 			{
 				std::vector<HTMLElement*> them = CSSSelect2(&**els, *ss, true);
-				std::copy (them.begin(), them.end(), std::back_inserter(newVector));
+				std::copy (them.begin(), them.end(), std::back_inserter(*newVector));
 			}
 			selected = newVector;
-			//std::cout << RED << "TODO: ss type=" << ss->type << " str1=" << ss->str1 << " op=" << (op==0 ? '0' : op) << ":\n" << NOCLR;
 		}
 		first = false;
 	}
 	std::cout << "Exiting CSSSelect(...,...)...\n";
-	return selected;
+	for (std::vector<std::vector<HTMLElement*>*>::iterator els=selections.begin();
+		 els!=selections.end();
+		 els++)
+		std::copy ((*els)->begin(), (*els)->end(), std::back_inserter(*selected));
+	
+	return *selected;
 }
 
 void CSSSelectAll(HTMLElement* top, std::vector<HTMLElement*>* dest)
