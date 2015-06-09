@@ -559,6 +559,8 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 				{
 					     if (current.text-=std::string("hanging"))
 						ret.constant = HANGING;
+					else if (current.text-=std::string("default"))
+						ret.constant = DEFAULT_TEXT_INDENT;
 					else if (current.text-=std::string("each-line"))
 						ret.constant = EACH_LINE;
 					else goto notATextIndent;
