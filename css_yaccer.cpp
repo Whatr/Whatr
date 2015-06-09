@@ -80,6 +80,9 @@ CSSProperty parseRuleName(ConstStr name)
 	if (name-=std::string("white-space")) return WHITE_SPACE;
 	if (name-=std::string("word-spacing")) return WORD_SPACING;
 	if (name-=std::string("text-decoration")) return TEXT_DECORATION;
+	if (name-=std::string("text-decoration-style")) return TEXT_DECORATION_STYLE;
+	if (name-=std::string("text-decoration-color")) return TEXT_DECORATION_COLOR;
+	if (name-=std::string("text-decoration-line")) return TEXT_DECORATION_LINE;
 	if (name-=std::string("font")) return FONT;
 	if (name-=std::string("font-family")) return FONT_FAMILY;
 	if (name-=std::string("font-size")) return FONT_SIZE;
@@ -656,7 +659,8 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 				
 				// Else
 				notAFontSize:
-				if (prop==TEXT_DECORATION)
+				if (prop==TEXT_DECORATION ||
+					prop==TEXT_DECORATION_LINE)
 				{
 					     if (current.text-=std::string("none"))
 						ret.constant = NONE_TEXT_DECORATION;
@@ -666,14 +670,37 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 						ret.constant = OVERLINE;
 					else if (current.text-=std::string("line-through"))
 						ret.constant = LINE_THROUGH;
-					else goto notATextDecoration;
+					else if (current.text-=std::string("blink"))
+						ret.constant = BLINK;
+					else goto notATextDecorationLine;
 				}
-				else goto notATextDecoration;
-				// If it's a text decoration
+				else goto notATextDecorationLine;
+				// If it's a text decoration line
 				goto foundValue;
 				
 				// Else
-				notATextDecoration:
+				notATextDecorationLine:
+				if (prop==TEXT_DECORATION ||
+					prop==TEXT_DECORATION_STYLE)
+				{
+					     if (current.text-=std::string("solid"))
+						ret.constant = SOLID_TEXT_DEC;
+					else if (current.text-=std::string("wavy"))
+						ret.constant = WAVY_TEXT_DEC;
+					else if (current.text-=std::string("double"))
+						ret.constant = DOUBLE_TEXT_DEC;
+					else if (current.text-=std::string("dotted"))
+						ret.constant = DOTTED_TEXT_DEC;
+					else if (current.text-=std::string("dashed"))
+						ret.constant = DASHED_TEXT_DEC;
+					else goto notATextDecorationStyle;
+				}
+				else goto notATextDecorationStyle;
+				// If it's a text decoration style
+				goto foundValue;
+				
+				// Else
+				notATextDecorationStyle:
 				if (prop==WHITE_SPACE ||
 					prop==WORD_SPACING)
 				{
@@ -1344,6 +1371,72 @@ void* cssYaccThreadFunc(void* args)
 							// It's a combo css property, like 'border' or 'padding'
 							switch (prop)
 							{
+								case TEXT_DECORATION:
+								for (std::vector<CSSValue>::iterator v
+									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+								{
+									if (v->constant!=NOPE)
+									{
+									if (v->constant>_TEXT_DECORATION_LINE_START &&
+									    v->constant<_TEXT_DECORATION_LINE_END)
+						curC.ruleProperties.push_back(TEXT_DECORATION_LINE),PUSHV;
+							else if (v->constant>_TEXT_DECORATION_STYLE_START &&
+								     v->constant<_TEXT_DECORATION_STYLE_END)
+						curC.ruleProperties.push_back(TEXT_DECORATION_STYLE),PUSHV;
+								else
+								{
+									std::cout << RED << "CSS syntax error: text-decoration does not accept that\n" << NOCLR;
+								}
+									}
+									else if (v->colorType)
+						curC.ruleProperties.push_back(TEXT_DECORATION_COLOR),PUSHV;
+									else
+									{
+										std::cout << RED << "CSS syntax error: text-decoration does not accept that\n" << NOCLR;
+									}
+								}
+								break;
+								case BACKGROUND_POSITION:
+								if (CSSValues->size()==2) std::cout << RED << "CSS syntax error: background-position accepts only exactly 2 values.\n" << NOCLR;
+						curC.ruleProperties.push_back(BACKGROUND_POSITION_X);
+						curC.ruleValues.push_back(CSSValues->at(0));
+						curC.ruleProperties.push_back(BACKGROUND_POSITION_Y);
+						curC.ruleValues.push_back(CSSValues->at(1));
+								break;
+								case TEXT_INDENT:
+								if (CSSValues->size()==1 &&
+								    CSSValues->at(0).lengthType!=LENGTH_TYPE_NOPE)
+								{
+						curC.ruleProperties.push_back(TEXT_INDENT_LENGTH);
+						curC.ruleValues.push_back(CSSValues->at(0));
+								}
+								else if(CSSValues->size()==2 &&
+								CSSValues->at(0).lengthType!=LENGTH_TYPE_NOPE &&
+								CSSValues->at(1).constant!=NOPE)
+								{
+							curC.ruleProperties.push_back(TEXT_INDENT_LENGTH);
+							curC.ruleValues.push_back(CSSValues->at(0));
+							curC.ruleProperties.push_back(TEXT_INDENT_TYPE);
+							curC.ruleValues.push_back(CSSValues->at(1));
+								}
+								else if(CSSValues->size()==3 &&
+									CSSValues->at(0).lengthType!=LENGTH_TYPE_NOPE &&
+									CSSValues->at(1).constant!=NOPE &&
+									CSSValues->at(2).constant!=NOPE)
+								{
+									CSSValue newVal;
+									memset(&newVal, 0, sizeof(newVal));
+									newVal.constant = HANGING_EACH_LINE;
+							curC.ruleProperties.push_back(TEXT_INDENT_LENGTH);
+							curC.ruleValues.push_back(CSSValues->at(0));
+							curC.ruleProperties.push_back(TEXT_INDENT_TYPE);
+							curC.ruleValues.push_back(newVal);
+								}
+								else
+								{
+									std::cout << RED << "CSS syntax error: Please refer to the css manual for text-indent\n" << NOCLR;
+								}
+								break;
 								// TRBL // TB RL // T RL B // T R B L
 								case BORDER:{
 								if (CSSValues->size()>12) std::cout << RED << "CSS syntax error: border accepts no more than 12 values.\n" << NOCLR;

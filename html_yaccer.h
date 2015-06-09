@@ -31,12 +31,43 @@ public:
 	// TODO add an int containing the index of this element in its parent's children
 	
 	// CSS applyer stuff:
+	bool cssApplied;
+	
 	std::vector<CSSProperty> styleFields;
 	std::vector<CSSValue> styleValues;
 	
 	CSSValue cssTop, cssLeft, cssBottom, cssRight;
+	int cssColor;
+	int cssBackgroundColor;
+	CSSConstant cssBackgroundAttachment, cssBackgroundRepeat;
+	CSSValue cssBackgroundPositionX, cssBackgroundPositionY;
+	ConstStr cssBackgroundImage;
+	int cssBorderBottomColor, cssBorderTopColor, cssBorderLeftColor, cssBorderRightColor;
+	CSSConstant cssBorderBottomStyle, cssBorderTopStyle, cssBorderLeftStyle, cssBorderRightStyle;
+	CSSValue cssBorderBottomWidth, cssBorderTopWidth, cssBorderLeftWidth, cssBorderRightWidth;
+	CSSValue cssClear;
 	CSSConstant cssDisplay;
+	CSSConstant cssFloat;
+	CSSValue cssWidth, cssHeight;
+	CSSValue cssPaddingBottom, cssPaddingTop, cssPaddingLeft, cssPaddingRight;
+	CSSConstant cssVerticalAlign;
+	CSSValue cssMarginBottom, cssMarginTop, cssMarginLeft, cssMarginRight;
+	CSSValue cssLetterSpacing;
+	CSSValue cssLineHeight;
 	CSSConstant cssPosition;
+	CSSConstant cssTextAlign;
+	CSSConstant cssTextTransform;
+	CSSValue cssTextIndentLength;
+	CSSConstant cssTextIndentType;
+	CSSConstant cssWhiteSpace;
+	CSSValue cssWordSpacing;
+	CSSConstant cssTextDecorationLine, cssTextDecorationStyle, cssTextDecorationColor;
+	
+	
+	void applyCSSDefaults()
+	{
+		//cssTop = 
+	}
 	
 	
 	// Prerenderer stuff:

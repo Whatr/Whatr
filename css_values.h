@@ -160,8 +160,10 @@ enum CSSConstant
 	CAPITALIZE,
 	
 	// text-indent
+	DEFAULT_TEXT_INDENT,
 	HANGING,
 	EACH_LINE,
+	HANGING_EACH_LINE,
 	
 	// white-space
 	NORMAL, // <-- also for word-spacing
@@ -170,11 +172,23 @@ enum CSSConstant
 	PRE,
 	NOWRAP,
 	
-	// text-decoration
+	// text-decoration-line
+	_TEXT_DECORATION_LINE_START,
 	NONE_TEXT_DECORATION,
 	UNDERLINE,
 	OVERLINE,
 	LINE_THROUGH,
+	BLINK,
+	_TEXT_DECORATION_LINE_END,
+	
+	// text-decoration-style
+	_TEXT_DECORATION_STYLE_START,
+	SOLID_TEXT_DEC,
+	WAVY_TEXT_DEC,
+	DOUBLE_TEXT_DEC,
+	DOTTED_TEXT_DEC,
+	DASHED_TEXT_DEC,
+	_TEXT_DECORATION_STYLE_END,
 	
 	// font-size
 	MEDIUM,
