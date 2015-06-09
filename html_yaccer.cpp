@@ -275,7 +275,7 @@ void* htmlYaccThreadFunc(void* args)
 		i++;
 		currentTag++;
 	}
-	while (currentElement!=NULL)
+	while (currentElement!=document)
 	{
 		std::cout << RED << "Yacc error: Unclosed <" << currentElement->text.copy() << "> tag! \n" << NOCLR;
 		currentElement = currentElement->parent;

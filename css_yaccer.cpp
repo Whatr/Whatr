@@ -1346,6 +1346,7 @@ void* cssYaccThreadFunc(void* args)
 							{
 								// TRBL // TB RL // T RL B // T R B L
 								case BORDER:{
+								if (CSSValues->size()>12) std::cout << RED << "CSS syntax error: border accepts no more than 12 values.\n" << NOCLR;
 								int colors = 0, styles = 0, widths = 0;
 								for (std::vector<CSSValue>::iterator v
 									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
