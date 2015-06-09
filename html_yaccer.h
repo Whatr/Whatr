@@ -33,10 +33,10 @@ public:
 	// TODO add an int containing the index of this element in its parent's children
 	
 	// CSS applyer stuff:
-	bool cssApplied;
-	
 	std::vector<CSSProperty> styleFields;
 	std::vector<CSSValue> styleValues;
+	
+	bool cssApplied;
 	
 	CSSValue cssTop, cssLeft, cssBottom, cssRight;
 	int cssColor;
@@ -64,13 +64,16 @@ public:
 	CSSConstant cssWhiteSpace;
 	CSSValue cssWordSpacing;
 	CSSConstant cssTextDecorationLine, cssTextDecorationStyle, cssTextDecorationColor;
+	CSSConstant cssFontStyle;
+	CSSConstant cssFontVariant;
+	CSSConstant cssFontWeight;
+	CSSConstant cssFontStretch;
+	CSSValue cssFontSize;
+	CSSValue cssFontFamily;
+	CSSValue cssBorderSpacing;
+	CSSConstant cssListStyleType;
 	
-	
-	void applyCSSDefaults()
-	{
-		//cssTop = 
-	}
-	
+	void applyCSSDefaults();
 	
 	// Prerenderer stuff:
 	int positionX = 0, positionY = 0;

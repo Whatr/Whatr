@@ -23,6 +23,7 @@
 #include "log_funcs.hpp"
 #include "html_lexer.h"
 #include "html_yaccer.h"
+#include "css_values.h"
 
 void* htmlYaccThreadFunc(void* args)
 {
@@ -271,3 +272,203 @@ void* htmlYaccThreadFunc(void* args)
 	PRINT(htmlYaccThreadFunc end);
 	pthread_exit(NULL);
 }
+void HTMLElement::applyCSSDefaults()
+{ // http://www.w3.org/TR/CSS2/sample.html
+	switch (this->tag)
+	{
+		case TAG_HTML:
+		case TAG_ADDRESS:
+		case TAG_BLOCKQUOTE:
+		case TAG_BODY:
+		case TAG_DD:
+		case TAG_DIV:
+		case TAG_DL:
+		case TAG_DT:
+		case TAG_FIELDSET:
+		case TAG_FORM:
+		case TAG_FRAME:
+		case TAG_FRAMESET:
+		case TAG_H1:
+		case TAG_H2:
+		case TAG_H3:
+		case TAG_H4:
+		case TAG_H5:
+		case TAG_H6:
+		case TAG_NOFRAMES:
+		case TAG_OL:
+		case TAG_P:
+		case TAG_UL:
+		case TAG_CENTER:
+		case TAG_DIR:
+		case TAG_HR:
+		case TAG_MENU:
+		case TAG_PRE:
+			cssDisplay = BLOCK;
+		break;
+	}
+	switch (this->tag)
+	{
+		case TAG_LI:		cssDisplay = LIST_ITEM; break;
+		case TAG_HEAD:		cssDisplay = NONE_DISPLAY; break;
+		case TAG_TABLE:		cssDisplay = TABLE; break;
+		case TAG_TR:		cssDisplay = TABLE_ROW; break;
+		case TAG_THEAD:		cssDisplay = TABLE_HEADER_GROUP; break;
+		case TAG_TBODY:		cssDisplay = TABLE_ROW_GROUP; break;
+		case TAG_TFOOT:		cssDisplay = TABLE_FOOTER_GROUP; break;
+		case TAG_COL:		cssDisplay = TABLE_COLUMN; break;
+		case TAG_COLGROUP:	cssDisplay = TABLE_COLUMN_GROUP; break;
+		case TAG_TD: case TAG_TH: cssDisplay = TABLE_CELL; break;
+		case TAG_CAPTION:	cssDisplay = TABLE_CAPTION; break;
+	}
+	switch (this->tag)
+	{
+		case TAG_BODY:
+			cssMarginTop.lengthType = LENGTH_TYPE_PX;
+			cssMarginTop.lengthValue = 8;
+			cssMarginLeft = cssMarginBottom = cssMarginRight = cssMarginTop;
+		break;
+		case TAG_H1:
+			cssFontSize.lengthValue = 2;
+			cssMarginTop.lengthValue = .67;
+		break;
+		case TAG_H2:
+			cssFontSize.lengthValue = 1.5;
+			cssMarginTop.lengthValue = .75;
+		break;
+		case TAG_H3:
+			cssFontSize.lengthValue = 1.17;
+			cssMarginTop.lengthValue = .83;
+		break;
+		case TAG_H4:
+		case TAG_P:
+		case TAG_BLOCKQUOTE:
+		case TAG_UL:
+		case TAG_FIELDSET:
+		case TAG_FORM:
+		case TAG_OL:
+		case TAG_DL:
+		case TAG_DIR:
+		case TAG_MENU:
+			cssMarginTop.lengthType = LENGTH_TYPE_EM;
+			cssMarginTop.lengthValue = 1.12;
+			cssMarginBottom = cssMarginTop;
+			cssMarginLeft.lengthType = LENGTH_TYPE_EM;
+			cssMarginLeft.lengthValue = 0;
+			cssMarginRight = cssMarginLeft;
+		break;
+		case TAG_H5:
+			cssFontSize.lengthValue = .83;
+			cssMarginTop.lengthValue = 1.5;
+		break;
+		case TAG_H6:
+			cssFontSize.lengthValue = .75;
+			cssMarginTop.lengthValue = 1.67;
+		break;
+		case TAG_STRONG: cssFontWeight = BOLDER; break;
+	}
+	switch (this->tag)
+	{
+		case TAG_BLOCKQUOTE:
+			cssMarginLeft.lengthType = LENGTH_TYPE_PX;
+			cssMarginLeft.lengthValue = 40;
+			cssMarginRight = cssMarginLeft;
+		break;
+		case TAG_I:
+		case TAG_CITE:
+		case TAG_EM:
+		case TAG_VAR:
+		case TAG_ADDRESS:
+			cssFontStyle = ITALIC;
+		break;
+		case TAG_KBD:
+		case TAG_SAMP:
+			cssFontFamily.textType = TEXT_TYPE_NO_QUOTES;
+			cssFontFamily.textValue = std::string("monospace"); // TODO
+		break;
+		case TAG_PRE: cssWhiteSpace = PRE; break;
+		case TAG_BUTTON:
+		case TAG_TEXTAREA:
+		case TAG_INPUT:
+		case TAG_SELECT:
+			cssDisplay = INLINE_BLOCK;
+		break;
+		case TAG_BIG:
+			cssFontSize.lengthType = LENGTH_TYPE_EM;
+			cssFontSize.lengthValue = 1.17;
+		break;
+		case TAG_SUB:
+			cssVerticalAlign = SUB;
+			cssFontSize.lengthType = LENGTH_TYPE_EM;
+			cssFontSize.lengthValue = .83;
+		break;
+		case TAG_SUP:
+			cssVerticalAlign = SUPER;
+			cssFontSize.lengthType = LENGTH_TYPE_EM;
+			cssFontSize.lengthValue = .83;
+		break;
+		case TAG_SMALL:
+			cssFontSize.lengthType = LENGTH_TYPE_EM;
+			cssFontSize.lengthValue = .83;
+		break;
+		case TAG_TABLE:
+			cssBorderSpacing.lengthType = LENGTH_TYPE_PX;
+			cssBorderSpacing.lengthValue = 2;
+		break;
+		case TAG_THEAD:
+		case TAG_TBODY:
+		case TAG_TFOOT:
+			cssVerticalAlign = MIDDLE;
+		break;
+		case TAG_TD:
+		case TAG_TH:
+		case TAG_TR:
+			cssVerticalAlign = INHERIT;
+		break;
+		case TAG_S:
+		case TAG_STRIKE:
+		case TAG_DEL:
+			cssTextDecorationLine = LINE_THROUGH;
+		break;
+		case TAG_HR:
+			cssBorderLeftWidth.lengthType = LENGTH_TYPE_PX;
+			cssBorderLeftWidth.lengthValue = 1;
+			cssBorderRightWidth = cssBorderTopWidth = cssBorderBottomWidth = cssBorderLeftWidth;
+			cssBorderLeftStyle = cssBorderRightStyle = cssBorderTopStyle = cssBorderBottomStyle = INSET;
+		break;
+	}
+	switch (this->tag)
+	{
+		case TAG_OL:
+			cssListStyleType = DECIMAL;
+		// fall through
+		case TAG_UL:
+		case TAG_DIR:
+		case TAG_MENU:
+		case TAG_DD:
+			cssMarginLeft.lengthType = LENGTH_TYPE_PX;
+			cssMarginLeft.lengthValue = 40;
+		break;
+		case TAG_U:
+		case TAG_INS:
+			cssTextDecorationLine = UNDERLINE;
+		break;
+	}
+	switch (this->tag)
+	{
+		case TAG_H1:
+		case TAG_H2:
+		case TAG_H3:
+		case TAG_H4:
+		case TAG_H5:
+		case TAG_H6:
+			cssFontSize.lengthType = LENGTH_TYPE_EM;
+			cssMarginTop.lengthType = LENGTH_TYPE_EM;
+			cssMarginBottom = cssMarginTop;
+			cssMarginLeft.lengthType = LENGTH_TYPE_EM;
+			cssMarginLeft.lengthValue = 0;
+			cssMarginRight = cssMarginLeft;
+		break;
+	}
+}
+
+
