@@ -76,34 +76,17 @@ void* htmlYaccThreadFunc(void* args)
 		if (currentTag->type==1)
 		{
 			// The following tags are always self-closing:
-			if (currentTag->text == std::string("meta") ||
-				currentTag->text == std::string("br") ||
-				currentTag->text == std::string("hr") ||
-				currentTag->text == std::string("input") ||
-				currentTag->text == std::string("img")
-				)
+			if (currentTag->tag > _TAG_SELF_CLOSING_START &&
+				currentTag->tag < _TAG_SELF_CLOSING_END)
 			{
 				currentTag->type = 2;
 			}
-			
-			// The following tags are deprecated in HTML5
-			if (currentTag->text == std::string("acronym") ||
-				currentTag->text == std::string("applet") ||
-				currentTag->text == std::string("basefont") ||
-				currentTag->text == std::string("big") ||
-				currentTag->text == std::string("center") ||
-				currentTag->text == std::string("dir") ||
-				currentTag->text == std::string("font") ||
-				currentTag->text == std::string("frame") ||
-				currentTag->text == std::string("frameset") ||
-				currentTag->text == std::string("noframes") ||
-				currentTag->text == std::string("strike") ||
-				currentTag->text == std::string("tt"))
-			{
-				std::cout << RED << "Yacc warning: The <";
-				currentTag->text.print();
-				std::cout << "> tag is deprecated in HTML5.\n" << NOCLR;
-			}
+		}
+		// The following tags are deprecated in HTML5
+		if (currentTag->tag > _TAG_DEPRECATED_START &&
+			currentTag->tag < _TAG_DEPRECATED_END)
+		{
+			std::cout << RED << "Yacc warning: The <" << currentTag->text << "> tag is deprecated in HTML5.\n" << NOCLR;
 		}
 		
 		//---------Begin of the actual yaccing

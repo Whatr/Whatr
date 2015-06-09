@@ -53,6 +53,7 @@ int isAcceptableHtmlTagNameNonFirstCharacter(char c)
 			c=='-' ||
 			c=='.';
 }
+HTMLTagType getTagType(ConstStr tag);
 void* htmlLexThreadFunc(void* args)
 {
 	PRINT(htmlLexThreadFunc start);
@@ -341,6 +342,7 @@ void* htmlLexThreadFunc(void* args)
 									
 									tag = HTMLTag();
 									tag.type = 3;
+									tag.tag = TAG_SCRIPT;
 									tag.text = std::string("script");
 									HTMLTags->push_back(tag);
 									tag = HTMLTag();
@@ -506,6 +508,7 @@ void* htmlLexThreadFunc(void* args)
 					
 					printf("12\n");
 					tag.text = downloadedHTML->subString(tagTextStart, i.pos-tagTextStart);
+					tag.tag = getTagType(tag.text);
 					tagTextStart = -1;
 					std::cout << "Tag possibly with arguments found: " << tag.text.copy() << "\n";
 					bufferStart = i.pos+1;
@@ -537,11 +540,14 @@ void* htmlLexThreadFunc(void* args)
 						printf("15\n");
 						insideScript = 1;
 						slashScript = std::string("");
+						tag.tag = TAG_SCRIPT;
 					}
 					else if (tag.text==std::string("")) {
 						printf("16\n");
 						tag.text = std::string("empty");
+						tag.tag = _TAG_CUSTOM;
 					}
+					else tag.tag = getTagType(tag.text);
 					HTMLTags->push_back(tag);
 					//std::cout << "Tag without arguments found: " << tag.text << "\n";
 					tag = HTMLTag();
@@ -756,6 +762,7 @@ void* htmlLexThreadFunc(void* args)
 				else if (c=='>') {
 					printf("33\n");
 					tag.text = downloadedHTML->subString(tagTextStart, i.pos-tagTextStart);
+					tag.tag = getTagType(tag.text);
 					tagTextStart = -1;
 					std::cout << "Self-closing tag " << tag.text.copy() << " closed.\n";
 					tag.type = 2;
@@ -800,6 +807,7 @@ void* htmlLexThreadFunc(void* args)
 						tag.type = 3;
 						//std::transform(tag.text.begin(), tag.text.end(), tag.text.begin(), ::tolower);
 						tag.text = downloadedHTML->subString(tagTextStart, i.pos-tagTextStart);
+						tag.tag = getTagType(tag.text);
 						std::cout << "Closing tag closed: " << tag.text.copy() << "\n";
 						tagTextStart = -1;
 						HTMLTags->push_back(tag);
@@ -819,4 +827,130 @@ void* htmlLexThreadFunc(void* args)
 	*lexingPage = 0;
 	PRINT(htmlLexThreadFunc end);
 	pthread_exit(NULL);
+}
+HTMLTagType getTagType(ConstStr tag)
+{
+	if (tag-=std::string("!doctype")) return TAG_DOCTYPE;
+	else if (tag-=std::string("a")) return TAG_A;
+	else if (tag-=std::string("abbr")) return TAG_ABBR;
+	else if (tag-=std::string("acronym")) return TAG_ACRONYM;
+	else if (tag-=std::string("address")) return TAG_ADDRESS;
+	else if (tag-=std::string("applet")) return TAG_APPLET;
+	else if (tag-=std::string("area")) return TAG_AREA;
+	else if (tag-=std::string("article")) return TAG_ARTICLE;
+	else if (tag-=std::string("aside")) return TAG_ASIDE;
+	else if (tag-=std::string("audio")) return TAG_AUDIO;
+	else if (tag-=std::string("b")) return TAG_B;
+	else if (tag-=std::string("base")) return TAG_BASE;
+	else if (tag-=std::string("basefont")) return TAG_BASEFONT;
+	else if (tag-=std::string("bdi")) return TAG_BDI;
+	else if (tag-=std::string("bdo")) return TAG_BDO;
+	else if (tag-=std::string("big")) return TAG_BIG;
+	else if (tag-=std::string("blockquote")) return TAG_BLOCKQUOTE;
+	else if (tag-=std::string("body")) return TAG_BODY;
+	else if (tag-=std::string("br")) return TAG_BR;
+	else if (tag-=std::string("button")) return TAG_BUTTON;
+	else if (tag-=std::string("canvas")) return TAG_CANVAS;
+	else if (tag-=std::string("caption")) return TAG_CAPTION;
+	else if (tag-=std::string("center")) return TAG_CENTER;
+	else if (tag-=std::string("cite")) return TAG_CITE;
+	else if (tag-=std::string("code")) return TAG_CODE;
+	else if (tag-=std::string("col")) return TAG_COL;
+	else if (tag-=std::string("colgroup")) return TAG_COLGROUP;
+	else if (tag-=std::string("datalist")) return TAG_DATALIST;
+	else if (tag-=std::string("dd")) return TAG_DD;
+	else if (tag-=std::string("del")) return TAG_DEL;
+	else if (tag-=std::string("details")) return TAG_DETAILS;
+	else if (tag-=std::string("dfn")) return TAG_DFN;
+	else if (tag-=std::string("dialog")) return TAG_DIALOG;
+	else if (tag-=std::string("dir")) return TAG_DIR;
+	else if (tag-=std::string("div")) return TAG_DIV;
+	else if (tag-=std::string("dl")) return TAG_DL;
+	else if (tag-=std::string("dt")) return TAG_DT;
+	else if (tag-=std::string("em")) return TAG_EM;
+	else if (tag-=std::string("embed")) return TAG_EMBED;
+	else if (tag-=std::string("fieldset")) return TAG_FIELDSET;
+	else if (tag-=std::string("figcaption")) return TAG_FIGCAPTION;
+	else if (tag-=std::string("figure")) return TAG_FIGURE;
+	else if (tag-=std::string("font")) return TAG_FONT;
+	else if (tag-=std::string("footer")) return TAG_FOOTER;
+	else if (tag-=std::string("form")) return TAG_FORM;
+	else if (tag-=std::string("frame")) return TAG_FRAME;
+	else if (tag-=std::string("frameset")) return TAG_FRAMESET;
+	else if (tag-=std::string("head")) return TAG_HEAD;
+	else if (tag-=std::string("header")) return TAG_HEADER;
+	else if (tag-=std::string("h1")) return TAG_H1;
+	else if (tag-=std::string("h2")) return TAG_H2;
+	else if (tag-=std::string("h3")) return TAG_H3;
+	else if (tag-=std::string("h4")) return TAG_H4;
+	else if (tag-=std::string("h5")) return TAG_H5;
+	else if (tag-=std::string("h6")) return TAG_H6;
+	else if (tag-=std::string("hr")) return TAG_HR;
+	else if (tag-=std::string("html")) return TAG_HTML;
+	else if (tag-=std::string("i")) return TAG_I;
+	else if (tag-=std::string("iframe")) return TAG_IFRAME;
+	else if (tag-=std::string("img")) return TAG_IMG;
+	else if (tag-=std::string("input")) return TAG_INPUT;
+	else if (tag-=std::string("ins")) return TAG_INS;
+	else if (tag-=std::string("kbd")) return TAG_KBD;
+	else if (tag-=std::string("keygen")) return TAG_KEYGEN;
+	else if (tag-=std::string("label")) return TAG_LABEL;
+	else if (tag-=std::string("legend")) return TAG_LEGEND;
+	else if (tag-=std::string("li")) return TAG_LI;
+	else if (tag-=std::string("link")) return TAG_LINK;
+	else if (tag-=std::string("main")) return TAG_MAIN;
+	else if (tag-=std::string("map")) return TAG_MAP;
+	else if (tag-=std::string("mark")) return TAG_MARK;
+	else if (tag-=std::string("menu")) return TAG_MENU;
+	else if (tag-=std::string("menuitem")) return TAG_MENUITEM;
+	else if (tag-=std::string("meta")) return TAG_META;
+	else if (tag-=std::string("meter")) return TAG_METER;
+	else if (tag-=std::string("nav")) return TAG_NAV;
+	else if (tag-=std::string("noframes")) return TAG_NOFRAMES;
+	else if (tag-=std::string("noscript")) return TAG_NOSCRIPT;
+	else if (tag-=std::string("object")) return TAG_OBJECT;
+	else if (tag-=std::string("ol")) return TAG_OL;
+	else if (tag-=std::string("optgroup")) return TAG_OPTGROUP;
+	else if (tag-=std::string("option")) return TAG_OPTION;
+	else if (tag-=std::string("output")) return TAG_OUTPUT;
+	else if (tag-=std::string("p")) return TAG_P;
+	else if (tag-=std::string("param")) return TAG_PARAM;
+	else if (tag-=std::string("pre")) return TAG_PRE;
+	else if (tag-=std::string("progress")) return TAG_PROGRESS;
+	else if (tag-=std::string("q")) return TAG_Q;
+	else if (tag-=std::string("rp")) return TAG_RP;
+	else if (tag-=std::string("rt")) return TAG_RT;
+	else if (tag-=std::string("ruby")) return TAG_RUBY;
+	else if (tag-=std::string("s")) return TAG_S;
+	else if (tag-=std::string("samp")) return TAG_SAMP;
+	else if (tag-=std::string("script")) return TAG_SCRIPT;
+	else if (tag-=std::string("section")) return TAG_SECTION;
+	else if (tag-=std::string("select")) return TAG_SELECT;
+	else if (tag-=std::string("small")) return TAG_SMALL;
+	else if (tag-=std::string("source")) return TAG_SOURCE;
+	else if (tag-=std::string("span")) return TAG_SPAN;
+	else if (tag-=std::string("strike")) return TAG_STRIKE;
+	else if (tag-=std::string("strong")) return TAG_STRONG;
+	else if (tag-=std::string("style")) return TAG_STYLE;
+	else if (tag-=std::string("sub")) return TAG_SUB;
+	else if (tag-=std::string("summary")) return TAG_SUMMARY;
+	else if (tag-=std::string("sup")) return TAG_SUP;
+	else if (tag-=std::string("table")) return TAG_TABLE;
+	else if (tag-=std::string("tbody")) return TAG_TBODY;
+	else if (tag-=std::string("td")) return TAG_TD;
+	else if (tag-=std::string("textarea")) return TAG_TEXTAREA;
+	else if (tag-=std::string("tfoot")) return TAG_TFOOT;
+	else if (tag-=std::string("th")) return TAG_TH;
+	else if (tag-=std::string("thead")) return TAG_THEAD;
+	else if (tag-=std::string("time")) return TAG_TIME;
+	else if (tag-=std::string("title")) return TAG_TITLE;
+	else if (tag-=std::string("tr")) return TAG_TR;
+	else if (tag-=std::string("track")) return TAG_TRACK;
+	else if (tag-=std::string("tt")) return TAG_TT;
+	else if (tag-=std::string("u")) return TAG_U;
+	else if (tag-=std::string("ul")) return TAG_UL;
+	else if (tag-=std::string("var")) return TAG_VAR;
+	else if (tag-=std::string("video")) return TAG_VIDEO;
+	else if (tag-=std::string("wbr")) return TAG_WBR;
+	else return _TAG_CUSTOM;
 }
