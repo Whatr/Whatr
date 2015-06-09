@@ -1344,34 +1344,103 @@ void* cssYaccThreadFunc(void* args)
 							// It's a combo css property, like 'border' or 'padding'
 							switch (prop)
 							{
-								case BORDER:
+								// TRBL // TB RL // T RL B // T R B L
+								case BORDER:{
+								int colors = 0, styles = 0, widths = 0;
+								for (std::vector<CSSValue>::iterator v
+									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+								{
+									if (v->lengthType!=LENGTH_TYPE_NOPE) widths++;
+									else if (v->colorType) colors++;
+									else if (v->constant) styles++;
+									else std::cout<<RED<<"SHITSHITSHIT\n"<<NOCLR;
+								}
+								std::cout << "CSS border property supplied " << colors << " colors, " << styles << " styles and " << widths << " widths\n";
+								int colorsSeen = 0, stylesSeen = 0, widthsSeen = 0;
 								for (std::vector<CSSValue>::iterator v
 									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
 								{
 									if (v->lengthType!=LENGTH_TYPE_NOPE)
 									{
-						curC.ruleProperties.push_back(BORDER_TOP_WIDTH);PUSHV;
-						curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH);PUSHV;
-						curC.ruleProperties.push_back(BORDER_LEFT_WIDTH);PUSHV;
-						curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH);PUSHV;
+										if (widths==1)
+						curC.ruleProperties.push_back(BORDER_TOP_WIDTH),PUSHV,
+						curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH),PUSHV,
+						curC.ruleProperties.push_back(BORDER_LEFT_WIDTH),PUSHV,
+						curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH),PUSHV;
+									else if (widths==2 && widthsSeen==0)
+						curC.ruleProperties.push_back(BORDER_TOP_WIDTH),PUSHV,
+						curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH),PUSHV;
+									else if (widths==2)
+						curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH),PUSHV,
+						curC.ruleProperties.push_back(BORDER_LEFT_WIDTH),PUSHV;
+									else if (widths>=3 && widthsSeen==0)
+						curC.ruleProperties.push_back(BORDER_TOP_WIDTH),PUSHV;
+									else if (widths==3 && widthsSeen==1)
+						curC.ruleProperties.push_back(BORDER_LEFT_WIDTH),PUSHV,
+						curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH),PUSHV;
+									else if (widths>=3 && widthsSeen==2)
+						curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH),PUSHV;
+									else if (widths==4 && widthsSeen==1)
+						curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH),PUSHV;
+									else if (widths==4 && widthsSeen==3)
+						curC.ruleProperties.push_back(BORDER_LEFT_WIDTH),PUSHV;
+										widthsSeen++;
 									}
 									else if (v->colorType)
 									{
-						curC.ruleProperties.push_back(BORDER_TOP_COLOR);PUSHV;
-						curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR);PUSHV;
-						curC.ruleProperties.push_back(BORDER_LEFT_COLOR);PUSHV;
-						curC.ruleProperties.push_back(BORDER_RIGHT_COLOR);PUSHV;
+										if (colors==1)
+						curC.ruleProperties.push_back(BORDER_TOP_COLOR),PUSHV,
+						curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR),PUSHV,
+						curC.ruleProperties.push_back(BORDER_LEFT_COLOR),PUSHV,
+						curC.ruleProperties.push_back(BORDER_RIGHT_COLOR),PUSHV;
+									else if (colors==2 && colorsSeen==0)
+						curC.ruleProperties.push_back(BORDER_TOP_COLOR),PUSHV,
+						curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR),PUSHV;
+									else if (colors==2)
+						curC.ruleProperties.push_back(BORDER_RIGHT_COLOR),PUSHV,
+						curC.ruleProperties.push_back(BORDER_LEFT_COLOR),PUSHV;
+									else if (colors>=3 && colorsSeen==0)
+						curC.ruleProperties.push_back(BORDER_TOP_COLOR),PUSHV;
+									else if (colors==3 && colorsSeen==1)
+						curC.ruleProperties.push_back(BORDER_LEFT_COLOR),PUSHV,
+						curC.ruleProperties.push_back(BORDER_RIGHT_COLOR),PUSHV;
+									else if (colors>=3 && colorsSeen==2)
+						curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR),PUSHV;
+									else if (colors==4 && colorsSeen==1)
+						curC.ruleProperties.push_back(BORDER_RIGHT_COLOR),PUSHV;
+									else if (colors==4 && colorsSeen==3)
+						curC.ruleProperties.push_back(BORDER_LEFT_COLOR),PUSHV;
+										colorsSeen++;
 									}
 									else if (v->constant)
 									{
-						curC.ruleProperties.push_back(BORDER_TOP_STYLE);PUSHV;
-						curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE);PUSHV;
-						curC.ruleProperties.push_back(BORDER_LEFT_STYLE);PUSHV;
-						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE);PUSHV;
+										if (styles==1)
+						curC.ruleProperties.push_back(BORDER_TOP_STYLE),PUSHV,
+						curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE),PUSHV,
+						curC.ruleProperties.push_back(BORDER_LEFT_STYLE),PUSHV,
+						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE),PUSHV;
+									else if (styles==2 && stylesSeen==0)
+						curC.ruleProperties.push_back(BORDER_TOP_STYLE),PUSHV,
+						curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE),PUSHV;
+									else if (styles==2)
+						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE),PUSHV,
+						curC.ruleProperties.push_back(BORDER_LEFT_STYLE),PUSHV;
+									else if (styles>=3 && stylesSeen==0)
+						curC.ruleProperties.push_back(BORDER_TOP_STYLE),PUSHV;
+									else if (styles==3 && stylesSeen==1)
+						curC.ruleProperties.push_back(BORDER_LEFT_STYLE),PUSHV,
+						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE),PUSHV;
+									else if (styles>=3 && stylesSeen==2)
+						curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE),PUSHV;
+									else if (styles==4 && stylesSeen==1)
+						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE),PUSHV;
+									else if (styles==4 && stylesSeen==3)
+						curC.ruleProperties.push_back(BORDER_LEFT_STYLE),PUSHV;
+										stylesSeen++;
 									}
 									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
 								}
-								break;
+								}break;
 								case BORDER_TOP:
 								for (std::vector<CSSValue>::iterator v
 									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
