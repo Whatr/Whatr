@@ -29,7 +29,7 @@ fi
 dotOfiles=""
 compiled=0
 for i in *.cpp; do
-	if [[ $i != test* ]] && [[ $i != renderer* ]];
+	if [[ $i != test* ]];
 	then
 		j="${i/$dotCpp/$dotO}"
 		dotOfiles=$dotOfiles$j" "
@@ -53,13 +53,13 @@ then
 	if (( compiled == 1 ))
 	then
 		echo "Relinking..." 
-		g++ $dotOfiles -std=c++11 -lX11 -lpthread -o $outputProgramFile
+		g++ $dotOfiles -std=c++11 -lpthread -lSDL2 -lSDL2_image -lSDL2_ttf -o $outputProgramFile
 		echo "Done."
 	else
 		echo "No changes detected. Nothing was recompiled."
 	fi
 else
 	echo "Linking..."
-	g++ $dotOfiles -std=c++11 -lX11 -lpthread -o $outputProgramFile
+	g++ $dotOfiles -std=c++11 -lpthread -lSDL2 -lSDL2_image -lSDL2_ttf -o $outputProgramFile
 	echo "Done."
 fi

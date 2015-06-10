@@ -43,51 +43,17 @@ void* renderer1ThreadFunc(void* args)
 	PRINT(Renderer 1 is done);
 	*rendering1 = 0;
 }
+void textSize(ConstStr text, int availableWidth, CSSValue fontSize, CSSConstant fontWeight, int& retWidth, int& retHeight)
+{ // calculate how large a string is in pixels
+	for (ConstStrIterator i = text.iterate();i<text.length;i++)
+	{
+		char c = *i;
+		
+	}
+}
 void recursiveRenderer1(HTMLElement* el)
 {
 	std::cout << "recursiveRenderer1 is at a <" << el->text << "...>\n";
-	/*if (el->text==std::string("a"))
-	{
-		// ???
-		/*
-		el->styleFields.push_back(std::string(""));
-		el->styleValues.push_back(std::string(""));
-		*/
-	/*}
-	else if (el->text==std::string("abbr"))
-	{
-		el->text = std::string("span");
-		el->styleFields.push_back(std::string("border-bottom"));
-		el->styleValues.push_back(std::string("1px dotted black"));
-	}
-	else if (el->text==std::string("address"))
-	{
-		el->text = std::string("span");
-		el->styleFields.push_back(std::string("font-style"));
-		el->styleValues.push_back(std::string("italic"));
-	}
-	else if (el->text==std::string("article"))
-	{
-		el->text = std::string("span");
-	}
-	else if (el->text==std::string("b"))
-	{
-		el->text = std::string("span");
-		el->styleFields.push_back(std::string("font-weight"));
-		el->styleValues.push_back(std::string("bold"));
-	}
-	else if (el->text==std::string("")) // TODO
-	{
-		el->text = std::string("");
-		el->styleFields.push_back(std::string(""));
-		el->styleValues.push_back(std::string(""));
-	}
-	else if (el->text==std::string(""))
-	{
-		el->text = std::string("");
-		el->styleFields.push_back(std::string(""));
-		el->styleValues.push_back(std::string(""));
-	}*/
 	for (	std::vector<HTMLElement*>::iterator h=el->children.begin();
 			h!=el->children.end();
 			h++)

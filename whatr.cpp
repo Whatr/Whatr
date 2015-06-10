@@ -13,7 +13,6 @@
 #define likely(x)       __builtin_expect((x),1)
 #define unlikely(x)     __builtin_expect((x),0)
 
-#include <X11/Xlib.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
@@ -41,7 +40,175 @@
 #include "const_str.h"
 #include "settings.h"
 
-void update_screen();
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <stdio.h>
+#include <cmath>
+
+//Screen dimension constants
+const int SCREEN_WIDTH = 640;
+const int SCREEN_HEIGHT = 480;
+
+//The window we'll be rendering to
+SDL_Window* gWindow = NULL;
+
+//The window renderer
+SDL_Renderer* gRenderer = NULL;
+
+//Globally used font
+TTF_Font *gFont = NULL;
+
+//Texture wrapper class
+class LTexture
+{
+	public:
+		//Initializes variables
+		LTexture()
+		{
+			//Initialize
+			mTexture = NULL;
+			mWidth = 0;
+			mHeight = 0;
+		}
+		//Deallocates memory
+		~LTexture()
+		{
+			//Deallocate
+			free();
+		}
+		//Loads image at specified path
+		bool loadFromFile( std::string path )
+		{
+			//Get rid of preexisting texture
+			free();
+			//The final texture
+			SDL_Texture* newTexture = NULL;
+			//Load image at specified path
+			SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
+			if( loadedSurface == NULL )
+			{
+				printf( "Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError() );
+			}
+			else
+			{
+				//Color key image
+				SDL_SetColorKey( loadedSurface, SDL_TRUE, SDL_MapRGB( loadedSurface->format, 0, 0xFF, 0xFF ) );
+				//Create texture from surface pixels
+				newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
+				if( newTexture == NULL )
+				{
+					printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
+				}
+				else
+				{
+					//Get image dimensions
+					mWidth = loadedSurface->w;
+					mHeight = loadedSurface->h;
+				}
+				//Get rid of old loaded surface
+				SDL_FreeSurface( loadedSurface );
+			}
+			//Return success
+			mTexture = newTexture;
+			return mTexture != NULL;
+		}
+		//Creates image from font string
+		bool loadFromRenderedText( std::string textureText, SDL_Color textColor )
+		{
+			//Get rid of preexisting texture
+			free();
+
+			//Render text surface
+			SDL_Surface* textSurface = TTF_RenderText_Solid( gFont, textureText.c_str(), textColor );
+			if( textSurface == NULL )
+			{
+				printf( "Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError() );
+			}
+			else
+			{
+				//Create texture from surface pixels
+				mTexture = SDL_CreateTextureFromSurface( gRenderer, textSurface );
+				if( mTexture == NULL )
+				{
+					printf( "Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError() );
+				}
+				else
+				{
+					//Get image dimensions
+					mWidth = textSurface->w;
+					mHeight = textSurface->h;
+				}
+				//Get rid of old surface
+				SDL_FreeSurface( textSurface );
+			}
+			//Return success
+			return mTexture != NULL;
+		}
+		//Deallocates texture
+		void free()
+		{
+			//Free texture if it exists
+			if( mTexture != NULL )
+			{
+				SDL_DestroyTexture( mTexture );
+				mTexture = NULL;
+				mWidth = 0;
+				mHeight = 0;
+			}
+		}
+		//Set color modulation
+		void setColor( Uint8 red, Uint8 green, Uint8 blue )
+		{
+			//Modulate texture rgb
+			SDL_SetTextureColorMod( mTexture, red, green, blue );
+		}
+		//Set blending
+		void setBlendMode( SDL_BlendMode blending )
+		{
+			//Set blending function
+			SDL_SetTextureBlendMode( mTexture, blending );
+		}
+		//Set alpha modulation
+		void setAlpha( Uint8 alpha )
+		{
+			//Modulate texture alpha
+			SDL_SetTextureAlphaMod( mTexture, alpha );
+		}
+		//Renders texture at given point
+		void render( int x, int y, SDL_Rect* clip = NULL, double angle = 0.0, SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE)
+		{
+			//Set rendering space and render to screen
+			SDL_Rect renderQuad = { x, y, mWidth, mHeight };
+			//Set clip rendering dimensions
+			if( clip != NULL )
+			{
+				renderQuad.w = clip->w;
+				renderQuad.h = clip->h;
+			}
+			//Render to screen
+			SDL_RenderCopyEx( gRenderer, mTexture, clip, &renderQuad, angle, center, flip );
+		}
+		//Gets image dimensions
+		int getWidth()
+		{
+			return mWidth;
+		}
+		int getHeight()
+		{
+			return mHeight;
+		}
+	private:
+		//The actual hardware texture
+		SDL_Texture* mTexture;
+		//Image dimensions
+		int mWidth;
+		int mHeight;
+};
+
+//Rendered texture
+LTexture gTextTexture;
+
 
 void printCSSValue(CSSValue val)
 {
@@ -60,19 +227,6 @@ void printCSSValue(CSSValue val)
 						<< std::setfill(' ')
 						<< val.timeValue << ")";
 }
-
-int XRES = 500;
-int YRES = 500;
-int NPTS = 25000;
-
-//Need this array if we're plotting all at once using XDrawPoints
-//XPoint pts[NPTS];
-
-Display* dsp;
-Window win;
-GC gc;
-
-XTextItem testText;
 
 ConstStr userAgent("Whatr development version");
 
@@ -124,6 +278,7 @@ int rendering1 = 0;
 
 ConstStr url, host, path;
 void printTree(HTMLElement* currentElement, std::string tabs);
+
 int main(int argc, char* argv[])
 {
 	try{
@@ -404,11 +559,11 @@ int main(int argc, char* argv[])
 		printTree(&document, std::string("  "));
 	}
 	
-	/*
 	auto time_9 = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
 	////// Renderer 1: HTML Transform
+	/*
 	{
 		rendering1 = 1;
 		renderer1Args args(&rendering1, &HTMLElements);
@@ -420,7 +575,7 @@ int main(int argc, char* argv[])
 		while(rendering1){};
 		printTree(HTMLElements.at(0), std::string("  "));
 	}
-	
+	*/
 	auto time_10 = std::chrono::high_resolution_clock::now();
 	
 	auto time1 = time_2 - time_1;
@@ -463,110 +618,133 @@ int main(int argc, char* argv[])
 	
 	std::cout << "##### Total time taken: "<<std::chrono::duration_cast<std::chrono::microseconds>(total).count()<<"us\n";
 	std::cout << "##### Total time taken excluding download: "<<std::chrono::duration_cast<std::chrono::microseconds>(total-time2-time3a).count()<<"us\n";
-	*/
 	
 	///////////////////////////////////
 	////// Create window
 	
-	/*
-	char testString[] = "blablabla";
+
 	
-	testText.chars = testString;
-	testText.nchars = strlen(testString);
-	testText.delta = 0;
-	testText.font = 0;
 	
-	PRINT(test asdfas);
-	ERROR(alksdfjlkajsdflkj lkas jdflka jsdflkjs);
-	PRINT(9999*#$);
 	
-	dsp = XOpenDisplay(NULL);
 	
-	if (!dsp) return 1; // If XOpenDisplay failed, exit the program
-
-	int screen = DefaultScreen(dsp);
-	unsigned int white = WhitePixel(dsp, screen);
-	unsigned int black = BlackPixel(dsp, screen);
-
-	win = XCreateSimpleWindow	(	dsp,
-									DefaultRootWindow(dsp),
-									0, 0,		// origin
-									XRES, YRES,	// size
-									0, black,	// border width/clr
-									white		// backgrd clr
-								);
-	Atom wmDelete = XInternAtom(dsp, "WM_DELETE_WINDOW", True);
-	XSetWMProtocols(dsp, win, &wmDelete, 1);
-	gc = XCreateGC(	dsp, win,
-					0,		// mask of values
-					NULL	// array of values
-					);
-
-	XSetForeground(dsp, gc, black);
-
-	XEvent evt;
-	long eventMask = StructureNotifyMask;
-	eventMask |= ButtonPressMask|ButtonReleaseMask|KeyPressMask|KeyReleaseMask;
-	XSelectInput(dsp, win, eventMask);
-
-	KeyCode keyQ = XKeysymToKeycode(dsp, XStringToKeysym("Q"));
-
-	XMapWindow(dsp, win);
-
-	// Wait until the window has been created...
-	do
+	
+	
+	//Initialize SDL
+	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 	{
-		XNextEvent(dsp,&evt);
+		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 	}
-	while (evt.type != MapNotify);
-	
-	// The window has been created!
-
-	srand(time(0));
-	update_screen();
-
-	int loop = 1;
-	while (loop)
+	else
 	{
-		XNextEvent(dsp, &evt);
-		switch (evt.type)
+		//Set texture filtering to linear
+		if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) )
 		{
-			case (ButtonRelease) :
+			printf( "Warning: Linear texture filtering not enabled!" );
+		}
+
+		//Create window
+		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+		if( gWindow == NULL )
+		{
+			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
+		}
+		else
+		{
+			//Create vsynced renderer for window
+			gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+			if( gRenderer == NULL )
 			{
-				update_screen();
+				printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
 			}
-			break;
-			case (KeyRelease) :
+			else
 			{
-				if (evt.xkey.keycode == keyQ) loop = 0;
-				else update_screen();
-			}
-			break;
-			case (ConfigureNotify) :
-			{
-				// Check if window has been resized
-				if (evt.xconfigure.width != XRES || evt.xconfigure.height != YRES)
+				//Initialize renderer color
+				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+
+				//Initialize PNG loading
+				int imgFlags = IMG_INIT_PNG;
+				if( !( IMG_Init( imgFlags ) & imgFlags ) )
 				{
-					XRES = evt.xconfigure.width;
-					YRES = evt.xconfigure.height;
-					update_screen();
+					printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
+				}
+
+				 //Initialize SDL_ttf
+				if( TTF_Init() == -1 )
+				{
+					printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
 				}
 			}
-			break;
-			case (ClientMessage) :
-			{
-				if (evt.xclient.data.l[0] == wmDelete) loop = 0;
-			}
-			break;
-			default :
-
-			break;
 		}
-	} 
+	}
+	
+	
+	
+	
+	
+	
+	gFont = TTF_OpenFont( "arial.ttf", 28 );
+	if( gFont == NULL )
+	{
+		printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
+	}
+	else
+	{
+		//Render text
+		SDL_Color textColor = { 0, 0, 0 };
+		if( !gTextTexture.loadFromRenderedText( "The quick brown fox jumps over the lazy dog", textColor ) )
+		{
+			printf( "Failed to render text texture!\n" );
+		}
+	}
+	
+	
+	//Main loop flag
+	bool quit = false;
 
-	XDestroyWindow(dsp, win);
-	XCloseDisplay(dsp);
-	*/
+	//Event handler
+	SDL_Event e;
+
+	//While application is running
+	while( !quit )
+	{
+		//Handle events on queue
+		while( SDL_PollEvent( &e ) != 0 )
+		{
+			//User requests quit
+			if( e.type == SDL_QUIT )
+			{
+				quit = true;
+			}
+		}
+
+		//Clear screen
+		SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+		SDL_RenderClear( gRenderer );
+
+		//Render current frame
+		gTextTexture.render( ( SCREEN_WIDTH - gTextTexture.getWidth() ) / 2, ( SCREEN_HEIGHT - gTextTexture.getHeight() ) / 2 );
+
+		//Update screen
+		SDL_RenderPresent( gRenderer );
+	}
+	
+	//Free loaded images
+	gTextTexture.free();
+
+	//Free global font
+	TTF_CloseFont( gFont );
+	gFont = NULL;
+
+	//Destroy window	
+	SDL_DestroyRenderer( gRenderer );
+	SDL_DestroyWindow( gWindow );
+	gWindow = NULL;
+	gRenderer = NULL;
+
+	//Quit SDL subsystems
+	TTF_Quit();
+	IMG_Quit();
+	SDL_Quit();
 	
 	}
 	catch(int exex)
@@ -590,10 +768,8 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 		currentElement->text.print();
 		for (int i=0;i<currentElement->argNames.size();i++)
 		{
-			std::cout << " ";
-			currentElement->argNames.at(i).print();
-			std::cout << "=\"";
-			currentElement->argValues.at(i).print();
+			std::cout << " " << currentElement->argNames.at(i);
+			std::cout << "=\"" << currentElement->argValues.at(i);
 			std::cout << "\"";
 		}
 		std::cout << " computedStyle=\"";
@@ -604,8 +780,7 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 			printCSSValue(currentElement->styleValues.at(i));
 			std::cout << ";";
 		}
-		std::cout << "\"";
-		std::cout << "/>\n";
+		std::cout << "\"/>\n";
 	}
 	else
 	{
@@ -613,10 +788,8 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 		currentElement->text.print();
 		for (int i=0;i<currentElement->argNames.size();i++)
 		{
-			std::cout << " ";
-			currentElement->argNames.at(i).print();
-			std::cout << "=\"";
-			currentElement->argValues.at(i).print();
+			std::cout << " " << currentElement->argNames.at(i);
+			std::cout << "=\"" << currentElement->argValues.at(i);
 			std::cout << "\"";
 		}
 		std::cout << " computedStyle=\"";
@@ -627,25 +800,11 @@ void printTree(HTMLElement* currentElement, std::string tabs)
 			printCSSValue(currentElement->styleValues.at(i));
 			std::cout << ";";
 		}
-		std::cout << "\"";
-		std::cout << ">\n";
+		std::cout << "\">\n";
 		for (int i=0;i<currentElement->children.size();i++)
 		{
 			printTree(currentElement->children.at(i), tabs+std::string("  "));
 		}
-		std::cout << tabs << "</";
-		currentElement->text.print();
-		std::cout << ">\n";
+		std::cout << tabs << "</" << currentElement->text << ">\n";
 	}
-}
-
-void update_screen()
-{
-	XClearWindow(dsp, win);
-	XDrawLine(dsp, win, gc, 0, YRES/2, XRES-1, YRES/2); //from-to
-	XDrawLine(dsp, win, gc, XRES/2, 0, XRES/2, YRES-1); //from-to
-	XDrawText(dsp, win, gc, 30, 30, &testText, 1);
-	//XClearWindow(dsp,win);
-	//XDrawPoints(dsp, win, gc, pts, NPTS, CoordModeOrigin);
-	return;
 }
