@@ -14,6 +14,9 @@
 #define renderer_1_included yes
 
 #include "html_yaccer.h"
+//#include <SDL2/SDL.h>
+//#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 class renderer1Args
 {
@@ -26,5 +29,6 @@ public:
 		HTMLElements(HTMLElements){};
 };
 void* renderer1ThreadFunc(void* args);
+void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* charHeights, int& widthOut, int& heightOut);
 
 #endif

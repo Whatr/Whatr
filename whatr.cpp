@@ -59,6 +59,9 @@ SDL_Renderer* gRenderer = NULL;
 //Globally used font
 TTF_Font *gFont = NULL;
 
+int fontCharWidth[256];
+int fontCharHeight[256];
+
 //Texture wrapper class
 class LTexture
 {
@@ -683,6 +686,33 @@ int main(int argc, char* argv[])
 	
 	
 	gFont = TTF_OpenFont( "arial.ttf", 28 );
+	
+	char allChars[512];
+	for (int i=0;i<256;i++)
+	{
+		allChars[i*2] = (char)i;
+		allChars[i*2+1] = 0;
+	}
+	
+	char* c = &allChars[0];
+	for (int i=0;i<256;i++,c+=2)
+	{
+		if (isprint(*c))
+		{
+			TTF_SizeText(gFont, c, &fontCharWidth[i], &fontCharHeight[i]);
+		}
+		else
+		{
+			fontCharWidth[i] = fontCharHeight[i] = 0;
+		}
+	}
+	
+	ConstStr testStr("The lazy fox jumped over the big brown dog. This was a nice rare occurrence of a visual message.");
+	int ww, hh;
+	calculateTextSize(testStr, 300, fontCharWidth, fontCharHeight, ww, hh);
+	
+	
+	
 	if( gFont == NULL )
 	{
 		printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
