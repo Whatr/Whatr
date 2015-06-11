@@ -165,12 +165,12 @@ void* downloadThreadFunc(void* args)
 		if (n>0 && n<BLOCK_SIZE) // If recv returns a partial block
 		{
 			readAgain:
-			usleep(100); // Wait 0.1 ms
+			usleep(100000); // Wait 100 ms
 
 			// Try to read the rest:
 
 			// Test if the socket is in non-blocking mode:
-			if (fcntl(sockfd, F_GETFL) & O_NONBLOCK)
+			/*if (fcntl(sockfd, F_GETFL) & O_NONBLOCK)
 			{
 				// socket is non-blocking
 			}
@@ -179,12 +179,16 @@ void* downloadThreadFunc(void* args)
 			if (fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK) < 0)
 			{
 				std::cout << RED << "handle error\n" << NOCLR;
-			}
-			char buf;
+			}*/
 			try
 			{
+				char buf;
 				int err = recv(sockfd, &buf, 1, MSG_PEEK);
-				if (err <= -1) break;
+				if (err <= -1)
+				{
+					printf("err <= -1\n");
+					break;
+				}
 			}
 			catch (int eee)
 			{
