@@ -552,8 +552,8 @@ int main(int argc, char* argv[])
 		////// Apply the css
 		{
 			applyingCSS = 1;
-			cssApplyArgs args(&applyingCSS, CSSClasses[i], NULL);
-			if (styles[i]->parent==NULL ||
+			cssApplyArgs args(&applyingCSS, CSSClasses[i], &document);
+			/*if (styles[i]->parent==NULL ||
 				styles[i]->parent->tag==TAG_HEAD ||
 				styles[i]->parent->tag==TAG_BODY ||
 				styles[i]->parent->tag==TAG_HTML)
@@ -563,7 +563,7 @@ int main(int argc, char* argv[])
 			else
 			{
 				args.destination = styles[i]->parent;
-			}
+			}*/
 			if (pthread_create(&cssApplyThread, NULL, cssApplyThreadFunc, &args))
 			{
 				ERROR(Failed to create CSS yacc thread!);
