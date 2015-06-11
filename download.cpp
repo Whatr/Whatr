@@ -173,13 +173,13 @@ void* downloadThreadFunc(void* args)
 			/*if (fcntl(sockfd, F_GETFL) & O_NONBLOCK)
 			{
 				// socket is non-blocking
-			}
+			}*/
 
 			// Put the socket in non-blocking mode:
 			if (fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK) < 0)
 			{
 				std::cout << RED << "handle error\n" << NOCLR;
-			}*/
+			}
 			try
 			{
 				char buf;

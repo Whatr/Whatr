@@ -52,8 +52,6 @@ void* cssLexThreadFunc(void* args)
 		//std::string buffer = std::string("");
 		int bufferStart = -1;
 		
-		int count = 0;
-		
 		int inComment = 0;
 		
 		char inQuotes = 0;
@@ -62,10 +60,9 @@ void* cssLexThreadFunc(void* args)
 		
 		while
 		(
-			i.pos<inputCSS.length && count < 10000
+			i.pos<inputCSS.length
 		)
 		{
-			count++;
 			char c = *i;
 			//std::cout << "Now at char " << c << "\n";
 			
@@ -121,7 +118,36 @@ void* cssLexThreadFunc(void* args)
 			}
 			else if (currentType==TOKEN_TYPE_NOTHING)
 			{
-				if (c==' ' || c=='\n' || c=='\t' || c=='\r')
+				if (c=='!')
+				{
+					if (inputCSS.subString(i.pos+1, 9)==std::string("important"))
+					{ // TODO support !important
+						std::cout << RED << "Warning: !important is not supported yet. ignoring it.\n" << NOCLR;
+						i += 9;
+						continue;
+					}
+				}
+				else if (c=='@')
+				{
+					if (inputCSS.subString(i.pos+1, 5)==std::string("media"))
+					{ // TODO support @media
+						std::cout << RED << "Warning: @media is not supported yet. ignoring it, and everything it contains\n" << NOCLR;
+						int brutoBracketCount = 0;
+						int nettoBracketCount = 0;
+						while (brutoBracketCount==0 || nettoBracketCount>0)
+						{
+							i++;
+							if (*i == '{')
+								brutoBracketCount++, nettoBracketCount++;
+							else if (*i == '}')
+								brutoBracketCount++, nettoBracketCount--;
+							std::cout << *i << brutoBracketCount << nettoBracketCount << "\n";
+						}
+						i++;
+						continue;
+					}
+				}
+				else if (c==' ' || c=='\n' || c=='\t' || c=='\r')
 				{
 					if (CSSTokens->size()>0)
 					{
@@ -178,7 +204,7 @@ void* cssLexThreadFunc(void* args)
 							c=='.'
 						)
 				{
-					std::cout << "strnq start" << c << "\n";
+					//std::cout << "strnq start" << c << "\n";
 					currentType = TOKEN_TYPE_STRING_NO_QUOTES;
 					bufferStart = i.pos;
 					//buffer += c;
@@ -233,7 +259,7 @@ void* cssLexThreadFunc(void* args)
 				{
 					if (seenLetter) // It was a string
 					{
-						std::cout << c << "elsey 1\n";
+						//std::cout << c << "elsey 1\n";
 						CSSToken t;
 						t.type = TOKEN_TYPE_STRING_NO_QUOTES;
 						t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
@@ -244,7 +270,7 @@ void* cssLexThreadFunc(void* args)
 					}
 					else if (seenDigit) // It was a number
 					{
-						std::cout << c << "elsey 2\n";
+						//std::cout << c << "elsey 2\n";
 						CSSToken t;
 						t.type = TOKEN_TYPE_NUMBER;
 						t.text = inputCSS.subString(bufferStart, i.pos-bufferStart);
