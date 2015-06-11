@@ -251,11 +251,11 @@ void* htmlYaccThreadFunc(void* args)
 				}
 				else
 				{
+					if (currentElement->tag == TAG_STYLE)
+					{
+						styles->push_back(currentElement);
+					}
 					currentElement = currentElement->parent;
-				}
-				if (currentElement->tag == TAG_STYLE)
-				{
-					styles->push_back(currentElement);
 				}
 			}
 			else

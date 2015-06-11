@@ -500,7 +500,7 @@ int main(int argc, char* argv[])
 		////// Lex the css
 		{
 			lexingCSS = 1;
-			cssLexArgs args(&lexingCSS, CSSTokens[i], styles[i]->text);
+			cssLexArgs args(&lexingCSS, CSSTokens[i], styles[i]->children[0]->text);
 			if (pthread_create(&cssLexThread, NULL, cssLexThreadFunc, &args))
 			{
 				ERROR(Failed to create CSS lex thread!);
@@ -508,10 +508,10 @@ int main(int argc, char* argv[])
 			}
 			while(lexingCSS){};
 			PRINT(lexingCSS=0! printing CSSTokens...);
-			for (int i=0;i<CSSTokens[i]->size();i++)
+			for (int j=0;j<CSSTokens[i]->size();j++)
 			{
-				CSSToken t = CSSTokens[i]->at(i);
-				std::cout << "CSSTokens[" << i << "]={"
+				CSSToken t = CSSTokens[i]->at(j);
+				std::cout << "CSSTokens["<<i<<"][" << j << "]={"
 						<< t.type << " , ";
 				t.text.print();
 				std::cout << "}\n";
@@ -530,19 +530,19 @@ int main(int argc, char* argv[])
 			}
 			while(yaccingCSS){};
 			PRINT(yaccingCSS=0! printing CSS classes...);
-			for (int i=0;i<CSSClasses[i]->size();i++)
+			for (int k=0;k<CSSClasses[i]->size();k++)
 			{
 				std::cout << "--- Class selector:\n";
-				for (int j=0;j<CSSClasses[i]->at(i).selector.subSelectors.size();j++)
+				for (int j=0;j<CSSClasses[i]->at(k).selector.subSelectors.size();j++)
 				{
-					CSSSubSelector ss = CSSClasses[i]->at(i).selector.subSelectors.at(j);
+					CSSSubSelector ss = CSSClasses[i]->at(k).selector.subSelectors.at(j);
 					std::cout << ss.str1 << " " << ss.str2 << " " << ss.type << "\n";
 				}
 				std::cout << "--- Class rules:\n";
-				for (int j=0;j<CSSClasses[i]->at(i).ruleProperties.size();j++)
+				for (int j=0;j<CSSClasses[i]->at(k).ruleProperties.size();j++)
 				{
-					std::cout << CSSClasses[i]->at(i).ruleProperties.at(j) << ": ";
-					printCSSValue(CSSClasses[i]->at(i).ruleValues.at(j));
+					std::cout << CSSClasses[i]->at(k).ruleProperties.at(j) << ": ";
+					printCSSValue(CSSClasses[i]->at(k).ruleValues.at(j));
 					std::cout << "\n";
 				}
 			}
