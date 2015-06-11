@@ -34,6 +34,7 @@ void* htmlYaccThreadFunc(void* args)
 	int* yaccingPage = l->yaccingPage;
 	std::vector<HTMLTag>* HTMLTags = l->HTMLTags;
 	HTMLElement* document = l->document;
+	std::vector<HTMLElement*>* styles = l->styles;
 	std::vector<HTMLElement*>* HTMLElements = &(document->children);
 	
 	*yaccingPage = 1;
@@ -251,6 +252,10 @@ void* htmlYaccThreadFunc(void* args)
 				else
 				{
 					currentElement = currentElement->parent;
+				}
+				if (currentElement->tag == TAG_STYLE)
+				{
+					styles->push_back(currentElement);
 				}
 			}
 			else

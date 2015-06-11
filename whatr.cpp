@@ -255,18 +255,17 @@ std::vector<ConstStr> headerValues;
 pthread_t htmlYaccThread;
 int yaccingPage = 0;
 HTMLElement document;
+std::vector<HTMLElement*> styles;
 //----------------------------
 
 //----------------------------
 pthread_t cssLexThread;
 int lexingCSS = 0;
-std::vector<CSSToken> CSSTokens;
 //----------------------------
 
 //----------------------------
 pthread_t cssYaccThread;
 int yaccingCSS = 0;
-std::vector<CSSClass> CSSClasses;
 //----------------------------
 
 //----------------------------
@@ -467,7 +466,8 @@ int main(int argc, char* argv[])
 		htmlYaccArgs args(&lexingPage,
 						&yaccingPage,
 						&HTMLTags,
-						&document);
+						&document,
+						&styles);
 		if (pthread_create(&htmlYaccThread, NULL, htmlYaccThreadFunc, &args))
 		{
 			ERROR(Failed to create HTML yacc thread!);
@@ -489,78 +489,95 @@ int main(int argc, char* argv[])
 	
 	auto time_6 = std::chrono::high_resolution_clock::now();
 	
-	///////////////////////////////////
-	////// Lex the css
+	std::vector<CSSToken>** CSSTokens = new std::vector<CSSToken>*[styles.size()];
+	std::vector<CSSClass>** CSSClasses = new std::vector<CSSClass>*[styles.size()];
+	for (int i=0;i<styles.size();i++)
 	{
-		// TODO make it find all styles
-		//							<html>			<head>			<style>
-		lexingCSS = 1;
-		HTMLElement* style = document.children.at(0)->children.at(0)->children.at(0)->children.at(0);
-		cssLexArgs args(&lexingCSS, &CSSTokens, style->text);
-		if (pthread_create(&cssLexThread, NULL, cssLexThreadFunc, &args))
+		CSSTokens[i] = new std::vector<CSSToken>;
+		CSSClasses[i] = new std::vector<CSSClass>;
+		
+		///////////////////////////////////
+		////// Lex the css
 		{
-			ERROR(Failed to create CSS lex thread!);
-			return 0;
+			lexingCSS = 1;
+			cssLexArgs args(&lexingCSS, CSSTokens[i], styles[i]->text);
+			if (pthread_create(&cssLexThread, NULL, cssLexThreadFunc, &args))
+			{
+				ERROR(Failed to create CSS lex thread!);
+				return 0;
+			}
+			while(lexingCSS){};
+			PRINT(lexingCSS=0! printing CSSTokens...);
+			for (int i=0;i<CSSTokens[i]->size();i++)
+			{
+				CSSToken t = CSSTokens[i]->at(i);
+				std::cout << "CSSTokens[" << i << "]={"
+						<< t.type << " , ";
+				t.text.print();
+				std::cout << "}\n";
+			}
 		}
-		while(lexingCSS){};
-		PRINT(lexingCSS=0! printing CSSTokens...);
-		for (int i=0;i<CSSTokens.size();i++)
-		{
-			CSSToken t = CSSTokens.at(i);
-			std::cout << "CSSTokens[" << i << "]={"
-					<< t.type << " , ";
-			t.text.print();
-			std::cout << "}\n";
-		}
-	}
 	
+		///////////////////////////////////
+		////// Yacc the css
+		{
+			yaccingCSS = 1;
+			cssYaccArgs args(&yaccingCSS, CSSTokens[i], CSSClasses[i]);
+			if (pthread_create(&cssYaccThread, NULL, cssYaccThreadFunc, &args))
+			{
+				ERROR(Failed to create CSS yacc thread!);
+				return 0;
+			}
+			while(yaccingCSS){};
+			PRINT(yaccingCSS=0! printing CSS classes...);
+			for (int i=0;i<CSSClasses[i]->size();i++)
+			{
+				std::cout << "--- Class selector:\n";
+				for (int j=0;j<CSSClasses[i]->at(i).selector.subSelectors.size();j++)
+				{
+					CSSSubSelector ss = CSSClasses[i]->at(i).selector.subSelectors.at(j);
+					std::cout << ss.str1 << " " << ss.str2 << " " << ss.type << "\n";
+				}
+				std::cout << "--- Class rules:\n";
+				for (int j=0;j<CSSClasses[i]->at(i).ruleProperties.size();j++)
+				{
+					std::cout << CSSClasses[i]->at(i).ruleProperties.at(j) << ": ";
+					printCSSValue(CSSClasses[i]->at(i).ruleValues.at(j));
+					std::cout << "\n";
+				}
+			}
+		}
+	
+		///////////////////////////////////
+		////// Apply the css
+		{
+			applyingCSS = 1;
+			cssApplyArgs args(&applyingCSS, CSSClasses[i], NULL);
+			if (styles[i]->parent==NULL ||
+				styles[i]->parent->tag==TAG_HEAD ||
+				styles[i]->parent->tag==TAG_BODY ||
+				styles[i]->parent->tag==TAG_HTML)
+			{
+				args.destination = &document;
+			}
+			else
+			{
+				args.destination = styles[i]->parent;
+			}
+			if (pthread_create(&cssApplyThread, NULL, cssApplyThreadFunc, &args))
+			{
+				ERROR(Failed to create CSS yacc thread!);
+				return 0;
+			}
+			while(applyingCSS){};
+			printTree(&document, std::string("  "));
+		}
+	
+	}
+		
 	auto time_7 = std::chrono::high_resolution_clock::now();
-	
-	///////////////////////////////////
-	////// Yacc the css
-	{
-		yaccingCSS = 1;
-		cssYaccArgs args(&yaccingCSS, &CSSTokens, &CSSClasses);
-		if (pthread_create(&cssYaccThread, NULL, cssYaccThreadFunc, &args))
-		{
-			ERROR(Failed to create CSS yacc thread!);
-			return 0;
-		}
-		while(yaccingCSS){};
-		PRINT(yaccingCSS=0! printing CSS classes...);
-		for (int i=0;i<CSSClasses.size();i++)
-		{
-			std::cout << "--- Class selector:\n";
-			for (int j=0;j<CSSClasses.at(i).selector.subSelectors.size();j++)
-			{
-				CSSSubSelector ss = CSSClasses.at(i).selector.subSelectors.at(j);
-				std::cout << ss.str1 << " " << ss.str2 << " " << ss.type << "\n";
-			}
-			std::cout << "--- Class rules:\n";
-			for (int j=0;j<CSSClasses.at(i).ruleProperties.size();j++)
-			{
-				std::cout << CSSClasses.at(i).ruleProperties.at(j) << ": ";
-				printCSSValue(CSSClasses.at(i).ruleValues.at(j));
-				std::cout << "\n";
-			}
-		}
-	}
-	
+
 	auto time_8 = std::chrono::high_resolution_clock::now();
-	
-	///////////////////////////////////
-	////// Apply the css
-	{
-		applyingCSS = 1;
-		cssApplyArgs args(&applyingCSS, &CSSClasses, &document);
-		if (pthread_create(&cssApplyThread, NULL, cssApplyThreadFunc, &args))
-		{
-			ERROR(Failed to create CSS yacc thread!);
-			return 0;
-		}
-		while(applyingCSS){};
-		printTree(&document, std::string("  "));
-	}
 	
 	auto time_9 = std::chrono::high_resolution_clock::now();
 	

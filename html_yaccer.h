@@ -88,14 +88,17 @@ public:
 	int* yaccingPage;
 	std::vector<HTMLTag>* HTMLTags;
 	HTMLElement* document;
+	std::vector<HTMLElement*>* styles;
 	htmlYaccArgs(int* lexingPage,
 			int* yaccingPage,
 			std::vector<HTMLTag>* HTMLTags,
-			HTMLElement* document):
+			HTMLElement* document,
+			std::vector<HTMLElement*>* styles):
 		lexingPage(lexingPage),
 		yaccingPage(yaccingPage),
 		HTMLTags(HTMLTags),
-		document(document){};
+		document(document),
+		styles(styles){};
 };
 void* htmlYaccThreadFunc(void* args);
 
