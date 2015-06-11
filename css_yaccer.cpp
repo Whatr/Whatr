@@ -1077,9 +1077,9 @@ void* cssYaccThreadFunc(void* args)
 		)
 		{
 			CSSToken t = CSSTokens->at(i);
-			std::cout << "##############################################\n";
-			std::cout << "Now at token[" << i << "] "<< t.type << ": " << t.text << "\n";
-			std::cout << "inWhat="<<inWhat<<" inWhatWhat="<<inWhatWhat<<"\n";
+			//std::cout << "##############################################\n";
+			//std::cout << "Now at token[" << i << "] "<< t.type << ": " << t.text << "\n";
+			//std::cout << "inWhat="<<inWhat<<" inWhatWhat="<<inWhatWhat<<"\n";
 			
 			if (inWhat==0) // In selector curS
 			{
@@ -1820,16 +1820,16 @@ void* cssYaccThreadFunc(void* args)
 			{
 				std::cout << RED << "CSS fatal yacc Error: inWhat=" << inWhat << "!!!! THIS SHOULD NEVER HAPPEN! PLEASE CREATE A BUG REPORT ABOUT THIS!\n" << NOCLR;
 			}
-			std::cout << "#-------------------------------------------------\n";
-			std::cout << "curS:\n";
-			for (int i=0;i<curS.subSelectors.size();i++)
+			//std::cout << "#-------------------------------------------------\n";
+			//std::cout << "curS:\n";
+			/*for (int i=0;i<curS.subSelectors.size();i++)
 			{
 				curS.subSelectors.at(i).str1.print();
 				std::cout << "-";
 				std::cout << curS.subSelectors.at(i).str2;
 				std::cout << "-";
 				std::cout << curS.subSelectors.at(i).type << "\n";
-			}
+			}*/
 			i++;
 		}
 	}

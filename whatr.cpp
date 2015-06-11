@@ -405,7 +405,7 @@ int main(int argc, char* argv[])
 	////// Wait until the lexing is done, then print the headers and tags
 	{
 		while (lexingPage){};
-		PRINT(The HTML lexer is done! Here are its results:)
+		/*PRINT(The HTML lexer is done! Here are its results:)
 		for (int i=0;i<HTMLTags.size();i++)
 		{
 			HTMLTag tag = HTMLTags[i];
@@ -451,7 +451,7 @@ int main(int argc, char* argv[])
 			{
 				std::cout << RED << "ERROR ERROR FATAL ERROR: Tag with unknown type " << tag.type << NOCLR << "\n";
 			}
-		}
+		}*/
 	}
 	
 	// Pseudo-element that encapsulates everything
@@ -508,14 +508,14 @@ int main(int argc, char* argv[])
 			}
 			while(lexingCSS){};
 			PRINT(lexingCSS=0! printing CSSTokens...);
-			for (int j=0;j<CSSTokens[i]->size();j++)
+			/*for (int j=0;j<CSSTokens[i]->size();j++)
 			{
 				CSSToken t = CSSTokens[i]->at(j);
 				std::cout << "CSSTokens["<<i<<"][" << j << "]={"
 						<< t.type << " , ";
 				t.text.print();
 				std::cout << "}\n";
-			}
+			}*/
 		}
 	
 		///////////////////////////////////
@@ -530,7 +530,7 @@ int main(int argc, char* argv[])
 			}
 			while(yaccingCSS){};
 			PRINT(yaccingCSS=0! printing CSS classes...);
-			for (int k=0;k<CSSClasses[i]->size();k++)
+			/*for (int k=0;k<CSSClasses[i]->size();k++)
 			{
 				std::cout << "--- Class selector:\n";
 				for (int j=0;j<CSSClasses[i]->at(k).selector.subSelectors.size();j++)
@@ -545,7 +545,7 @@ int main(int argc, char* argv[])
 					printCSSValue(CSSClasses[i]->at(k).ruleValues.at(j));
 					std::cout << "\n";
 				}
-			}
+			}*/
 		}
 	
 		///////////////////////////////////
@@ -570,7 +570,7 @@ int main(int argc, char* argv[])
 				return 0;
 			}
 			while(applyingCSS){};
-			printTree(&document, std::string("  "));
+			//printTree(&document, std::string("  "));
 		}
 	
 	}
