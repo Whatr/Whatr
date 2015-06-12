@@ -226,6 +226,47 @@ enum CSSConstant
 	BOLDER,
 	BOLD,
 	_FONT_WEIGHT_END,
+	
+	// position
+	ABSOLUTE,
+	RELATIVE,
+	FIXED_POSITION,
+	
+	// cursor
+	NONE_CURSOR,
+	AUTO_CURSOR,
+	ZOOM_OUT,
+	ZOOM_IN,
+	WAIT,
+	W_RESIZE,
+	VERTICAL_TEXT,
+	TEXT,
+	SW_RESIZE,
+	SE_RESIZE,
+	S_RESIZE,
+	ROW_RESIZE,
+	PROGRESS,
+	POINTER,
+	NWSE_RESIZE,
+	NW_RESIZE,
+	NS_RESIZE,
+	NOT_ALLOWED,
+	NO_DROP,
+	NESW_RESIZE,
+	NE_RESIZE,
+	N_RESIZE,
+	MOVE,
+	HELP,
+	EW_RESIZE,
+	E_RESIZE,
+	DEFAULT_CURSOR,
+	CROSSHAIR,
+	COPY,
+	CONTEXT_MENU,
+	COL_RESIZE,
+	CELL_CURSOR,
+	ALL_SCROLL,
+	ALIAS_CURSOR,
 };
 
 struct CSSValue
@@ -243,6 +284,8 @@ struct CSSValue
 	int colorValue;
 	
 	CSSConstant constant;	// 0 = nope, ....css_values.h
+	
+	int fontId;		// 0 = nope
 };
 
 /*

@@ -466,6 +466,12 @@ bool applies(CSSSubSelector* ss, HTMLElement* el)
 				}
 				std::cout << RED << "Fatal error: klkmsdfmkasdfkwe\n" << NOCLR;
 			}
+			else if (ss->str1==std::string("visited") ||
+					 ss->str1==std::string("active") ||
+					 ss->str1==std::string("hover"))
+			{
+				//std::cout << RED << "Ignored unsupported CSS selector :" << ss->str1 << "\n" << NOCLR;
+			}
 			else
 			{
 				std::cout << RED << "Error: Unknown CSS selector :" << ss->str1 << "\n" << NOCLR;

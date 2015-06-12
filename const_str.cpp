@@ -416,30 +416,35 @@ int ConstStr::find (int startPos, ConstStr target, char targetEscapeChar)
 
 int ConstStr::toInt()
 {
-	char* endptr = startChar+length;
-	return (int)strtol(startChar, &endptr, 10);
+	return this->toInt(10, NULL);
 }
 int ConstStr::toInt(bool* success)
 {
-	char* endptr = startChar+length;
-	int ret = (int)strtol(startChar, &endptr, 10);
-	if (endptr>startChar || ret!=0) *success = true;
-	else *success = false;
-	return ret;
+	return this->toInt(10, success);
 }
 int ConstStr::toInt(const int base)
 {
-	char* endptr = startChar+length;
-	return (int)strtol(startChar, &endptr, base);
+	return this->toInt(base, NULL);
 }
 int ConstStr::toInt(const int base, bool* success)
 {
-	char* endptr = startChar+length;
-	int ret = (int)strtol(startChar, &endptr, base);
-	if (endptr>startChar || ret!=0) *success = true;
-	else *success = false;
-	return ret;
+	int answer = 0;
+	for (int i=0;i<length;i++)
+	{
+		char c = (*this)[i];
+		     if (c>='0' && c<='9') answer = answer*base+c-'0';
+		else if (c>='a' && c<='z') answer = answer*base+c-'a';
+		else if (c>='A' && c<='Z') answer = answer*base+c-'A';
+		else
+		{
+			if (success!=NULL) *success = false;
+			return -1;
+		}
+	}
+	if (success!=NULL) *success = true;
+	return answer;
 }
+
 float ConstStr::toFloat()
 {
 	char* endptr = startChar+length;
@@ -545,6 +550,30 @@ void ConstStrIterator::backToStart()
 	b1 = cs.startBlock;
 	c1 = cs.startChar;
 	endC1 = *b1 + BLOCK_SIZE;
+}
+ConstStr ConstStr::combine(ConstStr with)
+{
+	return ConstStr
+	(
+		this->startBlock,
+		this->startChar
+		,
+			(with.startBlock - this->startBlock) * BLOCK_SIZE
+			+
+			(
+				with.startChar
+				-
+				*(with.startBlock)
+			)
+			-
+			(
+				this->startChar
+				-
+				*(this->startBlock)
+			)
+		,
+		this->parent
+	);
 }
 
 const bool operator == (const ConstStrIterator& i1, const int& i2)

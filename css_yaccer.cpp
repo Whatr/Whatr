@@ -25,6 +25,7 @@
 #include "css_lexer.h"
 #include "css_values.h"
 #include "css_properties.h"
+#include "text_and_fonts.h"
 
 CSSProperty parseRuleName(ConstStr name)
 {
@@ -155,6 +156,8 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 	// start points to the :
 	// end points to the token before the ;
 	
+	int f = -1; // fontId
+	
 	bool acceptColor = canTakeColor(prop);
 	
 	std::vector<CSSValue>* CSSValues = new std::vector<CSSValue>;
@@ -181,9 +184,10 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 			i<=end;
 			i++,
 			current=tokens->at(i),
-			next=tokens->at(i+1)
+			next=i<end ? tokens->at(i+1) : current
 			)
 		{
+			//std::cout << "########current===" << current.text << "\n";
 			int intVal = 12345;
 			if (current.type==TOKEN_TYPE_NUMBER ||
 				current.type==TOKEN_TYPE_PERCENTAGE)
@@ -220,6 +224,25 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 			}
 			if (current.type==TOKEN_TYPE_STRING_NO_QUOTES)
 			{
+				if (current.text[0]=='-' || // -webkit-..., -moz-..., ...
+					current.text==std::string("linear-gradient"))
+				{
+					std::cout << "Skipping " << current.text << " (i="<<i<<")\n";
+					if (next.type==TOKEN_TYPE_OPERATOR &&
+						next.text=='(')
+					{
+						i += 2;
+						int bracketCount = 1;
+						while (bracketCount>0)
+						{
+							if (tokens->at(i).text=='(') bracketCount++;
+							else if (tokens->at(i).text==')') bracketCount--;
+							i++;
+						}
+					}
+					std::cout << "Skipped " << current.text << " (i="<<i<<")\n";
+					continue;
+				}
 				if (current.text-=std::string("initial"))
 				{
 					ret.constant = INITIAL;
@@ -423,6 +446,104 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 				
 				// Else:
 				notALineStyle:
+				
+				if (prop==POSITION)
+				{
+					     if (current.text-=std::string("absolute"))
+						ret.constant = ABSOLUTE;
+					else if (current.text-=std::string("relative"))
+						ret.constant = RELATIVE;
+					else if (current.text-=std::string("fixed"))
+						ret.constant = FIXED_POSITION;
+					else goto notAPosition;
+				}
+				else goto notAPosition;
+				// If it's a position:
+				goto foundValue;
+				
+				// Else:
+				notAPosition:
+				
+				if (prop==CURSOR)
+				{
+					     if (current.text-=std::string("auto"))
+						ret.constant = AUTO_CURSOR;
+					else if (current.text-=std::string("zoom-out"))
+						ret.constant = ZOOM_OUT;
+					else if (current.text-=std::string("zoom-in"))
+						ret.constant = ZOOM_IN;
+					else if (current.text-=std::string("wait"))
+						ret.constant = WAIT;
+					else if (current.text-=std::string("w-resize"))
+						ret.constant = W_RESIZE;
+					else if (current.text-=std::string("vertical-text"))
+						ret.constant = VERTICAL_TEXT;
+					else if (current.text-=std::string("text"))
+						ret.constant = TEXT;
+					else if (current.text-=std::string("sw-resize"))
+						ret.constant = SW_RESIZE;
+					else if (current.text-=std::string("se-resize"))
+						ret.constant = SE_RESIZE;
+					else if (current.text-=std::string("s-resize"))
+						ret.constant = S_RESIZE;
+					else if (current.text-=std::string("row-resize"))
+						ret.constant = ROW_RESIZE;
+					else if (current.text-=std::string("progress"))
+						ret.constant = PROGRESS;
+					else if (current.text-=std::string("pointer"))
+						ret.constant = POINTER;
+					else if (current.text-=std::string("nwse-resize"))
+						ret.constant = NWSE_RESIZE;
+					else if (current.text-=std::string("nw-resize"))
+						ret.constant = NW_RESIZE;
+					else if (current.text-=std::string("ns-resize"))
+						ret.constant = NS_RESIZE;
+					else if (current.text-=std::string("not-allowed"))
+						ret.constant = NOT_ALLOWED;
+					else if (current.text-=std::string("none"))
+						ret.constant = NONE_CURSOR;
+					else if (current.text-=std::string("no-drop"))
+						ret.constant = NO_DROP;
+					else if (current.text-=std::string("nesw-resize"))
+						ret.constant = NESW_RESIZE;
+					else if (current.text-=std::string("ne-resize"))
+						ret.constant = NE_RESIZE;
+					else if (current.text-=std::string("n-resize"))
+						ret.constant = N_RESIZE;
+					else if (current.text-=std::string("move"))
+						ret.constant = MOVE;
+					else if (current.text-=std::string("help"))
+						ret.constant = HELP;
+					else if (current.text-=std::string("ew-resize"))
+						ret.constant = EW_RESIZE;
+					else if (current.text-=std::string("e-resize"))
+						ret.constant = E_RESIZE;
+					else if (current.text-=std::string("default"))
+						ret.constant = DEFAULT_CURSOR;
+					else if (current.text-=std::string("crosshair"))
+						ret.constant = CROSSHAIR;
+					else if (current.text-=std::string("copy"))
+						ret.constant = COPY;
+					else if (current.text-=std::string("context-menu"))
+						ret.constant = CONTEXT_MENU;
+					else if (current.text-=std::string("col-resize"))
+						ret.constant = COL_RESIZE;
+					else if (current.text-=std::string("cell"))
+						ret.constant = CELL_CURSOR;
+					else if (current.text-=std::string("all-scroll"))
+						ret.constant = ALL_SCROLL;
+					else if (current.text-=std::string("alias"))
+						ret.constant = ALIAS_CURSOR;
+					else goto notACursor;
+				}
+				else goto notACursor;
+				// If it's a cursor:
+				goto foundValue;
+				
+				// Else:
+				notACursor:
+				
+				
 				if (prop==LIST_STYLE ||
 					prop==LIST_STYLE_POSITION)
 				{
@@ -881,6 +1002,33 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 				
 				// Else
 				notABackgroundPosition:
+				if (prop==FONT ||
+					prop==FONT_FAMILY)
+				{
+					if (f>0) continue; // If already have font, skip
+					PRINT(prop==FONT);
+					f = loadFont(current.text);
+					if (f<=0) // Failed
+					{
+						int j = i-1;
+						while (j>=start+1 && f<=0)
+						{
+							if (tokens->at(j).type!=TOKEN_TYPE_STRING_NO_QUOTES)
+								break;
+							f = loadFont
+							(
+								tokens->at(j).text.combine(tokens->at(i).text)
+							);
+							j--;
+						}
+					}
+					if (f>0) // Success
+					{
+						ret.fontId = f;
+						std::cout << GREEN << "CSS notice: Loaded font.\n" << NOCLR;
+						goto foundValue;
+					}
+				}
 				if (current.text==std::string("url"))
 				{
 					CSSToken iPlus2 = tokens->at(i+2);
@@ -1031,6 +1179,12 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 				ret.textValue = current.text;
 				goto foundValue;
 			}
+			if (current.type==TOKEN_TYPE_OPERATOR &&
+				(prop==FONT || prop==FONT_FAMILY) &&
+				current.text==',')
+			{
+				continue;
+			}
 			std::cout	<< RED << "CSS Syntax error. Unexpected token "
 						<< current.text << "\n" << NOCLR;
 			foundValue:
@@ -1038,6 +1192,7 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 			memset(&ret, 0, sizeof(ret));
 		}
 	}
+	std::cout << GREEN << length <<" tokens became "<<CSSValues->size()<<" values.\n"<<NOCLR;
 	return CSSValues;
 }
 
@@ -1097,7 +1252,7 @@ void* cssYaccThreadFunc(void* args)
 						}
 						if (t.text[0]=='#')
 						{
-							std::cout << "Encountered ID " << t.text << "\n";
+							//std::cout << "Encountered ID " << t.text << "\n";
 							CSSSubSelector sub;
 							sub.str1 = std::string("id");
 							sub.str2 = t.text.subString(1);
@@ -1106,7 +1261,7 @@ void* cssYaccThreadFunc(void* args)
 						}
 						else if (t.text[0]=='.')
 						{
-							std::cout << "Encountered Class " << t.text << "\n";
+							//std::cout << "Encountered Class " << t.text << "\n";
 							CSSSubSelector sub;
 							sub.str1 = t.text.subString(1);
 							sub.type = 1;
@@ -1114,7 +1269,7 @@ void* cssYaccThreadFunc(void* args)
 						}
 						else
 						{
-							std::cout << "Encountered tag name "<< t.text << "\n";
+							//std::cout << "Encountered tag name "<< t.text << "\n";
 							CSSSubSelector sub;
 							sub.str1 = t.text;
 							sub.type = 0;
@@ -1123,7 +1278,7 @@ void* cssYaccThreadFunc(void* args)
 					}
 					else if (t.type==TOKEN_TYPE_OPERATOR)
 					{
-						std::cout << "Encountered Operator " << t.text << "\n";
+						//std::cout << "Encountered Operator " << t.text << "\n";
 						if (t.text==std::string("*"))
 						{
 							std::cout << "Added Operator * to selector\n";
@@ -1134,7 +1289,7 @@ void* cssYaccThreadFunc(void* args)
 						}
 						else if (t.text==std::string("{"))
 						{
-							std::cout << "Entered a class: Now in a rule before :\n";
+							//std::cout << "Entered a class: Now in a rule before :\n";
 							inWhat = 1;
 							curC.selector = curS;
 							curS = CSSSelector();
@@ -1349,20 +1504,20 @@ void* cssYaccThreadFunc(void* args)
 					else
 					{
 						curC.ruleProperties.push_back(parseRuleName(t.text));
-						std::cout << "Added rule name " << t.text << "\n";
+						//std::cout << "Added rule name " << t.text << "\n";
 					}
 				}
 				else if (t.type==TOKEN_TYPE_OPERATOR) // Current token is an op
 				{
 					if (t.text==std::string(":"))
 					{
-						std::cout << "Encountered : - now in rule after :\n";
+						//std::cout << "Encountered : - now in rule after :\n";
 						inWhat = 2;
 						ruleValueStartI = i;
 					}
 					else if (t.text==std::string("}"))
 					{
-						std::cout << "End of class found.\n";
+						//std::cout << "End of class found.\n";
 						inWhat = 0;
 						CSSClasses->push_back(curC);
 						curC = CSSClass();
@@ -1383,432 +1538,450 @@ void* cssYaccThreadFunc(void* args)
 			}
 			else if (inWhat==2) // in rule after :
 			{
-				if (t.type==TOKEN_TYPE_STRING_NO_QUOTES) // Current token is a string
+				//std::cout << "inWhat=2 t.type=" << t.type << "\n";
+				/*if (t.type==TOKEN_TYPE_STRING_NO_QUOTES) // Current token is a string
 				{
-					/*if (curC.ruleNames.size()==curC.ruleValues.size())
+					if (curC.ruleProperties.size()==curC.ruleValues.size())
 					{
 						std::cout << RED << "CSS Yacc error: Unexpected string " << t.text << "\n" << NOCLR;
 					}
 					else
 					{
-						std::cout << "Test :)";
-					}*/
+						std::cout << "Test :)\n";
+					}
 				}
-				else if (t.type==TOKEN_TYPE_OPERATOR) // Current token is an op
+				else*/ if (t.type==TOKEN_TYPE_OPERATOR) // Current token is an op
 				{
-					if (t.text==std::string(";"))
+					if (t.text==';' || t.text=='}')
 					{
-						std::cout << "Encountered ; - now in rule before :\n";
-						inWhat = 1;
-						CSSProperty prop = curC.ruleProperties.back();
-						std::vector<CSSValue>* CSSValues = parseRuleValue(CSSTokens, ruleValueStartI, i-1, prop);
-						if (prop >= COMBOS)
+						if (t.text==';')
 						{
-							#define PUSHV curC.ruleValues.push_back(*v)
+							//std::cout << "Encountered ; - now in rule before :\n";
+						}
+						else
+						{
+							//std::cout << "Encountered }\n";
+						}
+						CSSProperty prop = curC.ruleProperties.back();
+						if (prop==NONE)
+						{
 							curC.ruleProperties.pop_back();
-							// It's a combo css property, like 'border' or 'padding'
-							switch (prop)
+						}
+						else
+						{
+							std::vector<CSSValue>* CSSValues = parseRuleValue(CSSTokens, ruleValueStartI, i-1, prop);
+							if (prop >= COMBOS)
 							{
-								case TEXT_DECORATION:
-								for (std::vector<CSSValue>::iterator v
-									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+								#define PUSHV curC.ruleValues.push_back(*v)
+								curC.ruleProperties.pop_back();
+								// It's a combo css property, like 'border' or 'padding'
+								switch (prop)
 								{
-									if (v->constant!=NOPE)
+									case TEXT_DECORATION:
+									for (std::vector<CSSValue>::iterator v
+										 =CSSValues->begin(); v!=CSSValues->end(); ++v)
 									{
-									if (v->constant>_TEXT_DECORATION_LINE_START &&
-									    v->constant<_TEXT_DECORATION_LINE_END)
-						curC.ruleProperties.push_back(TEXT_DECORATION_LINE),PUSHV;
-							else if (v->constant>_TEXT_DECORATION_STYLE_START &&
-								     v->constant<_TEXT_DECORATION_STYLE_END)
-						curC.ruleProperties.push_back(TEXT_DECORATION_STYLE),PUSHV;
-								else
-								{
-									std::cout << RED << "CSS syntax error: text-decoration does not accept that\n" << NOCLR;
-								}
-									}
-									else if (v->colorType)
-						curC.ruleProperties.push_back(TEXT_DECORATION_COLOR),PUSHV;
+										if (v->constant!=NOPE)
+										{
+										if (v->constant>_TEXT_DECORATION_LINE_START &&
+											v->constant<_TEXT_DECORATION_LINE_END)
+							curC.ruleProperties.push_back(TEXT_DECORATION_LINE),PUSHV;
+								else if (v->constant>_TEXT_DECORATION_STYLE_START &&
+										 v->constant<_TEXT_DECORATION_STYLE_END)
+							curC.ruleProperties.push_back(TEXT_DECORATION_STYLE),PUSHV;
 									else
 									{
 										std::cout << RED << "CSS syntax error: text-decoration does not accept that\n" << NOCLR;
 									}
-								}
-								break;
-								case BACKGROUND_POSITION:
-								if (CSSValues->size()==2) std::cout << RED << "CSS syntax error: background-position accepts only exactly 2 values.\n" << NOCLR;
-						curC.ruleProperties.push_back(BACKGROUND_POSITION_X);
-						curC.ruleValues.push_back(CSSValues->at(0));
-						curC.ruleProperties.push_back(BACKGROUND_POSITION_Y);
-						curC.ruleValues.push_back(CSSValues->at(1));
-								break;
-								case TEXT_INDENT:
-								if (CSSValues->size()==1 &&
-								    CSSValues->at(0).lengthType!=LENGTH_TYPE_NOPE)
-								{
-						curC.ruleProperties.push_back(TEXT_INDENT_LENGTH);
-						curC.ruleValues.push_back(CSSValues->at(0));
-								}
-								else if(CSSValues->size()==2 &&
-								CSSValues->at(0).lengthType!=LENGTH_TYPE_NOPE &&
-								CSSValues->at(1).constant!=NOPE)
-								{
-							curC.ruleProperties.push_back(TEXT_INDENT_LENGTH);
-							curC.ruleValues.push_back(CSSValues->at(0));
-							curC.ruleProperties.push_back(TEXT_INDENT_TYPE);
-							curC.ruleValues.push_back(CSSValues->at(1));
-								}
-								else if(CSSValues->size()==3 &&
-									CSSValues->at(0).lengthType!=LENGTH_TYPE_NOPE &&
-									CSSValues->at(1).constant!=NOPE &&
-									CSSValues->at(2).constant!=NOPE)
-								{
-									CSSValue newVal;
-									memset(&newVal, 0, sizeof(newVal));
-									newVal.constant = HANGING_EACH_LINE;
-							curC.ruleProperties.push_back(TEXT_INDENT_LENGTH);
-							curC.ruleValues.push_back(CSSValues->at(0));
-							curC.ruleProperties.push_back(TEXT_INDENT_TYPE);
-							curC.ruleValues.push_back(newVal);
-								}
-								else
-								{
-									std::cout << RED << "CSS syntax error: Please refer to the css manual for text-indent\n" << NOCLR;
-								}
-								break;
-								// TRBL // TB RL // T RL B // T R B L
-								case BORDER:{
-								if (CSSValues->size()>12) std::cout << RED << "CSS syntax error: border accepts no more than 12 values.\n" << NOCLR;
-								int colors = 0, styles = 0, widths = 0;
-								for (std::vector<CSSValue>::iterator v
-									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
-								{
-									if (v->lengthType!=LENGTH_TYPE_NOPE) widths++;
-									else if (v->colorType) colors++;
-									else if (v->constant) styles++;
-									else std::cout<<RED<<"SHITSHITSHIT\n"<<NOCLR;
-								}
-								std::cout << "CSS border property supplied " << colors << " colors, " << styles << " styles and " << widths << " widths\n";
-								int colorsSeen = 0, stylesSeen = 0, widthsSeen = 0;
-								for (std::vector<CSSValue>::iterator v
-									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
-								{
-									if (v->lengthType!=LENGTH_TYPE_NOPE)
-									{
-										if (widths==1)
-						curC.ruleProperties.push_back(BORDER_TOP_WIDTH),PUSHV,
-						curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH),PUSHV,
-						curC.ruleProperties.push_back(BORDER_LEFT_WIDTH),PUSHV,
-						curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH),PUSHV;
-									else if (widths==2 && widthsSeen==0)
-						curC.ruleProperties.push_back(BORDER_TOP_WIDTH),PUSHV,
-						curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH),PUSHV;
-									else if (widths==2)
-						curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH),PUSHV,
-						curC.ruleProperties.push_back(BORDER_LEFT_WIDTH),PUSHV;
-									else if (widths>=3 && widthsSeen==0)
-						curC.ruleProperties.push_back(BORDER_TOP_WIDTH),PUSHV;
-									else if (widths==3 && widthsSeen==1)
-						curC.ruleProperties.push_back(BORDER_LEFT_WIDTH),PUSHV,
-						curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH),PUSHV;
-									else if (widths>=3 && widthsSeen==2)
-						curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH),PUSHV;
-									else if (widths==4 && widthsSeen==1)
-						curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH),PUSHV;
-									else if (widths==4 && widthsSeen==3)
-						curC.ruleProperties.push_back(BORDER_LEFT_WIDTH),PUSHV;
-										widthsSeen++;
-									}
-									else if (v->colorType)
-									{
-										if (colors==1)
-						curC.ruleProperties.push_back(BORDER_TOP_COLOR),PUSHV,
-						curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR),PUSHV,
-						curC.ruleProperties.push_back(BORDER_LEFT_COLOR),PUSHV,
-						curC.ruleProperties.push_back(BORDER_RIGHT_COLOR),PUSHV;
-									else if (colors==2 && colorsSeen==0)
-						curC.ruleProperties.push_back(BORDER_TOP_COLOR),PUSHV,
-						curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR),PUSHV;
-									else if (colors==2)
-						curC.ruleProperties.push_back(BORDER_RIGHT_COLOR),PUSHV,
-						curC.ruleProperties.push_back(BORDER_LEFT_COLOR),PUSHV;
-									else if (colors>=3 && colorsSeen==0)
-						curC.ruleProperties.push_back(BORDER_TOP_COLOR),PUSHV;
-									else if (colors==3 && colorsSeen==1)
-						curC.ruleProperties.push_back(BORDER_LEFT_COLOR),PUSHV,
-						curC.ruleProperties.push_back(BORDER_RIGHT_COLOR),PUSHV;
-									else if (colors>=3 && colorsSeen==2)
-						curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR),PUSHV;
-									else if (colors==4 && colorsSeen==1)
-						curC.ruleProperties.push_back(BORDER_RIGHT_COLOR),PUSHV;
-									else if (colors==4 && colorsSeen==3)
-						curC.ruleProperties.push_back(BORDER_LEFT_COLOR),PUSHV;
-										colorsSeen++;
-									}
-									else if (v->constant)
-									{
-										if (styles==1)
-						curC.ruleProperties.push_back(BORDER_TOP_STYLE),PUSHV,
-						curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE),PUSHV,
-						curC.ruleProperties.push_back(BORDER_LEFT_STYLE),PUSHV,
-						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE),PUSHV;
-									else if (styles==2 && stylesSeen==0)
-						curC.ruleProperties.push_back(BORDER_TOP_STYLE),PUSHV,
-						curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE),PUSHV;
-									else if (styles==2)
-						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE),PUSHV,
-						curC.ruleProperties.push_back(BORDER_LEFT_STYLE),PUSHV;
-									else if (styles>=3 && stylesSeen==0)
-						curC.ruleProperties.push_back(BORDER_TOP_STYLE),PUSHV;
-									else if (styles==3 && stylesSeen==1)
-						curC.ruleProperties.push_back(BORDER_LEFT_STYLE),PUSHV,
-						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE),PUSHV;
-									else if (styles>=3 && stylesSeen==2)
-						curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE),PUSHV;
-									else if (styles==4 && stylesSeen==1)
-						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE),PUSHV;
-									else if (styles==4 && stylesSeen==3)
-						curC.ruleProperties.push_back(BORDER_LEFT_STYLE),PUSHV;
-										stylesSeen++;
-									}
-									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
-								}
-								}break;
-								case BORDER_TOP:
-								for (std::vector<CSSValue>::iterator v
-									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
-								{
-									if (v->lengthType!=LENGTH_TYPE_NOPE)
-						curC.ruleProperties.push_back(BORDER_TOP_WIDTH), PUSHV;
-									else if (v->colorType)
-						curC.ruleProperties.push_back(BORDER_TOP_COLOR), PUSHV;
-									else if (v->constant)
-						curC.ruleProperties.push_back(BORDER_TOP_STYLE), PUSHV;
-									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
-								}
-								break;
-								case BORDER_BOTTOM:
-								for (std::vector<CSSValue>::iterator v
-									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
-								{
-									if (v->lengthType!=LENGTH_TYPE_NOPE)
-						curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH), PUSHV;
-									else if (v->colorType)
-						curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR), PUSHV;
-									else if (v->constant)
-						curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE), PUSHV;
-									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
-								}
-								break;
-								case BORDER_LEFT:
-								for (std::vector<CSSValue>::iterator v
-									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
-								{
-									if (v->lengthType!=LENGTH_TYPE_NOPE)
-						curC.ruleProperties.push_back(BORDER_LEFT_WIDTH), PUSHV;
-									else if (v->colorType)
-						curC.ruleProperties.push_back(BORDER_LEFT_COLOR), PUSHV;
-									else if (v->constant)
-						curC.ruleProperties.push_back(BORDER_LEFT_STYLE), PUSHV;
-									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
-								}
-								break;
-								case BORDER_RIGHT:
-								for (std::vector<CSSValue>::iterator v
-									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
-								{
-									if (v->lengthType!=LENGTH_TYPE_NOPE)
-						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE), PUSHV;
-									else if (v->colorType)
-						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE), PUSHV;
-									else if (v->constant)
-						curC.ruleProperties.push_back(BORDER_RIGHT_STYLE), PUSHV;
-									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
-								}
-								break;
-								case BACKGROUND:
-								for (std::vector<CSSValue>::iterator v
-									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
-								{
-									if (v->colorType)
-						curC.ruleProperties.push_back(BACKGROUND_COLOR), PUSHV;
-									else if (v->textType==TEXT_TYPE_URL)
-						curC.ruleProperties.push_back(BACKGROUND_IMAGE), PUSHV;
-									else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
-								}
-								case BORDER_COLOR:
-								case BORDER_WIDTH:
-								case BORDER_STYLE:
-								case MARGIN:
-								case PADDING:{
-								CSSProperty top, bottom, left, right;
-								if (prop==MARGIN)
-									(top = MARGIN_TOP),
-									(bottom = MARGIN_BOTTOM),
-									(left = MARGIN_LEFT),
-									(right = MARGIN_RIGHT);
-								if (prop==PADDING)
-									(top = PADDING_TOP),
-									(bottom = PADDING_BOTTOM),
-									(left = PADDING_LEFT),
-									(right = PADDING_RIGHT);
-								if (prop==BORDER_COLOR)
-									(top = BORDER_TOP_COLOR),
-									(bottom = BORDER_BOTTOM_COLOR),
-									(left = BORDER_LEFT_COLOR),
-									(right = BORDER_RIGHT_COLOR);
-								if (prop==BORDER_WIDTH)
-									(top = BORDER_TOP_WIDTH),
-									(bottom = BORDER_BOTTOM_WIDTH),
-									(left = BORDER_LEFT_WIDTH),
-									(right = BORDER_RIGHT_WIDTH);
-								if (prop==BORDER_STYLE)
-									(top = BORDER_TOP_STYLE),
-									(bottom = BORDER_BOTTOM_STYLE),
-									(left = BORDER_LEFT_STYLE),
-									(right = BORDER_RIGHT_STYLE);
-								
-								if (CSSValues->size()==1) // TRBL
-						curC.ruleProperties.push_back(top),
-						curC.ruleProperties.push_back(right),
-						curC.ruleProperties.push_back(bottom),
-						curC.ruleProperties.push_back(left),
-						curC.ruleValues.push_back((*CSSValues)[0]),
-						curC.ruleValues.push_back((*CSSValues)[0]),
-						curC.ruleValues.push_back((*CSSValues)[0]),
-						curC.ruleValues.push_back((*CSSValues)[0]);
-								else if (CSSValues->size()==2) // TB RL
-						curC.ruleProperties.push_back(top),
-						curC.ruleProperties.push_back(bottom),
-						curC.ruleProperties.push_back(right),
-						curC.ruleProperties.push_back(left),
-						curC.ruleValues.push_back((*CSSValues)[0]),
-						curC.ruleValues.push_back((*CSSValues)[0]),
-						curC.ruleValues.push_back((*CSSValues)[1]),
-						curC.ruleValues.push_back((*CSSValues)[1]);
-								else if (CSSValues->size()==3) // T RL B
-						curC.ruleProperties.push_back(top),
-						curC.ruleProperties.push_back(right),
-						curC.ruleProperties.push_back(left),
-						curC.ruleProperties.push_back(bottom),
-						curC.ruleValues.push_back((*CSSValues)[0]),
-						curC.ruleValues.push_back((*CSSValues)[1]),
-						curC.ruleValues.push_back((*CSSValues)[1]),
-						curC.ruleValues.push_back((*CSSValues)[2]);
-								else if (CSSValues->size()==4) // T R B L
-						curC.ruleProperties.push_back(top),
-						curC.ruleProperties.push_back(right),
-						curC.ruleProperties.push_back(bottom),
-						curC.ruleProperties.push_back(left),
-						curC.ruleValues.push_back((*CSSValues)[0]),
-						curC.ruleValues.push_back((*CSSValues)[1]),
-						curC.ruleValues.push_back((*CSSValues)[2]),
-						curC.ruleValues.push_back((*CSSValues)[3]);
-								else
-								{
-									std::cout << "CSS syntax error: property has to supply 1, 2, 3 or 4 values. Not " << CSSValues->size() << "\n";
-								}
-								}break;
-								case LIST_STYLE:
-								for (std::vector<CSSValue>::iterator v
-									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
-								{
-									if (v->textType==TEXT_TYPE_NO_QUOTES)
-									{
-										if (v->constant==INSIDE ||
-											v->constant==OUTSIDE)
-										// list-style-position
-						curC.ruleProperties.push_back(LIST_STYLE_POSITION), PUSHV;
-										else // list-style-type
-						curC.ruleProperties.push_back(LIST_STYLE_TYPE), PUSHV;
-									}
-									else if (v->textType==TEXT_TYPE_URL)
-									{
-						curC.ruleProperties.push_back(LIST_STYLE_IMAGE), PUSHV;
-									}
-									else
-									{
-										std::cout << "CSS syntax error: list-style only takes specific words and one url\n";
-									}
-								}
-								break;
-								case FONT:
-								for (std::vector<CSSValue>::iterator v
-									 =CSSValues->begin(); v!=CSSValues->end(); ++v)
-								{
-									if (v->textType==TEXT_TYPE_NO_QUOTES)
-									{
-										if (v->constant>_FONT_STYLE_START &&
-										    v->constant<_FONT_STYLE_END)
-						curC.ruleProperties.push_back(FONT_STYLE), PUSHV;
-										else if (v->constant>_FONT_VARIANT_START &&
-										         v->constant<_FONT_VARIANT_END)
-						curC.ruleProperties.push_back(FONT_VARIANT), PUSHV;
-										else if (v->constant>_FONT_WEIGHT_START &&
-										         v->constant<_FONT_WEIGHT_END)
-						curC.ruleProperties.push_back(FONT_WEIGHT), PUSHV;
+										}
+										else if (v->colorType)
+							curC.ruleProperties.push_back(TEXT_DECORATION_COLOR),PUSHV;
 										else
 										{
-											std::cout << RED << "CSS syntax error: invalid word in font property\n" << NOCLR;
+											std::cout << RED << "CSS syntax error: text-decoration does not accept that\n" << NOCLR;
 										}
 									}
-									else if (v->colorType)
+									break;
+									case BACKGROUND_POSITION:
+									if (CSSValues->size()==2) std::cout << RED << "CSS syntax error: background-position accepts only exactly 2 values.\n" << NOCLR;
+							curC.ruleProperties.push_back(BACKGROUND_POSITION_X);
+							curC.ruleValues.push_back(CSSValues->at(0));
+							curC.ruleProperties.push_back(BACKGROUND_POSITION_Y);
+							curC.ruleValues.push_back(CSSValues->at(1));
+									break;
+									case TEXT_INDENT:
+									if (CSSValues->size()==1 &&
+										CSSValues->at(0).lengthType!=LENGTH_TYPE_NOPE)
 									{
-						curC.ruleProperties.push_back(COLOR), PUSHV;
+							curC.ruleProperties.push_back(TEXT_INDENT_LENGTH);
+							curC.ruleValues.push_back(CSSValues->at(0));
 									}
-									else if (v->lengthType!=LENGTH_TYPE_NOPE)
+									else if(CSSValues->size()==2 &&
+									CSSValues->at(0).lengthType!=LENGTH_TYPE_NOPE &&
+									CSSValues->at(1).constant!=NOPE)
 									{
-										if (v->lengthType==LENGTH_TYPE_UNKNOWN &&
-											(
-												v->lengthValue==100 ||
-												v->lengthValue==200 ||
-												v->lengthValue==300 ||
-												v->lengthValue==400 ||
-												v->lengthValue==500 ||
-												v->lengthValue==600 ||
-												v->lengthValue==700 ||
-												v->lengthValue==800 ||
-												v->lengthValue==900
-											)
-										)
-						curC.ruleProperties.push_back(FONT_WEIGHT), PUSHV;
-										else
-						curC.ruleProperties.push_back(FONT_SIZE), PUSHV;
+								curC.ruleProperties.push_back(TEXT_INDENT_LENGTH);
+								curC.ruleValues.push_back(CSSValues->at(0));
+								curC.ruleProperties.push_back(TEXT_INDENT_TYPE);
+								curC.ruleValues.push_back(CSSValues->at(1));
+									}
+									else if(CSSValues->size()==3 &&
+										CSSValues->at(0).lengthType!=LENGTH_TYPE_NOPE &&
+										CSSValues->at(1).constant!=NOPE &&
+										CSSValues->at(2).constant!=NOPE)
+									{
+										CSSValue newVal;
+										memset(&newVal, 0, sizeof(newVal));
+										newVal.constant = HANGING_EACH_LINE;
+								curC.ruleProperties.push_back(TEXT_INDENT_LENGTH);
+								curC.ruleValues.push_back(CSSValues->at(0));
+								curC.ruleProperties.push_back(TEXT_INDENT_TYPE);
+								curC.ruleValues.push_back(newVal);
 									}
 									else
 									{
-										std::cout << "CSS syntax error: font property received something it doesn't like\n";
+										std::cout << RED << "CSS syntax error: Please refer to the css manual for text-indent\n" << NOCLR;
 									}
+									break;
+									// TRBL // TB RL // T RL B // T R B L
+									case BORDER:{
+									if (CSSValues->size()>12) std::cout << RED << "CSS syntax error: border accepts no more than 12 values.\n" << NOCLR;
+									int colors = 0, styles = 0, widths = 0;
+									for (std::vector<CSSValue>::iterator v
+										 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+									{
+										if (v->lengthType!=LENGTH_TYPE_NOPE) widths++;
+										else if (v->colorType) colors++;
+										else if (v->constant) styles++;
+										else std::cout<<RED<<"SHITSHITSHIT\n"<<NOCLR;
+									}
+									std::cout << "CSS border property supplied " << colors << " colors, " << styles << " styles and " << widths << " widths\n";
+									int colorsSeen = 0, stylesSeen = 0, widthsSeen = 0;
+									for (std::vector<CSSValue>::iterator v
+										 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+									{
+										if (v->lengthType!=LENGTH_TYPE_NOPE)
+										{
+											if (widths==1)
+							curC.ruleProperties.push_back(BORDER_TOP_WIDTH),PUSHV,
+							curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH),PUSHV,
+							curC.ruleProperties.push_back(BORDER_LEFT_WIDTH),PUSHV,
+							curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH),PUSHV;
+										else if (widths==2 && widthsSeen==0)
+							curC.ruleProperties.push_back(BORDER_TOP_WIDTH),PUSHV,
+							curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH),PUSHV;
+										else if (widths==2)
+							curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH),PUSHV,
+							curC.ruleProperties.push_back(BORDER_LEFT_WIDTH),PUSHV;
+										else if (widths>=3 && widthsSeen==0)
+							curC.ruleProperties.push_back(BORDER_TOP_WIDTH),PUSHV;
+										else if (widths==3 && widthsSeen==1)
+							curC.ruleProperties.push_back(BORDER_LEFT_WIDTH),PUSHV,
+							curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH),PUSHV;
+										else if (widths>=3 && widthsSeen==2)
+							curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH),PUSHV;
+										else if (widths==4 && widthsSeen==1)
+							curC.ruleProperties.push_back(BORDER_RIGHT_WIDTH),PUSHV;
+										else if (widths==4 && widthsSeen==3)
+							curC.ruleProperties.push_back(BORDER_LEFT_WIDTH),PUSHV;
+											widthsSeen++;
+										}
+										else if (v->colorType)
+										{
+											if (colors==1)
+							curC.ruleProperties.push_back(BORDER_TOP_COLOR),PUSHV,
+							curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR),PUSHV,
+							curC.ruleProperties.push_back(BORDER_LEFT_COLOR),PUSHV,
+							curC.ruleProperties.push_back(BORDER_RIGHT_COLOR),PUSHV;
+										else if (colors==2 && colorsSeen==0)
+							curC.ruleProperties.push_back(BORDER_TOP_COLOR),PUSHV,
+							curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR),PUSHV;
+										else if (colors==2)
+							curC.ruleProperties.push_back(BORDER_RIGHT_COLOR),PUSHV,
+							curC.ruleProperties.push_back(BORDER_LEFT_COLOR),PUSHV;
+										else if (colors>=3 && colorsSeen==0)
+							curC.ruleProperties.push_back(BORDER_TOP_COLOR),PUSHV;
+										else if (colors==3 && colorsSeen==1)
+							curC.ruleProperties.push_back(BORDER_LEFT_COLOR),PUSHV,
+							curC.ruleProperties.push_back(BORDER_RIGHT_COLOR),PUSHV;
+										else if (colors>=3 && colorsSeen==2)
+							curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR),PUSHV;
+										else if (colors==4 && colorsSeen==1)
+							curC.ruleProperties.push_back(BORDER_RIGHT_COLOR),PUSHV;
+										else if (colors==4 && colorsSeen==3)
+							curC.ruleProperties.push_back(BORDER_LEFT_COLOR),PUSHV;
+											colorsSeen++;
+										}
+										else if (v->constant)
+										{
+											if (styles==1)
+							curC.ruleProperties.push_back(BORDER_TOP_STYLE),PUSHV,
+							curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE),PUSHV,
+							curC.ruleProperties.push_back(BORDER_LEFT_STYLE),PUSHV,
+							curC.ruleProperties.push_back(BORDER_RIGHT_STYLE),PUSHV;
+										else if (styles==2 && stylesSeen==0)
+							curC.ruleProperties.push_back(BORDER_TOP_STYLE),PUSHV,
+							curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE),PUSHV;
+										else if (styles==2)
+							curC.ruleProperties.push_back(BORDER_RIGHT_STYLE),PUSHV,
+							curC.ruleProperties.push_back(BORDER_LEFT_STYLE),PUSHV;
+										else if (styles>=3 && stylesSeen==0)
+							curC.ruleProperties.push_back(BORDER_TOP_STYLE),PUSHV;
+										else if (styles==3 && stylesSeen==1)
+							curC.ruleProperties.push_back(BORDER_LEFT_STYLE),PUSHV,
+							curC.ruleProperties.push_back(BORDER_RIGHT_STYLE),PUSHV;
+										else if (styles>=3 && stylesSeen==2)
+							curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE),PUSHV;
+										else if (styles==4 && stylesSeen==1)
+							curC.ruleProperties.push_back(BORDER_RIGHT_STYLE),PUSHV;
+										else if (styles==4 && stylesSeen==3)
+							curC.ruleProperties.push_back(BORDER_LEFT_STYLE),PUSHV;
+											stylesSeen++;
+										}
+										else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
+									}
+									}break;
+									case BORDER_TOP:
+									for (std::vector<CSSValue>::iterator v
+										 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+									{
+										if (v->lengthType!=LENGTH_TYPE_NOPE)
+							curC.ruleProperties.push_back(BORDER_TOP_WIDTH), PUSHV;
+										else if (v->colorType)
+							curC.ruleProperties.push_back(BORDER_TOP_COLOR), PUSHV;
+										else if (v->constant)
+							curC.ruleProperties.push_back(BORDER_TOP_STYLE), PUSHV;
+										else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
+									}
+									break;
+									case BORDER_BOTTOM:
+									for (std::vector<CSSValue>::iterator v
+										 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+									{
+										if (v->lengthType!=LENGTH_TYPE_NOPE)
+							curC.ruleProperties.push_back(BORDER_BOTTOM_WIDTH), PUSHV;
+										else if (v->colorType)
+							curC.ruleProperties.push_back(BORDER_BOTTOM_COLOR), PUSHV;
+										else if (v->constant)
+							curC.ruleProperties.push_back(BORDER_BOTTOM_STYLE), PUSHV;
+										else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
+									}
+									break;
+									case BORDER_LEFT:
+									for (std::vector<CSSValue>::iterator v
+										 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+									{
+										if (v->lengthType!=LENGTH_TYPE_NOPE)
+							curC.ruleProperties.push_back(BORDER_LEFT_WIDTH), PUSHV;
+										else if (v->colorType)
+							curC.ruleProperties.push_back(BORDER_LEFT_COLOR), PUSHV;
+										else if (v->constant)
+							curC.ruleProperties.push_back(BORDER_LEFT_STYLE), PUSHV;
+										else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
+									}
+									break;
+									case BORDER_RIGHT:
+									for (std::vector<CSSValue>::iterator v
+										 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+									{
+										if (v->lengthType!=LENGTH_TYPE_NOPE)
+							curC.ruleProperties.push_back(BORDER_RIGHT_STYLE), PUSHV;
+										else if (v->colorType)
+							curC.ruleProperties.push_back(BORDER_RIGHT_STYLE), PUSHV;
+										else if (v->constant)
+							curC.ruleProperties.push_back(BORDER_RIGHT_STYLE), PUSHV;
+										else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
+									}
+									break;
+									case BACKGROUND:
+									for (std::vector<CSSValue>::iterator v
+										 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+									{
+										if (v->colorType)
+							curC.ruleProperties.push_back(BACKGROUND_COLOR), PUSHV;
+										else if (v->textType==TEXT_TYPE_URL)
+							curC.ruleProperties.push_back(BACKGROUND_IMAGE), PUSHV;
+										else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
+									}
+									case BORDER_COLOR:
+									case BORDER_WIDTH:
+									case BORDER_STYLE:
+									case MARGIN:
+									case PADDING:{
+									CSSProperty top, bottom, left, right;
+									if (prop==MARGIN)
+										(top = MARGIN_TOP),
+										(bottom = MARGIN_BOTTOM),
+										(left = MARGIN_LEFT),
+										(right = MARGIN_RIGHT);
+									if (prop==PADDING)
+										(top = PADDING_TOP),
+										(bottom = PADDING_BOTTOM),
+										(left = PADDING_LEFT),
+										(right = PADDING_RIGHT);
+									if (prop==BORDER_COLOR)
+										(top = BORDER_TOP_COLOR),
+										(bottom = BORDER_BOTTOM_COLOR),
+										(left = BORDER_LEFT_COLOR),
+										(right = BORDER_RIGHT_COLOR);
+									if (prop==BORDER_WIDTH)
+										(top = BORDER_TOP_WIDTH),
+										(bottom = BORDER_BOTTOM_WIDTH),
+										(left = BORDER_LEFT_WIDTH),
+										(right = BORDER_RIGHT_WIDTH);
+									if (prop==BORDER_STYLE)
+										(top = BORDER_TOP_STYLE),
+										(bottom = BORDER_BOTTOM_STYLE),
+										(left = BORDER_LEFT_STYLE),
+										(right = BORDER_RIGHT_STYLE);
+								
+									if (CSSValues->size()==1) // TRBL
+							curC.ruleProperties.push_back(top),
+							curC.ruleProperties.push_back(right),
+							curC.ruleProperties.push_back(bottom),
+							curC.ruleProperties.push_back(left),
+							curC.ruleValues.push_back((*CSSValues)[0]),
+							curC.ruleValues.push_back((*CSSValues)[0]),
+							curC.ruleValues.push_back((*CSSValues)[0]),
+							curC.ruleValues.push_back((*CSSValues)[0]);
+									else if (CSSValues->size()==2) // TB RL
+							curC.ruleProperties.push_back(top),
+							curC.ruleProperties.push_back(bottom),
+							curC.ruleProperties.push_back(right),
+							curC.ruleProperties.push_back(left),
+							curC.ruleValues.push_back((*CSSValues)[0]),
+							curC.ruleValues.push_back((*CSSValues)[0]),
+							curC.ruleValues.push_back((*CSSValues)[1]),
+							curC.ruleValues.push_back((*CSSValues)[1]);
+									else if (CSSValues->size()==3) // T RL B
+							curC.ruleProperties.push_back(top),
+							curC.ruleProperties.push_back(right),
+							curC.ruleProperties.push_back(left),
+							curC.ruleProperties.push_back(bottom),
+							curC.ruleValues.push_back((*CSSValues)[0]),
+							curC.ruleValues.push_back((*CSSValues)[1]),
+							curC.ruleValues.push_back((*CSSValues)[1]),
+							curC.ruleValues.push_back((*CSSValues)[2]);
+									else if (CSSValues->size()==4) // T R B L
+							curC.ruleProperties.push_back(top),
+							curC.ruleProperties.push_back(right),
+							curC.ruleProperties.push_back(bottom),
+							curC.ruleProperties.push_back(left),
+							curC.ruleValues.push_back((*CSSValues)[0]),
+							curC.ruleValues.push_back((*CSSValues)[1]),
+							curC.ruleValues.push_back((*CSSValues)[2]),
+							curC.ruleValues.push_back((*CSSValues)[3]);
+									else
+									{
+										std::cout << "CSS syntax error: property has to supply 1, 2, 3 or 4 values. Not " << CSSValues->size() << "\n";
+									}
+									}break;
+									case LIST_STYLE:
+									for (std::vector<CSSValue>::iterator v
+										 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+									{
+										if (v->textType==TEXT_TYPE_NO_QUOTES)
+										{
+											if (v->constant==INSIDE ||
+												v->constant==OUTSIDE)
+											// list-style-position
+							curC.ruleProperties.push_back(LIST_STYLE_POSITION), PUSHV;
+											else // list-style-type
+							curC.ruleProperties.push_back(LIST_STYLE_TYPE), PUSHV;
+										}
+										else if (v->textType==TEXT_TYPE_URL)
+										{
+							curC.ruleProperties.push_back(LIST_STYLE_IMAGE), PUSHV;
+										}
+										else
+										{
+											std::cout << "CSS syntax error: list-style only takes specific words and one url\n";
+										}
+									}
+									break;
+									case FONT:
+									for (std::vector<CSSValue>::iterator v
+										 =CSSValues->begin(); v!=CSSValues->end(); ++v)
+									{
+										if (v->textType==TEXT_TYPE_NO_QUOTES)
+										{
+											if (v->constant>_FONT_STYLE_START &&
+												v->constant<_FONT_STYLE_END)
+							curC.ruleProperties.push_back(FONT_STYLE), PUSHV;
+											else if (v->constant>_FONT_VARIANT_START &&
+												     v->constant<_FONT_VARIANT_END)
+							curC.ruleProperties.push_back(FONT_VARIANT), PUSHV;
+											else if (v->constant>_FONT_WEIGHT_START &&
+												     v->constant<_FONT_WEIGHT_END)
+							curC.ruleProperties.push_back(FONT_WEIGHT), PUSHV;
+											else
+											{
+												std::cout << RED << "CSS syntax error: invalid word in font property\n" << NOCLR;
+											}
+										}
+										else if (v->colorType)
+										{
+							curC.ruleProperties.push_back(COLOR), PUSHV;
+										}
+										else if (v->lengthType!=LENGTH_TYPE_NOPE)
+										{
+											if (v->lengthType==LENGTH_TYPE_UNKNOWN &&
+												(
+													v->lengthValue==100 ||
+													v->lengthValue==200 ||
+													v->lengthValue==300 ||
+													v->lengthValue==400 ||
+													v->lengthValue==500 ||
+													v->lengthValue==600 ||
+													v->lengthValue==700 ||
+													v->lengthValue==800 ||
+													v->lengthValue==900
+												)
+											)
+							curC.ruleProperties.push_back(FONT_WEIGHT), PUSHV;
+											else
+							curC.ruleProperties.push_back(FONT_SIZE), PUSHV;
+										}
+										else
+										{
+											std::cout << "CSS syntax error: font property received something it doesn't like\n";
+										}
+									}
+									break;
+									default:
+									std::cout << RED << "CSS Yacc error: Todo combo " << prop << NOCLR;
+									break;
 								}
-								break;
-								default:
-								std::cout << RED << "CSS Yacc error: Todo combo " << prop << NOCLR;
-								break;
-							}
-						}
-						else
-						{
-							// It's a single css property, like 'border-top-width'
-							if (CSSValues->size()==1)
-							{
-								curC.ruleValues.push_back(CSSValues->at(0));
 							}
 							else
 							{
-								std::cout << RED << "CSS Yacc error: Incorrect amount of CSS values supplied!\n" << NOCLR;
+								// It's a single css property, like 'border-top-width'
+								if (CSSValues->size()==1)
+								{
+									curC.ruleValues.push_back(CSSValues->at(0));
+								}
+								else if (CSSValues->size()==0)
+								{
+									curC.ruleProperties.pop_back();
+								}
+								else
+								{
+									std::cout << RED << "CSS Yacc error: Incorrect amount of CSS values supplied!\n" << NOCLR;
 								
+								}
 							}
 						}
-					}
-					else if (t.text==std::string("}"))
-					{
-						std::cout << RED << "CSS Yacc error: Unexpected end of class }. Assuming you forgot a ;\n" << NOCLR;
-						inWhat = 0;
-						CSSClasses->push_back(curC);
-						curC = CSSClass();
-					}
-					else if (t.text==std::string(" "))
-					{
-						// Ignore whitespaces
+						if (t.text==';')
+						{
+							inWhat = 1;
+						}
+						else
+						{
+							inWhat = 0;
+							CSSClasses->push_back(curC);
+							curC = CSSClass();
+						}
+						//std::cout << RED << curC.ruleProperties.size() << " - " << curC.ruleValues.size() << NOCLR << "\n";
 					}
 				}
 				else

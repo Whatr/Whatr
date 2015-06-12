@@ -161,10 +161,16 @@ void* downloadThreadFunc(void* args)
 		) // https://www.youtube.com/watch?v=JKQwgpaLR6o
 	)
 	{
-		int nn = -1;
+		int nn = 0;
 		if (n>0 && n<BLOCK_SIZE) // If recv returns a partial block
 		{
 			readAgain:
+			printf("dl%i hl%i n%i nn%i clh%i\n", downloadedData->length, header_length, n, nn, content_length_header);
+			if (content_length_header!=-1 && (downloadedData->length - header_length + n + nn >= content_length_header))
+			{
+				downloadedData->length += n + nn;
+				break;
+			}
 			usleep(100000); // Wait 100 ms
 
 			// Try to read the rest:
@@ -180,7 +186,7 @@ void* downloadThreadFunc(void* args)
 			{
 				std::cout << RED << "handle error\n" << NOCLR;
 			}
-			try
+			/*try
 			{
 				char buf;
 				int err = recv(sockfd, &buf, 1, MSG_PEEK);
@@ -193,7 +199,7 @@ void* downloadThreadFunc(void* args)
 			catch (int eee)
 			{
 				printf("Exception=%i\n", eee);
-			}
+			}*/
 			try
 			{
 				nn = recv(sockfd, (currentBlock-1)[0]+n, BLOCK_SIZE-n, MSG_WAITALL);

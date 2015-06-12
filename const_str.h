@@ -16,6 +16,7 @@ public:
 	ConstStr(char* str);
 	ConstStr(char** startBlock, char* startChar, int length);
 	ConstStr(char** startBlock, char* startChar, int length, ConstStr* parent);
+	ConstStr combine(ConstStr with);
 	
 	void operator = (const std::string& str);
 	void operator = (const ConstStr& str);

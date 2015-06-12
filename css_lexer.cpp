@@ -123,7 +123,12 @@ void* cssLexThreadFunc(void* args)
 					if (inputCSS.subString(i.pos+1, 9)==std::string("important"))
 					{ // TODO support !important
 						std::cout << RED << "Warning: !important is not supported yet. ignoring it.\n" << NOCLR;
-						i += 9;
+						i += 8;
+						std::cout << "==" << *i << "\n";
+						i++;
+						std::cout << "==" << *i << "\n";
+						i++;
+						std::cout << "==" << *i << "\n";
 						continue;
 					}
 				}
@@ -141,7 +146,7 @@ void* cssLexThreadFunc(void* args)
 								brutoBracketCount++, nettoBracketCount++;
 							else if (*i == '}')
 								brutoBracketCount++, nettoBracketCount--;
-							std::cout << *i << brutoBracketCount << nettoBracketCount << "\n";
+							//std::cout << *i << brutoBracketCount << nettoBracketCount << "\n";
 						}
 						i++;
 						continue;
@@ -182,7 +187,6 @@ void* cssLexThreadFunc(void* args)
 					CSSTokens->push_back(t);
 					if (c=='{') inClass = 1;
 					else if (c=='}') inClass = 0;
-					std::cout << "operator" << t.text << "\n";
 				}
 				else if (
 					c=='~' || // CSS op chars that may or may not be the start of a multichar op

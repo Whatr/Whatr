@@ -42,7 +42,7 @@ void* cssApplyThreadFunc(void* args)
 		std::cout << "## ------ Entering a CSS class...\n";
 		CSSSelector* selector = &(c->selector);
 		std::vector<HTMLElement*> applyToList = CSSSelect(destination, selector);
-		if (applyToList.size()==0) std::cout << "CSSSelect returned empty vector\n";
+		if (applyToList.size()==0);// std::cout << "CSSSelect returned empty vector\n";
 		else for (	std::vector<HTMLElement*>::iterator el=applyToList.begin();
 					el!=applyToList.end();
 					el++)
@@ -52,8 +52,8 @@ void* cssApplyThreadFunc(void* args)
 			{
 				CSSProperty name = c->ruleProperties.at(i);
 				CSSValue value = c->ruleValues.at(i);
-				std::cout << "CSSSelect returned: ";
-				std::cout << (*el)->text << "\n";
+				//std::cout << "CSSSelect returned: ";
+				//std::cout << (*el)->text << "\n";
 				(*el)->styleFields.push_back(name);
 				(*el)->styleValues.push_back(value);
 				switch (name)
