@@ -216,7 +216,9 @@ void printCSSValue(CSSValue val)
 	std::cout << "("	<< val.textType << ","
 						<< val.lengthType << ","
 						<< val.colorType << ","
-						<< val.timeType << ")=("
+						<< val.timeType << ","
+						<< val.constant << ","
+						<< val.fontId << ")=("
 						<< val.textValue << ","
 						<< val.lengthValue << ","
 						<< std::setw(8)

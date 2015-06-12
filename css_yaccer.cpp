@@ -91,6 +91,11 @@ CSSProperty parseRuleName(ConstStr name)
 	if (name-=std::string("border-right-color")) return BORDER_RIGHT_COLOR;
 	if (name-=std::string("border-right-style")) return BORDER_RIGHT_STYLE;
 	if (name-=std::string("border-right-width")) return BORDER_RIGHT_WIDTH;
+	if (name-=std::string("border-radius")) return BORDER_RADIUS;
+	if (name-=std::string("border-top-left-radius")) return BORDER_TOP_LEFT_RADIUS;
+	if (name-=std::string("border-top-right-radius")) return BORDER_TOP_RIGHT_RADIUS;
+	if (name-=std::string("border-bottom-left-radius")) return BORDER_BOTTOM_LEFT_RADIUS;
+	if (name-=std::string("border-bottom-right-radius")) return BORDER_BOTTOM_RIGHT_RADIUS;
 	if (name-=std::string("clear")) return CLEAR;
 	if (name-=std::string("display")) return DISPLAY;
 	if (name-=std::string("float")) return FLOAT;
@@ -1801,6 +1806,7 @@ void* cssYaccThreadFunc(void* args)
 							curC.ruleProperties.push_back(BACKGROUND_IMAGE), PUSHV;
 										else std::cout << "TODO JKL$AJ%KJASKLDFJ\n";
 									}
+									case BORDER_RADIUS:
 									case BORDER_COLOR:
 									case BORDER_WIDTH:
 									case BORDER_STYLE:
@@ -1832,6 +1838,11 @@ void* cssYaccThreadFunc(void* args)
 										(bottom = BORDER_BOTTOM_STYLE),
 										(left = BORDER_LEFT_STYLE),
 										(right = BORDER_RIGHT_STYLE);
+									if (prop==BORDER_RADIUS)
+										(top = BORDER_TOP_LEFT_RADIUS),
+										(bottom = BORDER_BOTTOM_RIGHT_RADIUS),
+										(left = BORDER_TOP_RIGHT_RADIUS),
+										(right = BORDER_BOTTOM_LEFT_RADIUS);
 								
 									if (CSSValues->size()==1) // TRBL
 							curC.ruleProperties.push_back(top),

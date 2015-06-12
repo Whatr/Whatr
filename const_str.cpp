@@ -443,8 +443,8 @@ int ConstStr::toInt(const int base, bool* success)
 	{
 		char c = (*this)[i];
 		     if (c>='0' && c<='9') answer = answer*base+c-'0';
-		else if (c>='a' && c<='z') answer = answer*base+c-'a';
-		else if (c>='A' && c<='Z') answer = answer*base+c-'A';
+		else if (c>='a' && c<='z') answer = answer*base+c-'a'+10;
+		else if (c>='A' && c<='Z') answer = answer*base+c-'A'+10;
 		else
 		{
 			if (success!=NULL) *success = false;
