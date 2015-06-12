@@ -36,6 +36,7 @@
 #include "renderer_1.h"
 #include "css_values.h"
 #include "const_str.h"
+#include "text_and_fonts.h"
 #include "settings.h"
 
 #include <SDL2/SDL.h>
@@ -53,12 +54,6 @@ SDL_Window* gWindow = NULL;
 
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
-
-//Globally used font
-TTF_Font *gFont = NULL;
-
-int fontCharWidth[256];
-int fontCharHeight[256];
 
 //Texture wrapper class
 class LTexture
@@ -121,7 +116,7 @@ class LTexture
 			free();
 
 			//Render text surface
-			SDL_Surface* textSurface = TTF_RenderText_Solid( gFont, textureText.c_str(), textColor );
+			SDL_Surface* textSurface = TTF_RenderText_Solid(fonts[0].gFont, textureText.c_str(), textColor );
 			if( textSurface == NULL )
 			{
 				printf( "Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError() );
@@ -283,6 +278,7 @@ void printTree(HTMLElement* currentElement, std::string tabs);
 
 int main(int argc, char* argv[])
 {
+	initFontArray();
 	try{
 	
 	printf("main():0\n");
@@ -705,27 +701,7 @@ int main(int argc, char* argv[])
 	
 	
 	
-	gFont = TTF_OpenFont( "arial.ttf", 28 );
-	
-	char allChars[512];
-	for (int i=0;i<256;i++)
-	{
-		allChars[i*2] = (char)i;
-		allChars[i*2+1] = 0;
-	}
-	
-	char* c = &allChars[0];
-	for (int i=0;i<256;i++,c+=2)
-	{
-		if (isprint(*c))
-		{
-			TTF_SizeText(gFont, c, &fontCharWidth[i], &fontCharHeight[i]);
-		}
-		else
-		{
-			fontCharWidth[i] = fontCharHeight[i] = 0;
-		}
-	}
+
 	
 	ConstStr testStr("The lazy fox jumped over the big brown dog. This was a nice rare occurrence of a visual message.");
 	int ww, hh;

@@ -10,6 +10,39 @@
 
 #include "text_and_fonts.h"
 
+void initFontArray()
+{
+	fonts.reserve(32);
+	loadFont("arial.ttf");
+}
+std::vector<Font> fonts;
+int loadFont(ConstStr name)
+{
+	fonts.push_back(Font());
+	int fontId = fonts.size()-1;
+	TTF_Font* gFont = TTF_OpenFont(name.copy(), 28);
+	char allChars[512];
+	for (int i=0;i<256;i++)
+	{
+		allChars[i*2] = (char)i;
+		allChars[i*2+1] = 0;
+	}
+	
+	char* c = &allChars[0];
+	for (int i=0;i<256;i++,c+=2)
+	{
+		if (isprint(*c))
+		{
+			TTF_SizeText(gFont, c, &(fonts[fontId].fontCharWidth[i]), &(fonts[fontId].fontCharHeight[i]));
+		}
+		else
+		{
+			fonts[fontId].fontCharWidth[i] = fonts[fontId].fontCharHeight[i] = 0;
+		}
+	}
+	return fontId;
+}
+
 void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* charHeights, int& widthOut, int& heightOut)
 {
 	if (text.length==0)
@@ -61,9 +94,3 @@ void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* 
 	widthOut = width;
 	heightOut = height*lines;
 }
-
-int loadFont(ConstStr name)
-{
-	return 7;
-}
-

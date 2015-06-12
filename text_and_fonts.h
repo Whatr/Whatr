@@ -12,8 +12,19 @@
 #define text_and_fonts_included yes
 
 #include "const_str.h"
+#include <SDL2/SDL_ttf.h>
+#include <vector>
 
 void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* charHeights, int& widthOut, int& heightOut);
 int loadFont(ConstStr name);
+class Font
+{
+public:
+	TTF_Font* gFont;
+	int fontCharWidth[256];
+	int fontCharHeight[256];
+};
+extern std::vector<Font> fonts;
+void initFontArray();
 
 #endif
