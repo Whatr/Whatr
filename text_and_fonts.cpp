@@ -9,6 +9,8 @@
 /* or removed. */
 
 #include "text_and_fonts.h"
+#include "log_funcs.hpp"
+#include <iostream>
 
 void initFontArray()
 {
@@ -17,8 +19,15 @@ void initFontArray()
 std::vector<Font*> fonts;
 Font* loadFont(ConstStr name)
 {
+	char* name2 = name.copy();
+	TTF_Font* gFont = TTF_OpenFont(name2, 72);
+	delete name2;
+	if (gFont==NULL)
+	{
+		std::cout <<RED<< "Loading font " << name << " failed miserably.\n"<<NOCLR;
+		return NULL;
+	}
 	Font* font = new Font();
-	TTF_Font* gFont = TTF_OpenFont(name.copy(), 28);
 	char allChars[512];
 	for (int i=0;i<256;i++)
 	{
@@ -68,6 +77,7 @@ void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* 
 		{
 			if (lastWhiteSpace==-1) // cut the word
 			{
+				std::cout << "wc @"<<*i<<"\n";
 				lineBreaks[lines] = i.pos-1;
 				lines++;
 				i--;
@@ -87,7 +97,7 @@ void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* 
 	lines++;
 	for (int j=0;j<lines;j++)
 	{
-		int start = (j==0) ? 0 : lineBreaks[j-1]+1;
+		int start = (j==0) ? 0 : lineBreaks[j-1];
 		text.subString(start, lineBreaks[j]-start).printLine();
 	}
 	widthOut = width;

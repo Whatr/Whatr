@@ -329,6 +329,8 @@ void HTMLElement::applyCSSDefaults()
 	cssTextAlign = START_TEXT_ALIGN;
 	cssTextTransform = NONE_TEXT_TRANSFORM;
 	cssTextDecorationLine = NONE_TEXT_DECORATION;
+	cssDisplay = INLINE_BLOCK;
+	
 	
 	switch (this->tag)
 	{

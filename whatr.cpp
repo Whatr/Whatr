@@ -55,6 +55,8 @@ SDL_Window* gWindow = NULL;
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
 
+Font* font = NULL;
+
 //Texture wrapper class
 class LTexture
 {
@@ -278,9 +280,17 @@ void printTree(HTMLElement* currentElement, std::string tabs);
 
 int main(int argc, char* argv[])
 {
+	// Initialize SDL_ttf
+	if (TTF_Init()==-1)
+	{
+		printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+	}
 	auto tsAll = std::chrono::high_resolution_clock::now();
 	
 	initFontArray();
+	
+	font = fonts.at(0);
+	
 	try{
 	
 	if (argc!=2)
@@ -527,8 +537,11 @@ int main(int argc, char* argv[])
 				return 0;
 			}
 			while(yaccingCSS){usleep(10);};
+			usleep(10000);
 			auto teCssYacc = std::chrono::high_resolution_clock::now();
 			yaccCssTime += teCssYacc - tsCssYacc;
+			std::cout<<"Yacc css this: "<<std::chrono::duration_cast<std::chrono::microseconds>(yaccCssTime).count()<<"us\n";
+			std::cout<<"Yacc css so far: "<<std::chrono::duration_cast<std::chrono::microseconds>(teCssYacc - tsCssYacc).count()<<"us\n";
 			PRINT(yaccingCSS=0! printing CSS classes...);
 			for (int k=0;k<CSSClasses[i]->size();k++)
 			{
@@ -627,138 +640,120 @@ int main(int argc, char* argv[])
 	///////////////////////////////////
 	////// Create window
 	
-
-	
-	
-	
-	
-	/*
-	
-	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
+	// Initialize SDL
+	if (SDL_Init(SDL_INIT_VIDEO)<0)
 	{
-		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
+		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
 	}
 	else
 	{
-		//Set texture filtering to linear
-		if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) )
+		// Set texture filtering to linear
+		if (!SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1"))
 		{
-			printf( "Warning: Linear texture filtering not enabled!" );
+			printf("Warning: Linear texture filtering not enabled!\n");
 		}
 
-		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
-		if( gWindow == NULL )
+		// Create window
+		gWindow = SDL_CreateWindow("Whatr Development version", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+		if (gWindow == NULL)
 		{
-			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
+			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
 		}
 		else
 		{
-			//Create vsynced renderer for window
-			gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
-			if( gRenderer == NULL )
+			// Create vsynced renderer for window
+			gRenderer = SDL_CreateRenderer (gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			if (gRenderer == NULL)
 			{
-				printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
+				printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
 			}
 			else
 			{
-				//Initialize renderer color
-				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-
-				//Initialize PNG loading
+				// Initialize renderer color
+				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+				
+				// Initialize PNG loading
 				int imgFlags = IMG_INIT_PNG;
-				if( !( IMG_Init( imgFlags ) & imgFlags ) )
+				if (!(IMG_Init(imgFlags)&imgFlags))
 				{
-					printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
+					printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
 				}
-
-				 //Initialize SDL_ttf
-				if( TTF_Init() == -1 )
-				{
-					printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
-				}
+				
 			}
 		}
 	}
 	
-	
-	
-	
-	
-	
-
-	
 	ConstStr testStr("The lazy fox jumped over the big brown dog. This was a nice rare occurrence of a visual message.");
 	int ww, hh;
-	calculateTextSize(testStr, 300, fontCharWidth, fontCharHeight, ww, hh);
+	calculateTextSize(testStr, 300, font->fontCharWidth, font->fontCharHeight, ww, hh);
 	
-	
-	
-	if( gFont == NULL )
+	if (font == NULL)
 	{
-		printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
+		printf("Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError());
 	}
 	else
 	{
-		//Render text
+		// Render text
 		SDL_Color textColor = { 0, 0, 0 };
-		if( !gTextTexture.loadFromRenderedText( "The quick brown fox jumps over the lazy dog", textColor ) )
+		if (!gTextTexture.loadFromRenderedText("The quick brown fox jumps over the lazy dog", textColor))
 		{
-			printf( "Failed to render text texture!\n" );
+			printf("Failed to render text texture!\n");
 		}
 	}
 	
 	
-	//Main loop flag
+	// Main loop flag
 	bool quit = false;
-
-	//Event handler
+	
+	// Event handler
 	SDL_Event e;
-
-	//While application is running
-	while( !quit )
+	
+	// While application is running
+	while (!quit)
 	{
-		//Handle events on queue
-		while( SDL_PollEvent( &e ) != 0 )
+		// Handle events on queue
+		while (SDL_PollEvent(&e)!=0)
 		{
-			//User requests quit
-			if( e.type == SDL_QUIT )
+			// User requests quit
+			if (e.type==SDL_QUIT)
 			{
 				quit = true;
 			}
 		}
+		
+		// Clear screen
+		SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+		SDL_RenderClear(gRenderer);
+		
+		// Render current frame
+		gTextTexture.render(
+			( SCREEN_WIDTH - gTextTexture.getWidth() ) / 2,
+			( SCREEN_HEIGHT - gTextTexture.getHeight() ) / 2
+		);
 
-		//Clear screen
-		SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-		SDL_RenderClear( gRenderer );
-
-		//Render current frame
-		gTextTexture.render( ( SCREEN_WIDTH - gTextTexture.getWidth() ) / 2, ( SCREEN_HEIGHT - gTextTexture.getHeight() ) / 2 );
-
-		//Update screen
-		SDL_RenderPresent( gRenderer );
+		// Update screen
+		SDL_RenderPresent(gRenderer);
 	}
 	
-	//Free loaded images
+	// Free loaded images
 	gTextTexture.free();
 
-	//Free global font
-	TTF_CloseFont( gFont );
-	gFont = NULL;
+	// Free global font
+	for (int i=0;i<fonts.size();i++)
+	{
+		TTF_CloseFont(fonts.at(i)->gFont);
+	}
 
-	//Destroy window	
-	SDL_DestroyRenderer( gRenderer );
-	SDL_DestroyWindow( gWindow );
+	// Destroy window	
+	SDL_DestroyRenderer(gRenderer);
+	SDL_DestroyWindow(gWindow);
 	gWindow = NULL;
 	gRenderer = NULL;
 
-	//Quit SDL subsystems
+	// Quit SDL subsystems
 	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();
-	*/
-	
 	
 	}
 	catch(int exex)
