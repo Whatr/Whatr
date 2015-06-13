@@ -4,13 +4,13 @@ int s = 0;
 ConstStrIterator i = tag.iterate();
 if (tag.length==1)
 {
-if (*i == 'a') s = 1;
-else if (*i == 'b') s = 2;
-else if (*i == 'i') s = 3;
-else if (*i == 'p') s = 4;
-else if (*i == 'q') s = 5;
-else if (*i == 's') s = 6;
-else if (*i == 'u') s = 7;
+if (*i == 'a') return TAG_A;
+else if (*i == 'b') return TAG_B;
+else if (*i == 'i') return TAG_I;
+else if (*i == 'p') return TAG_P;
+else if (*i == 'q') return TAG_Q;
+else if (*i == 's') return TAG_S;
+else if (*i == 'u') return TAG_U;
 return _TAG_CUSTOM;
 }
 if (tag.length==2)
