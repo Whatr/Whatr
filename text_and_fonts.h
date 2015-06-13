@@ -16,7 +16,6 @@
 #include <vector>
 
 void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* charHeights, int& widthOut, int& heightOut);
-int loadFont(ConstStr name);
 class Font
 {
 public:
@@ -24,7 +23,8 @@ public:
 	int fontCharWidth[256];
 	int fontCharHeight[256];
 };
-extern std::vector<Font> fonts;
+Font* loadFont(ConstStr name);
+extern std::vector<Font*> fonts;
 void initFontArray();
 
 #endif

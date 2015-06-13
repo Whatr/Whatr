@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <cctype>
+#include <chrono>
 
 #include "log_funcs.hpp"
 #include "html_lexer.h"
@@ -54,7 +55,9 @@ int isAcceptableHtmlTagNameNonFirstCharacter(char c)
 HTMLTagType getTagType(ConstStr tag);
 void* htmlLexThreadFunc(void* args)
 {
-	PRINT(htmlLexThreadFunc start);
+	auto tsHeaders = std::chrono::high_resolution_clock::now();
+	
+	//PRINT(htmlLexThreadFunc start);
 	htmlLexArgs* l = (htmlLexArgs*)args;
 	
 	int* downloadingPage = l->downloadingPage;
@@ -66,7 +69,7 @@ void* htmlLexThreadFunc(void* args)
 	ConstStr* downloadedHTML = l->downloadedHTML;
 	
 	*lexingPage = 1;
-	PRINT(htmlLexThreadFunc has set lexingPage=1);
+	//PRINT(htmlLexThreadFunc has set lexingPage=1);
 	////////////////////
 	// Parse headers
 	{
@@ -104,7 +107,7 @@ void* htmlLexThreadFunc(void* args)
 				(i>=downloadedHeaders->length)
 			)
 			{
-				PRINT(HTML Lex thread detected downloader=done);
+				//PRINT(HTML Lex thread detected downloader=done);
 				break; // If downloading is done, quit
 			}
 			char c = *i;
@@ -115,7 +118,7 @@ void* htmlLexThreadFunc(void* args)
 					if (c==' ')
 					{
 						httpVersion = downloadedHeaders->subString(0, i.pos);
-						printf("httpVersion=");httpVersion.printLine();
+						//printf("httpVersion=");httpVersion.printLine();
 						inFirstLine++;
 					}
 				}
@@ -124,7 +127,7 @@ void* htmlLexThreadFunc(void* args)
 					if (c==' ')
 					{
 						responseCode = atoi(downloadedHeaders->subString(httpVersion.length+1, i.pos-httpVersion.length-1).copy());
-						printf("responseCode=%i\n", responseCode);
+						//printf("responseCode=%i\n", responseCode);
 						inFirstLine++;
 					}
 				}
@@ -135,7 +138,7 @@ void* htmlLexThreadFunc(void* args)
 						if (responseStatus.length==0)
 						{
 							responseStatus = downloadedHeaders->subString(httpVersion.length+1+3+1, i.pos-httpVersion.length-1-3-1);
-							printf("responseStatus=");responseStatus.printLine();
+							//printf("responseStatus=");responseStatus.printLine();
 							inFirstLine = 0;
 							inField = 1;
 							fieldStart = i.pos+1;
@@ -190,7 +193,10 @@ void* htmlLexThreadFunc(void* args)
 		
 	}
 	
-	printf("Starting Parse HTML...\n");
+	auto teHeaders = std::chrono::high_resolution_clock::now();
+	auto timeHeaders = teHeaders - tsHeaders;
+	std::cout << RED << "Parse headers: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeHeaders).count()<<"us\n" << NOCLR;
+	//printf("Starting Parse HTML...\n");
 	
 	////////////////////
 	// Parse HTML
@@ -562,7 +568,7 @@ void* htmlLexThreadFunc(void* args)
 						//printf("18.1\n");
 						//std::transform(buffer.begin(), buffer.end(), buffer.begin(), ::tolower);
 						tag.argNames.push_back(downloadedHTML->subString(bufferStart, i.pos-bufferStart));
-						std::cout << "Argument name found: " << tag.argNames.back().copy() << "\n";
+						//std::cout << "Argument name found: " << tag.argNames.back().copy() << "\n";
 					}
 					bufferStart = i.pos+1;
 				} else if (c=='=')
@@ -575,7 +581,7 @@ void* htmlLexThreadFunc(void* args)
 						//std::transform(buffer.begin(), buffer.end(), buffer.begin(), ::tolower);
 						//printf("20\n");
 						tag.argNames.push_back(downloadedHTML->subString(bufferStart, i.pos-bufferStart));
-						std::cout << "Argument name found: " << tag.argNames.back().copy() << "\n";
+						//std::cout << "Argument name found: " << tag.argNames.back().copy() << "\n";
 						bufferStart = i.pos+1;
 					}
 				} else if (c=='/') {
@@ -647,7 +653,7 @@ void* htmlLexThreadFunc(void* args)
 							argValue = argValue.trim('\'', '\'', '\'', '\'', 1);
 						}
 						tag.argValues.push_back(argValue);
-						std::cout << "Argument value found: " << tag.argValues.back().copy() << "\n";
+						//std::cout << "Argument value found: " << tag.argValues.back().copy() << "\n";
 						bufferStart = i.pos+1;
 						inTag = 2;
 						//printf("25\n");
@@ -691,7 +697,7 @@ void* htmlLexThreadFunc(void* args)
 					}
 					tag.argValues.push_back(argValue);
 					bufferStart = i.pos+1;
-					printf("28\n");
+					//printf("28\n");
 					//std::cout << "Forward slash in tag outside quotes\n";
 				} else if (c=='>') {
 					if (inArgValueQuotes)	// <b wc="Mr Fong said <hi>">
@@ -762,7 +768,7 @@ void* htmlLexThreadFunc(void* args)
 					tag.text = downloadedHTML->subString(tagTextStart, i.pos-tagTextStart);
 					tag.tag = getTagType(tag.text);
 					tagTextStart = -1;
-					std::cout << "Self-closing tag " << tag.text.copy() << " closed.\n";
+					//std::cout << "Self-closing tag " << tag.text.copy() << " closed.\n";
 					tag.type = 2;
 					//std::transform(tag.text.begin(), tag.text.end(), tag.text.begin(), ::tolower);
 
@@ -823,9 +829,14 @@ void* htmlLexThreadFunc(void* args)
 		}
 	}
 	*lexingPage = 0;
-	PRINT(htmlLexThreadFunc end);
+	//PRINT(htmlLexThreadFunc end);
 	pthread_exit(NULL);
 }
+
+// Auto generated flying spaghetti monster:
+#include "_gen_tag_name_matcher.cpp"
+
+/*
 HTMLTagType getTagType(ConstStr tag)
 {
 	if (tag-=std::string("!doctype")) return TAG_DOCTYPE;
@@ -951,4 +962,4 @@ HTMLTagType getTagType(ConstStr tag)
 	else if (tag-=std::string("video")) return TAG_VIDEO;
 	else if (tag-=std::string("wbr")) return TAG_WBR;
 	else return _TAG_CUSTOM;
-}
+}*/

@@ -12,14 +12,12 @@
 
 void initFontArray()
 {
-	fonts.reserve(32);
-	loadFont("arial.ttf");
+	loadFont(ConstStr("arial.ttf"));
 }
-std::vector<Font> fonts;
-int loadFont(ConstStr name)
+std::vector<Font*> fonts;
+Font* loadFont(ConstStr name)
 {
-	fonts.push_back(Font());
-	int fontId = fonts.size()-1;
+	Font* font = new Font();
 	TTF_Font* gFont = TTF_OpenFont(name.copy(), 28);
 	char allChars[512];
 	for (int i=0;i<256;i++)
@@ -33,14 +31,15 @@ int loadFont(ConstStr name)
 	{
 		if (isprint(*c))
 		{
-			TTF_SizeText(gFont, c, &(fonts[fontId].fontCharWidth[i]), &(fonts[fontId].fontCharHeight[i]));
+			TTF_SizeText(gFont, c, &(font->fontCharWidth[i]), &(font->fontCharHeight[i]));
 		}
 		else
 		{
-			fonts[fontId].fontCharWidth[i] = fonts[fontId].fontCharHeight[i] = 0;
+			font->fontCharWidth[i] = font->fontCharHeight[i] = 0;
 		}
 	}
-	return fontId;
+	fonts.push_back(font);
+	return font;
 }
 
 void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* charHeights, int& widthOut, int& heightOut)

@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include "const_str.h"
+#include "text_and_fonts.h"
 
 enum TimeType
 {
@@ -283,7 +284,7 @@ struct CSSValue
 	
 	CSSConstant constant;	// 0 = nope, ....css_values.h
 	
-	int fontId;		// 0 = nope
+	Font* font;		// 0 = nope
 };
 
 /*

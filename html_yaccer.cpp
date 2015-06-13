@@ -438,7 +438,7 @@ void HTMLElement::applyCSSDefaults()
 		break;
 		case TAG_KBD:
 		case TAG_SAMP:
-			cssFontFamily = std::string("monospace"); // TODO
+			cssFontFamily = loadFont(ConstStr("monospace")); // TODO
 		break;
 		case TAG_PRE: cssWhiteSpace = PRE; break;
 		case TAG_BUTTON:

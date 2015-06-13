@@ -116,7 +116,7 @@ class LTexture
 			free();
 
 			//Render text surface
-			SDL_Surface* textSurface = TTF_RenderText_Solid(fonts[0].gFont, textureText.c_str(), textColor );
+			SDL_Surface* textSurface = TTF_RenderText_Solid(fonts[0]->gFont, textureText.c_str(), textColor );
 			if( textSurface == NULL )
 			{
 				printf( "Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError() );
@@ -213,7 +213,7 @@ void printCSSValue(CSSValue val)
 						<< val.colorType << ","
 						<< val.timeType << ","
 						<< val.constant << ","
-						<< val.fontId << ")=("
+						<< (long)val.font << ")=("
 						<< val.textValue << ","
 						<< val.lengthValue << ","
 						<< std::setw(8)
@@ -278,10 +278,10 @@ void printTree(HTMLElement* currentElement, std::string tabs);
 
 int main(int argc, char* argv[])
 {
+	auto tsAll = std::chrono::high_resolution_clock::now();
+	
 	initFontArray();
 	try{
-	
-	printf("main():0\n");
 	
 	if (argc!=2)
 	{
@@ -289,15 +289,13 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 	
-	auto time_1 = std::chrono::high_resolution_clock::now();
+	auto tsUrl = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
 	////// Get URL from arguments
 	{
 		url = std::string(argv[1]);
 	}
-	
-	printf("main():1\n");
 	
 	///////////////////////////////////
 	////// Check URL validity
@@ -314,8 +312,6 @@ int main(int argc, char* argv[])
 		}
 	}
 	
-	printf("main():2\n");
-	
 	///////////////////////////////////
 	////// Convert URL to host and path
 	{
@@ -328,15 +324,12 @@ int main(int argc, char* argv[])
 			}
 		}
 		host = url.subString(7, i-7);
-		path = url.subString(i);//, url.length-i);
+		path = url.subString(i);
 		if (path.length==0) path = std::string("/");
 	}
 	
-	//host.printLine();
-	
-	printf("main():3\n");
-	
-	auto time_2 = std::chrono::high_resolution_clock::now();
+	auto teUrl = std::chrono::high_resolution_clock::now();
+	auto tsDownloadThread = std::chrono::high_resolution_clock::now();
 	
 	int aaa = 0;
 	
@@ -365,13 +358,13 @@ int main(int argc, char* argv[])
 		}
 	}
 	
-	auto time_3 = std::chrono::high_resolution_clock::now();
-	while (downloadingPage){usleep(100);}
+	auto teDownloadThread = std::chrono::high_resolution_clock::now();
+	auto tsDownload = std::chrono::high_resolution_clock::now();
 	
-	//PRINT(DOWNLOADED HTML:);
-	//downloadedHTML.printLine();
+	while (downloadingPage){usleep(10);}
 	
-	auto time_3b = std::chrono::high_resolution_clock::now();
+	auto teDownload = std::chrono::high_resolution_clock::now();
+	auto tsHtmlLexThread = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
 	////// Start thread that parses the response headers and lexes the HTML tags
@@ -392,16 +385,16 @@ int main(int argc, char* argv[])
 	}
 	
 	
-	auto time_4 = std::chrono::high_resolution_clock::now();
-	while (lexingPage){}
-	usleep(100000);
-	auto time_4b = std::chrono::high_resolution_clock::now();
+	auto teHtmlLexThread = std::chrono::high_resolution_clock::now();
+	auto tsHtmlLex = std::chrono::high_resolution_clock::now();
+	while (lexingPage){usleep(10);}
+	auto teHtmlLex = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
 	////// Wait until the lexing is done, then print the headers and tags
 	{
-		while (lexingPage){};
-		/*PRINT(The HTML lexer is done! Here are its results:)
+		/*while (lexingPage){};
+		PRINT(The HTML lexer is done! Here are its results:)
 		for (int i=0;i<HTMLTags.size();i++)
 		{
 			HTMLTag tag = HTMLTags[i];
@@ -455,6 +448,8 @@ int main(int argc, char* argv[])
 	document.text = std::string("document");
 	document.type = 1;
 	
+	auto tsHtmlYaccThread = std::chrono::high_resolution_clock::now();
+	
 	///////////////////////////////////
 	////// Start thread that yaccs the HTML tags
 	{
@@ -471,11 +466,14 @@ int main(int argc, char* argv[])
 		}
 	}
 	
-	auto time_5 = std::chrono::high_resolution_clock::now();
+	auto teHtmlYaccThread = std::chrono::high_resolution_clock::now();
+	
 	///////////////////////////////////
 	////// Wait until the yaccing is done, then print the HTML element tree
+	auto tsHtmlYacc = std::chrono::high_resolution_clock::now();
+	while (yaccingPage){usleep(10);};
+	auto teHtmlYacc = std::chrono::high_resolution_clock::now();
 	{
-		while (yaccingPage){};
 		for (int i=0;i<document.children.size();i++)
 		{
 			HTMLElement* currentElement = document.children.at(i);
@@ -483,7 +481,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	
-	auto time_6 = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> lexCssTime, yaccCssTime, applyCssTime;
 	
 	std::vector<CSSToken>** CSSTokens = new std::vector<CSSToken>*[styles.size()];
 	std::vector<CSSClass>** CSSClasses = new std::vector<CSSClass>*[styles.size()];
@@ -495,6 +493,7 @@ int main(int argc, char* argv[])
 		///////////////////////////////////
 		////// Lex the css
 		{
+			auto tsCssLex = std::chrono::high_resolution_clock::now();
 			lexingCSS = 1;
 			cssLexArgs args(&lexingCSS, CSSTokens[i], styles[i]->children[0]->text);
 			if (pthread_create(&cssLexThread, NULL, cssLexThreadFunc, &args))
@@ -502,7 +501,9 @@ int main(int argc, char* argv[])
 				ERROR(Failed to create CSS lex thread!);
 				return 0;
 			}
-			while(lexingCSS){};
+			while(lexingCSS){usleep(10);};
+			auto teCssLex = std::chrono::high_resolution_clock::now();
+			lexCssTime += teCssLex - tsCssLex;
 			PRINT(lexingCSS=0! printing CSSTokens...);
 			/*for (int j=0;j<CSSTokens[i]->size();j++)
 			{
@@ -517,6 +518,7 @@ int main(int argc, char* argv[])
 		///////////////////////////////////
 		////// Yacc the css
 		{
+			auto tsCssYacc = std::chrono::high_resolution_clock::now();
 			yaccingCSS = 1;
 			cssYaccArgs args(&yaccingCSS, CSSTokens[i], CSSClasses[i]);
 			if (pthread_create(&cssYaccThread, NULL, cssYaccThreadFunc, &args))
@@ -524,7 +526,9 @@ int main(int argc, char* argv[])
 				ERROR(Failed to create CSS yacc thread!);
 				return 0;
 			}
-			while(yaccingCSS){};
+			while(yaccingCSS){usleep(10);};
+			auto teCssYacc = std::chrono::high_resolution_clock::now();
+			yaccCssTime += teCssYacc - tsCssYacc;
 			PRINT(yaccingCSS=0! printing CSS classes...);
 			for (int k=0;k<CSSClasses[i]->size();k++)
 			{
@@ -550,6 +554,7 @@ int main(int argc, char* argv[])
 		///////////////////////////////////
 		////// Apply the css
 		{
+			auto tsCssApply = std::chrono::high_resolution_clock::now();
 			applyingCSS = 1;
 			cssApplyArgs args(&applyingCSS, CSSClasses[i], &document);
 			/*if (styles[i]->parent==NULL ||
@@ -568,17 +573,13 @@ int main(int argc, char* argv[])
 				ERROR(Failed to create CSS yacc thread!);
 				return 0;
 			}
-			while(applyingCSS){};
-			//printTree(&document, std::string("  "));
+			while(applyingCSS){usleep(10);};
+			auto teCssApply = std::chrono::high_resolution_clock::now();
+			applyCssTime += teCssApply - tsCssApply;
+			printTree(&document, std::string("  "));
 		}
 	
 	}
-		
-	auto time_7 = std::chrono::high_resolution_clock::now();
-
-	auto time_8 = std::chrono::high_resolution_clock::now();
-	
-	auto time_9 = std::chrono::high_resolution_clock::now();
 	
 	///////////////////////////////////
 	////// Renderer 1: HTML Transform
@@ -591,52 +592,37 @@ int main(int argc, char* argv[])
 			ERROR(Failed to create renderer 1 thread!);
 			return 0;
 		}
-		while(rendering1){};
+		while(rendering1){usleep(10);};
 		printTree(HTMLElements.at(0), std::string("  "));
 	}
 	*/
-	auto time_10 = std::chrono::high_resolution_clock::now();
 	
-	auto time1 = time_2 - time_1;
-	auto time2 = time_3 - time_2;
-	auto time3a = time_3b - time_3;
-	auto time3b = time_4 - time_3b;
-	auto time4a = time_4b - time_4;
-	auto time4b = time_5 - time_4b;
-	auto time5 = time_6 - time_5;
-	auto time6 = time_7 - time_6;
-	auto time7 = time_8 - time_7;
-	auto time8 = time_9 - time_8;
-	auto time9 = time_10 - time_9;
+	auto teAll = std::chrono::high_resolution_clock::now();
+	
+	auto timeUrl = teUrl - tsUrl;
+	auto timeDownloadThread = teDownloadThread - tsDownloadThread;
+	auto timeDownload = teDownload - tsDownload;
+	auto timeHtmlLexThread = teHtmlLexThread - tsHtmlLexThread;
+	auto timeHtmlLex = teHtmlLex - tsHtmlLex;
+	auto timeHtmlYaccThread = teHtmlYaccThread - tsHtmlYaccThread;
+	auto timeHtmlYacc = teHtmlYacc - tsHtmlYacc;
 	
 	std::cout << "\n\n##### Slowness report:\n";
-	std::cout <<"Parse URL: "
-	<<std::chrono::duration_cast<std::chrono::microseconds>(time1).count()<<"us\n";
-	std::cout<<"Start download thread: "
-	<<std::chrono::duration_cast<std::chrono::microseconds>(time2).count()<<"us\n";
-	std::cout<<"Download page: "
-	<<std::chrono::duration_cast<std::chrono::microseconds>(time3a).count()<<"us\n";
-	std::cout<<"Start lex thread: "
-	<<std::chrono::duration_cast<std::chrono::microseconds>(time3b).count()<<"us\n";
-	std::cout<<"Lex html: "
-	<<std::chrono::duration_cast<std::chrono::microseconds>(time4a).count()<<"us\n";
-	std::cout<<"Start yacc html thread: "
-	<<std::chrono::duration_cast<std::chrono::microseconds>(time4b).count()<<"us\n";
-	std::cout<<"Yacc html: "
-	<<std::chrono::duration_cast<std::chrono::microseconds>(time5).count()<<"us\n";
-	std::cout<<"Lex css: "
-	<<std::chrono::duration_cast<std::chrono::microseconds>(time6).count()<<"us\n";
-	std::cout<<"Yacc css: "
-	<<std::chrono::duration_cast<std::chrono::microseconds>(time7).count()<<"us\n";
-	std::cout<<"Apply css: "
-	<<std::chrono::duration_cast<std::chrono::microseconds>(time8).count()<<"us\n";
-	std::cout<<"Renderer 1: "
-	<<std::chrono::duration_cast<std::chrono::microseconds>(time9).count()<<"us\n";
+	std::cout <<"Parse URL: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeUrl).count()<<"us\n";
+	std::cout<<"Start download thread: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeDownloadThread).count()<<"us\n";
+	std::cout<<"Download page: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeDownload).count()<<"us\n";
+	std::cout<<"Start lex thread: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeHtmlLexThread).count()<<"us\n";
+	std::cout<<"Lex html: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeHtmlLex).count()<<"us\n";
+	std::cout<<"Start yacc html thread: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeHtmlYaccThread).count()<<"us\n";
+	std::cout<<"Yacc html: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeHtmlYacc).count()<<"us\n";
+	std::cout<<"Lex css: "<<std::chrono::duration_cast<std::chrono::microseconds>(lexCssTime).count()<<"us\n";
+	std::cout<<"Yacc css: "<<std::chrono::duration_cast<std::chrono::microseconds>(yaccCssTime).count()<<"us\n";
+	std::cout<<"Apply css: "<<std::chrono::duration_cast<std::chrono::microseconds>(applyCssTime).count()<<"us\n";
 	
-	auto total = time1+time2+time3a+time3b+time4a+time4b+time5+time6+time7+time8+time9;
+	auto total = teAll-tsAll;
 	
 	std::cout << "##### Total time taken: "<<std::chrono::duration_cast<std::chrono::microseconds>(total).count()<<"us\n";
-	std::cout << "##### Total time taken excluding download: "<<std::chrono::duration_cast<std::chrono::microseconds>(total-time2-time3a).count()<<"us\n";
+	std::cout << "##### Total time taken excluding download: "<<std::chrono::duration_cast<std::chrono::microseconds>(total-timeDownload).count()<<"us\n";
 	
 	///////////////////////////////////
 	////// Create window

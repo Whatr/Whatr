@@ -159,7 +159,7 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 	// start points to the :
 	// end points to the token before the ;
 	
-	int f = -1; // fontId
+	Font* f = NULL; // fontId
 	
 	bool acceptColor = canTakeColor(prop);
 	
@@ -1008,10 +1008,10 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 				if (prop==FONT ||
 					prop==FONT_FAMILY)
 				{
-					if (f>0) continue; // If already have font, skip
+					if (f!=NULL) continue; // If already have font, skip
 					PRINT(prop==FONT);
 					f = loadFont(current.text);
-					if (f<=0) // Failed
+					if (f==NULL) // Failed
 					{
 						int j = i-1;
 						while (j>=start+1 && f<=0)
@@ -1025,9 +1025,9 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 							j--;
 						}
 					}
-					if (f>0) // Success
+					if (f!=NULL) // Success
 					{
-						ret.fontId = f;
+						ret.font = f;
 						std::cout << GREEN << "CSS notice: Loaded font.\n" << NOCLR;
 						goto foundValue;
 					}

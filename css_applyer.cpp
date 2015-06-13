@@ -56,10 +56,10 @@ void* cssApplyThreadFunc(void* args)
 				(*el)->styleValues.push_back(value);
 				switch (name)
 				{
-			//case TOP: (*el)->cssTop = value; break;
-			//case LEFT: (*el)->cssLeft = value; break;
-			//case BOTTOM: (*el)->cssBottom = value; break;
-			//case RIGHT: (*el)->cssRight = value; break;
+			case TOP: (*el)->cssTop = value; break;
+			case LEFT: (*el)->cssLeft = value; break;
+			case BOTTOM: (*el)->cssBottom = value; break;
+			case RIGHT: (*el)->cssRight = value; break;
 			case COLOR: (*el)->cssColor = value.colorValue; break;
 			case BACKGROUND_COLOR: (*el)->cssBackgroundColor = value.colorValue; break;
 			case BACKGROUND_ATTACHMENT: (*el)->cssBackgroundAttachment = value.constant; break;
@@ -84,10 +84,10 @@ void* cssApplyThreadFunc(void* args)
 			case FLOAT: (*el)->cssFloat = value.constant; break;
 			case FONT_VARIANT: (*el)->cssFontVariant = value.constant; break;
 			case FONT_STYLE: (*el)->cssFontStyle = value.constant; break;
-			//case FONT_STRETCH: (*el)->cssFontStretch = value; break;
+			case FONT_STRETCH: (*el)->cssFontStretch = value.constant; break;
 			case FONT_WEIGHT: (*el)->cssFontWeight = value.constant; break;
 			case FONT_SIZE: (*el)->cssFontSize = value; break;
-			case FONT_FAMILY: (*el)->cssFontFamily = value.textValue; break;
+			case FONT_FAMILY: (*el)->cssFontFamily = value.font; break;
 			case WIDTH: (*el)->cssWidth = value; break;
 			case HEIGHT: (*el)->cssHeight = value; break;
 			case PADDING_BOTTOM: (*el)->cssPaddingBottom = value; break;
@@ -104,7 +104,7 @@ void* cssApplyThreadFunc(void* args)
 			case LIST_STYLE_TYPE: (*el)->cssListStyleType = value.constant; break;
 			case LIST_STYLE_POSITION: (*el)->cssListStylePosition = value.constant; break;
 			case LIST_STYLE_IMAGE: (*el)->cssListStyleImage = value.textValue; break;
-			//case POSITION: (*el)->cssPosition = value.constant; break;
+			case POSITION: (*el)->cssPosition = value.constant; break;
 			case TEXT_ALIGN: (*el)->cssTextAlign = value.constant; break;
 			case TEXT_TRANSFORM: (*el)->cssTextTransform = value.constant; break;
 			case TEXT_INDENT_LENGTH: (*el)->cssTextIndentLength = value; break;
@@ -114,9 +114,43 @@ void* cssApplyThreadFunc(void* args)
 			case TEXT_DECORATION_LINE: (*el)->cssTextDecorationLine = value.constant; break;
 			case TEXT_DECORATION_STYLE: (*el)->cssTextDecorationStyle = value.constant; break;
 			case TEXT_DECORATION_COLOR: (*el)->cssTextDecorationColor = value.colorValue; break;
-			//case BORDER_SPACING: (*el)->cssBorderSpacing = value; break;
+			case BORDER_SPACING: (*el)->cssBorderSpacing = value; break;
+			case CLIP: (*el)->cssClip = value.constant; break;
+			case Z_INDEX: (*el)->cssZIndex = value.lengthValue; break;
+			case MAX_HEIGHT: (*el)->cssMaxHeight = value; break;
+			case MAX_WIDTH: (*el)->cssMaxWidth = value; break;
+			case MIN_HEIGHT: (*el)->cssMinHeight = value; break;
+			case MIN_WIDTH: (*el)->cssMinWidth = value; break;
+			case VISIBILITY: (*el)->cssVisibility = value.constant; break;
+			case DIRECTION: (*el)->cssDirection = value.constant; break;
+			case UNICODE_BIDI: (*el)->cssUnicodeBidi = value.constant; break; // wtf is that
+			case BORDER_COLLAPSE: (*el)->cssBorderCollapse = value.constant; break;
+			case CAPTION_SIDE: (*el)->cssCaptionSide = value.constant; break;
+			case EMPTY_CELLS: (*el)->cssEmptyCells = value.constant; break;
+			case TABLE_LAYOUT: (*el)->cssTableLayout = value.constant; break;
+			case COUNTER_INCREMENT:(*el)->cssCounterIncrement=value.constant;break;
+			case COUNTER_RESET: (*el)->cssCounterReset = value.constant; break;
+			case CONTENT: (*el)->cssContent = value.textValue; break;
+			case CURSOR: (*el)->cssCursor = value.constant; break;
+			case OUTLINE_COLOR: (*el)->cssOutlineColor = value.colorValue; break;
+			case OUTLINE_STYLE: (*el)->cssOutlineStyle = value.constant; break;
+			case OUTLINE_WIDTH: (*el)->cssOutlineWidth = value; break;
+			case PAGE_BREAK_AFTER: (*el)->cssPageBreakAfter = value.constant; break;
+			case PAGE_BREAK_BEFORE: (*el)->cssPageBreakBefore=value.constant; break;
+			case PAGE_BREAK_INSIDE: (*el)->cssPageBreakInside=value.constant; break;
+			case QUOTES: (*el)->cssQuotes = value.constant; break;
+			case WIDOWS: (*el)->cssWidows = value.constant; break;
+			case ORPHANS: (*el)->cssOrphans = value.constant; break;
+//			case : (*el)->css = ; break;
 					default:
-						std::cout << "TODODODODOOOOOOO\n";
+						if (name>=COMBOS)
+						{
+							std::cout << RED << "CSS error: a combo property was received by css_applyer.cpp!!!\n" << NOCLR;
+						}
+						else
+						{
+							std::cout << RED << "TODO: add css property to the list in css_applyer.cpp, name="<<name<<"\n" << NOCLR;
+						}
 					break;
 				}
 			}

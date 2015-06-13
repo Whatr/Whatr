@@ -50,7 +50,7 @@ public:
 	CSSConstant cssFloat;
 	CSSConstant cssFontVariant, cssFontStyle, cssFontStretch, cssFontWeight;
 	CSSValue cssFontSize;
-	ConstStr cssFontFamily;
+	Font* cssFontFamily;
 	CSSValue cssWidth, cssHeight;
 	CSSValue cssPaddingBottom, cssPaddingTop, cssPaddingLeft, cssPaddingRight;
 	CSSConstant cssVerticalAlign;
@@ -69,6 +69,22 @@ public:
 	CSSConstant cssTextDecorationLine, cssTextDecorationStyle;
 	int cssTextDecorationColor;
 	CSSValue cssBorderSpacing;
+	CSSConstant cssClip;
+	int cssZIndex;
+	CSSValue cssMaxHeight, cssMaxWidth, cssMinHeight, cssMinWidth;
+	CSSConstant cssVisibility;
+	CSSConstant cssDirection, cssUnicodeBidi;
+	CSSConstant cssBorderCollapse;
+	CSSConstant cssEmptyCells, cssTableLayout;
+	CSSConstant cssCounterIncrement, cssCounterReset;
+	ConstStr cssContent;
+	CSSConstant cssCursor;
+	int cssOutlineColor;
+	CSSConstant cssOutlineStyle;
+	CSSValue cssOutlineWidth;
+	CSSConstant cssPageBreakAfter, cssPageBreakBefore, cssPageBreakInside;
+	CSSConstant cssQuotes, cssWidows, cssOrphans;
+	CSSConstant cssCaptionSide;
 	
 	void applyCSSDefaults();
 	
