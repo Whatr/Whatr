@@ -14,8 +14,6 @@
 #include "const_str.h"
 #include <SDL2/SDL_ttf.h>
 #include <vector>
-
-void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* charHeights, int& widthOut, int& heightOut);
 class Font
 {
 public:
@@ -23,6 +21,8 @@ public:
 	int fontCharWidth[256];
 	int fontCharHeight[256];
 };
+void calculateTextSize(ConstStr text, int availableWidth, Font* font, int& widthOut, int& heightOut);
+void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* charHeights, int& widthOut, int& heightOut);
 Font* loadFont(ConstStr name);
 extern std::vector<Font*> fonts;
 void initFontArray();

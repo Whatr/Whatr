@@ -20,7 +20,7 @@ std::vector<Font*> fonts;
 Font* loadFont(ConstStr name)
 {
 	char* name2 = name.copy();
-	TTF_Font* gFont = TTF_OpenFont(name2, 72);
+	TTF_Font* gFont = TTF_OpenFont(name2, 24);
 	delete name2;
 	if (gFont==NULL)
 	{
@@ -28,6 +28,7 @@ Font* loadFont(ConstStr name)
 		return NULL;
 	}
 	Font* font = new Font();
+	font->gFont = gFont;
 	char allChars[512];
 	for (int i=0;i<256;i++)
 	{
@@ -50,7 +51,11 @@ Font* loadFont(ConstStr name)
 	fonts.push_back(font);
 	return font;
 }
-
+void calculateTextSize(ConstStr text, int availableWidth, Font* font, int& widthOut, int& heightOut)
+{
+	calculateTextSize(text, availableWidth, font->fontCharWidth, font->fontCharHeight, widthOut, heightOut);
+	
+}
 void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* charHeights, int& widthOut, int& heightOut)
 {
 	if (text.length==0)
@@ -86,7 +91,7 @@ void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* 
 			else // cut the sentence
 			{
 				i.jump(lastWhiteSpace);
-				lineBreaks[lines] = lastWhiteSpace;
+				lineBreaks[lines] = lastWhiteSpace + 1;
 				lines++;
 				lastWhiteSpace = -1;
 				width = 0;
