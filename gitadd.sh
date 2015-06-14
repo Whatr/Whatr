@@ -13,4 +13,5 @@ git add *.hpp
 git add *.sh
 git add *.h
 git add *.ttf
+git add *.php
 echo 'Git add complete'
