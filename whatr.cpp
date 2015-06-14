@@ -596,19 +596,22 @@ int main(int argc, char* argv[])
 	
 	///////////////////////////////////
 	////// Renderer 1: HTML Transform
-	/*
+	auto tsRenderer1Thread = std::chrono::high_resolution_clock::now();
 	{
 		rendering1 = 1;
-		renderer1Args args(&rendering1, &HTMLElements);
+		renderer1Args args(&rendering1, &(document.children));
 		if (pthread_create(&renderer1Thread, NULL, renderer1ThreadFunc, &args))
 		{
 			ERROR(Failed to create renderer 1 thread!);
 			return 0;
 		}
-		while(rendering1){usleep(10);};
-		printTree(HTMLElements.at(0), std::string("  "));
 	}
-	*/
+	auto teRenderer1Thread = std::chrono::high_resolution_clock::now();
+	
+	auto tsRenderer1 = std::chrono::high_resolution_clock::now();
+	while(rendering1){usleep(10);};
+	auto teRenderer1 = std::chrono::high_resolution_clock::now();
+	//printTree(&document, std::string("  "));
 	
 	auto teAll = std::chrono::high_resolution_clock::now();
 	
@@ -619,6 +622,8 @@ int main(int argc, char* argv[])
 	auto timeHtmlLex = teHtmlLex - tsHtmlLex;
 	auto timeHtmlYaccThread = teHtmlYaccThread - tsHtmlYaccThread;
 	auto timeHtmlYacc = teHtmlYacc - tsHtmlYacc;
+	auto timeRenderer1Thread = teRenderer1Thread - tsRenderer1Thread;
+	auto timeRenderer1 = teRenderer1 - tsRenderer1;
 	
 	std::cout << "\n\n##### Slowness report:\n";
 	std::cout <<"Parse URL: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeUrl).count()<<"us\n";
@@ -630,6 +635,8 @@ int main(int argc, char* argv[])
 	std::cout<<"Yacc html: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeHtmlYacc).count()<<"us\n";
 	std::cout<<"Lex css: "<<std::chrono::duration_cast<std::chrono::microseconds>(lexCssTime).count()<<"us\n";
 	std::cout<<"Yacc css: "<<std::chrono::duration_cast<std::chrono::microseconds>(yaccCssTime).count()<<"us\n";
+	std::cout<<"Start renderer1 thread: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeRenderer1Thread).count()<<"us\n";
+	std::cout<<"Renderer 1: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeRenderer1).count()<<"us\n";
 	std::cout<<"Apply css: "<<std::chrono::duration_cast<std::chrono::microseconds>(applyCssTime).count()<<"us\n";
 	
 	auto total = teAll-tsAll;

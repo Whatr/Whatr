@@ -88,7 +88,7 @@ public:
 	
 	void applyCSSDefaults();
 	
-	// Prerenderer stuff:
+	// Renderer 1 stuff:
 	int positionX = 0, positionY = 0;
 	int width = 0;
 	int height = 0;

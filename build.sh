@@ -13,7 +13,7 @@ outputProgramFile="whatr.exe"
 dotCpp=".cpp"	# The files you want to compile
 dotO=".o"		# The extension compiled files get
 
-
+dotStr=".str"
 
 
 #---------Don't change below this line if you don't know what you're doing :)
@@ -22,6 +22,37 @@ if [ $# -eq 0 ]
 then
 	forceCompileAll=0
 else
+	forceCompileAll=1
+fi
+generated=0
+for i in *.str; do
+	j="_gen_${i/$dotStr/$dotCpp}"
+	if [ -f $j ]
+	then
+		if (( `date -r $i +%s` > `date -r $j +%s` )) || (( forceCompileAll == 1 ))
+		then
+			echo "$j has expired. Regenerating from $i...";
+			generated=1
+			rm $j
+			php string_matcher_generator.php $i > $j
+		else
+			smg="string_matcher_generator.php"
+			if (( `date -r $smg +%s` > `date -r $j +%s` ))
+			then
+				echo "string_matcher_generator.php has been updated. Regenerating from $i...";
+				generated=1
+				rm $j
+				php string_matcher_generator.php $i > $j
+			fi
+		fi
+	else
+		generated=1
+		echo "Generating $j from $i...";
+		php string_matcher_generator.php $i > $j
+	fi
+done
+if [[ $generated == 1 ]]
+then
 	forceCompileAll=1
 fi
 dotOfiles=""
