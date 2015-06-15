@@ -209,13 +209,13 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 					tempHex[2] = tempHex[3] = tempHex[1];
 					tempHex[1] = tempHex[0];
 					ret.colorValue = ((int)strtol(&tempHex[0], NULL, 16)) << 8;
-					ret.colorType = 1;
+					ret.colorType = COLOR_TYPE_YUP;
 					goto foundValue;
 				}
 				else if (current.text.length==7) // #ABCDEF
 				{
 					ret.colorValue = current.text.subString(1).toInt(16) << 8;
-					ret.colorType = 1;
+					ret.colorType = COLOR_TYPE_YUP;
 					goto foundValue;
 				}
 				else
@@ -254,6 +254,11 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 				if (current.text-=std::string("inherit"))
 				{
 					ret.constant = INHERIT;
+					goto foundValue;
+				}
+				if (current.text-=std::string("auto"))
+				{
+					ret.constant = AUTO;
 					goto foundValue;
 				}
 				if (acceptColor)
@@ -405,7 +410,7 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 				}
 				else goto notAColorName;
 				// If it's a color name:
-				ret.colorType = 1;
+				ret.colorType = COLOR_TYPE_YUP;
 				goto foundValue;
 				
 				// Else:
@@ -1113,7 +1118,7 @@ std::vector<CSSValue>* parseRuleValue(std::vector<CSSToken>* tokens, int start, 
 					}
 				}
 				else goto noColor;
-				ret.colorType = 1;
+				ret.colorType = COLOR_TYPE_YUP;
 				goto foundValue;
 				noColor:;
 			}

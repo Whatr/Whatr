@@ -20,11 +20,11 @@ class renderer1Args
 {
 public:
 	int* rendering1;
-	std::vector<HTMLElement*>* HTMLElements;
+	HTMLElement* document;
 	renderer1Args(	int* rendering1,
-					std::vector<HTMLElement*>* HTMLElements):
+					HTMLElement* document):
 		rendering1(rendering1),
-		HTMLElements(HTMLElements){};
+		document(document){};
 };
 void* renderer1ThreadFunc(void* args);
 void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* charHeights, int& widthOut, int& heightOut);

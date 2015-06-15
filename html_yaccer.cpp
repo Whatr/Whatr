@@ -109,6 +109,7 @@ void* htmlYaccThreadFunc(void* args)
 				el->parent = document;
 				el->argNames = currentTag->argNames;
 				el->argValues = currentTag->argValues;
+				el->applyCSSDefaults();
 				HTMLElements->push_back(el);
 				currentElement = HTMLElements->back();
 			}
@@ -121,6 +122,7 @@ void* htmlYaccThreadFunc(void* args)
 				el->parent = document;
 				el->argNames = currentTag->argNames;
 				el->argValues = currentTag->argValues;
+				el->applyCSSDefaults();
 				HTMLElements->push_back(el);
 			}
 			else if (currentTag->type==3) // Closing tag
@@ -185,6 +187,7 @@ void* htmlYaccThreadFunc(void* args)
 				el->parent = currentElement;
 				el->argNames = currentTag->argNames;
 				el->argValues = currentTag->argValues;
+				el->applyCSSDefaults();
 				currentElement->children.push_back(el);
 				currentElement = el;
 			}
@@ -198,6 +201,7 @@ void* htmlYaccThreadFunc(void* args)
 				el->parent = currentElement;
 				el->argNames = currentTag->argNames;
 				el->argValues = currentTag->argValues;
+				el->applyCSSDefaults();
 				currentElement->children.push_back(el);
 			}
 			else if (currentTag->type==3) // Closing tag
@@ -277,253 +281,496 @@ void* htmlYaccThreadFunc(void* args)
 }
 void HTMLElement::applyCSSDefaults()
 { // http://www.w3.org/TR/CSS2/sample.html
-	cssTop.lengthType =
-	cssBottom.lengthType =
-	cssLeft.lengthType =
-	cssRight.lengthType = LENGTH_TYPE_PX;
-	cssTop.lengthValue =
-	cssBottom.lengthValue =
-	cssLeft.lengthValue =
-	cssRight.lengthValue = 0;
-	cssColor = 0x00000000; // black
-	cssBackgroundColor = 0xFFFFFF00; // white
-	cssBackgroundAttachment = SCROLL;
-	cssBackgroundRepeat = REPEAT;
-	memset(&cssBackgroundPositionX, 0, sizeof(CSSValue));
-	memset(&cssBackgroundPositionY, 0, sizeof(CSSValue));
-	cssBackgroundImage = ConstStr();
-	cssBorderBottomColor =
-	cssBorderTopColor =
-	cssBorderLeftColor =
-	cssBorderRightColor = 0xFFFFFF00; // white
-	cssBorderBottomStyle =
-	cssBorderTopStyle =
-	cssBorderLeftStyle =
-	cssBorderRightStyle = NONE_LINE_STYLE;
-	cssClear = NONE_CLEAR;
-	cssDisplay = INLINE;
-	cssFloat = NONE_FLOAT;
-	cssFontVariant = NORMAL_FONT_VARIANT;
-	cssFontStyle = NORMAL_FONT_STYLE;
-	cssFontWeight = NORMAL_FONT_WEIGHT;
-	cssFontSize.lengthType = LENGTH_TYPE_PT;
-	cssFontSize.lengthValue = 12;
-	cssWidth.lengthType = cssHeight.lengthType = LENGTH_TYPE_NOPE;
-	cssPaddingBottom.lengthType =
-	cssPaddingTop.lengthType =
-	cssPaddingLeft.lengthType =
-	cssPaddingRight.lengthType = LENGTH_TYPE_PX;
-	cssPaddingBottom.lengthValue =
-	cssPaddingTop.lengthValue =
-	cssPaddingLeft.lengthValue =
-	cssPaddingRight.lengthValue = 5;
-	cssVerticalAlign = TOP_VALIGN;
-	cssMarginBottom.lengthType =
-	cssMarginTop.lengthType =
-	cssMarginLeft.lengthType =
-	cssMarginRight.lengthType = LENGTH_TYPE_PX;
-	cssMarginBottom.lengthValue =
-	cssMarginTop.lengthValue =
-	cssMarginLeft.lengthValue =
-	cssMarginRight.lengthValue = 0;
-	cssTextAlign = START_TEXT_ALIGN;
-	cssTextTransform = NONE_TEXT_TRANSFORM;
-	cssTextDecorationLine = NONE_TEXT_DECORATION;
-	cssDisplay = INLINE_BLOCK;
 	
+	std::cout << "applying css defaults to " << text << "\n";
 	
+	// Set everything to 0
+	memset(&css[0], 0, sizeof(css));
+	
+	// All non-zero property defaults:
+	//css[ALIGN_CONTENT] = STRETCH;
+	//css[ALIGN_ITEMS] = STRETCH;
+	//css[ALIGN_SELF] = AUTO;
+	
+	css[BACKGROUND_ATTACHMENT] = SCROLL;
+	//css[BACKGROUND_CLIP] = BORDER_BOX;
+	css[BACKGROUND_COLOR] = CSSValue(COLOR_TYPE_YUP, 0x000000FF); // transparent
+	//css[BACKGROUND_IMAGE] = ;
+	//css[BACKGROUND_ORIGIN] = PADDING_BOX;
+	css[BACKGROUND_POSITION_X] =
+	css[BACKGROUND_POSITION_Y] = CSSValue(LENGTH_TYPE_PERCENT, 0);
+	css[BACKGROUND_REPEAT] = REPEAT;
+	//css[BACKGROUND_SIZE] = AUTO;
+	
+	css[BORDER_BOTTOM_WIDTH] = 
+	css[BORDER_LEFT_WIDTH] = 
+	css[BORDER_RIGHT_WIDTH] = 
+	css[BORDER_TOP_WIDTH] = CSSValue(LENGTH_TYPE_PX, 0);
+	
+	//css[BORDER_COLLAPSE] = SEPARATE;
+	
+	//css[BORDER_IMAGE_OUTSET] = CSSValue(LENGTH_TYPE_PX, 0);
+	//css[BORDER_IMAGE_REPEAT] = STRETCH;
+	//css[BORDER_IMAGE_SLICE] = CSSValue(LENGTH_TYPE_PERCENT, 100);
+	
+	//css[BORDER_IMAGE_WIDTH] = ;
+	//css[BORDER_SPACING] = ;
+	
+	css[BOTTOM] = AUTO;
+	//css[CAPTION_SIDE] = TOP_CAPTION_SIDE;
+	css[CLEAR] = NONE_CLEAR;
+	
+	css[CLIP] = AUTO;
+	css[COLOR] = CSSValue(COLOR_TYPE_YUP, 0x00000000);
+	
+	//css[COUNTER_INCREMENT] = NONE_COUNTER_INCREMENT;
+	//css[COUNTER_RESET] = NONE_COUNTER_RESET;
+	css[CURSOR] = AUTO;
+	//css[DIRECTION] = LTR;
+	css[DISPLAY] = INLINE;
+	//css[EMPTY_CELLS] = SHOW;
+	
+	css[FLOAT] = NONE_FLOAT;
+	
+	css[FONT_FAMILY] = NULL;//loadFont("arial.ttf");
+	css[FONT_SIZE] = MEDIUM;
+	css[FONT_STYLE] = NORMAL_FONT_STYLE;
+	css[FONT_VARIANT] = NORMAL_FONT_VARIANT;
+	css[FONT_WEIGHT] = NORMAL_FONT_WEIGHT;
+	
+	css[HEIGHT] = AUTO;
+	
+	css[LEFT] = AUTO;
+	//css[LETTER_SPACING] = NORMAL_LETTER_SPACING;
+	//css[LINE_HEIGHT] = NORMAL_LINE_HEIGHT;
+	css[LIST_STYLE_POSITION] = OUTSIDE;
+	css[LIST_STYLE_TYPE] = DISC;
+	
+	css[MARGIN_BOTTOM] =
+	css[MARGIN_TOP] =
+	css[MARGIN_LEFT] =
+	css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_PX, 0);
+	
+	css[MAX_WIDTH] =
+	css[MAX_HEIGHT] = CSSValue(LENGTH_TYPE_PX, 99999999);
+	css[MIN_WIDTH] =
+	css[MIN_HEIGHT] = CSSValue(LENGTH_TYPE_PX, 0);
+	
+	//css[OUTLINE_COLOR] = ;
+	//css[OUTLINE_OFFSET] = ;
+	//css[OUTLINE_STYLE] = ;
+	//css[OUTLINE_WIDTH] = ;
+	//css[OVERFLOW_X] = VISIBLE;
+	//css[OVERFLOW_Y] = VISIBLE;
+	
+	css[PADDING_BOTTOM] =
+	css[PADDING_TOP] =
+	css[PADDING_LEFT] =
+	css[PADDING_RIGHT] = CSSValue(LENGTH_TYPE_PX, 0);
+	
+	css[POSITION] = RELATIVE; // STATIC?
+	
+	css[RIGHT] = AUTO;
+	
+	css[TABLE_LAYOUT] = AUTO;
+	css[TEXT_ALIGN] = LEFT_TEXT_ALIGN;
+	
+	css[TEXT_DECORATION_COLOR] = CSSValue(COLOR_TYPE_YUP, 0x00000000);
+	css[TEXT_DECORATION_LINE] = NONE_TEXT_DECORATION;
+	css[TEXT_DECORATION_STYLE] = SOLID_TEXT_DEC;
+	css[TEXT_INDENT_LENGTH] = CSSValue(LENGTH_TYPE_PX, 0);
+	css[TEXT_TRANSFORM] = NONE_TEXT_TRANSFORM;
+	css[TOP] = AUTO;
+	//css[UNICODE_BIDI] = NORMAL_UNICODE_BIDI; // wtf
+	css[VERTICAL_ALIGN] = BASELINE;
+	
+	css[VISIBILITY] = VISIBLE;
+	
+	//css[WHITE_SPACE] = NORMAL_WHITE_SPACE;
+	css[WIDTH] = AUTO;
+	//css[WORD_BREAK] = NORMAL_WORD_BREAK;
+	//css[WORD_SPACING] = NORMAL_WORD_SPACING;
+	css[Z_INDEX] = AUTO;
+	
+	// Tag-specific defaults:
 	switch (this->tag)
 	{
-		case TAG_HTML:
+		case TAG_A:
+			css[COLOR] = CSSValue(COLOR_TYPE_YUP, 0x0000FF00); // blue
+			css[CURSOR] = HAND;
+			css[TEXT_DECORATION_LINE] = UNDERLINE;
+		break;
 		case TAG_ADDRESS:
+			css[DISPLAY] = BLOCK;
+			css[FONT_STYLE] = ITALIC;
+		break;
+		case TAG_AREA:
+			css[DISPLAY] = NONE_DISPLAY;
+		break;
+		case TAG_ARTICLE:
+			css[DISPLAY] = BLOCK;
+		break;
+		case TAG_ASIDE:
+			css[DISPLAY] = BLOCK;
+		break;
+		case TAG_B:
+			css[FONT_WEIGHT] = BOLD;
+		break;
+		case TAG_BDO:
+			//css[UNICODE_BIDI] = BIDI_OVERRIDE; // idk
+		break;
 		case TAG_BLOCKQUOTE:
+			css[DISPLAY] = BLOCK;
+			css[MARGIN_BOTTOM] = css[MARGIN_TOP] = CSSValue(LENGTH_TYPE_EM, 1);
+			css[MARGIN_LEFT] = css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_PX, 40);
+		break;
 		case TAG_BODY:
+			std::cout << "TAG_BODY\n";
+			css[DISPLAY] = CSSValue(BLOCK);
+			//css[MARGIN_TOP] = css[MARGIN_BOTTOM] =
+			//css[MARGIN_LEFT] = css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_PX, 8);
+			css[PADDING_TOP ] = css[PADDING_BOTTOM] =
+			css[PADDING_LEFT] = css[PADDING_RIGHT ] = CSSValue(LENGTH_TYPE_PX, 8);
+		break;
+		case TAG_CAPTION:
+			css[DISPLAY] = TABLE_CAPTION;
+			css[TEXT_ALIGN] = CENTER_TEXT_ALIGN;
+		break;
+		case TAG_CITE:
+			css[FONT_STYLE] = ITALIC;
+		break;
+		case TAG_CODE:
+			css[FONT_FAMILY] = NULL;//loadFont("monospace");
+		break;
+		case TAG_COL:
+			css[DISPLAY] = TABLE_COLUMN;
+		break;
+		case TAG_COLGROUP:
+			css[DISPLAY] = TABLE_COLUMN_GROUP;
+		break;
+		case TAG_DATALIST:
+			css[DISPLAY] = NONE_DISPLAY;
+		break;
 		case TAG_DD:
+			css[DISPLAY] = BLOCK;
+			css[MARGIN_LEFT] = CSSValue(LENGTH_TYPE_PX, 40);
+		break;
+		case TAG_DEL:
+			css[TEXT_DECORATION_LINE] = LINE_THROUGH;
+		break;
+		case TAG_DETAILS:
+			css[DISPLAY] = BLOCK;
+		break;
+		case TAG_DFN:
+			css[FONT_STYLE] = ITALIC;
+		break;
 		case TAG_DIV:
+			css[DISPLAY] = BLOCK;
+		break;
 		case TAG_DL:
+			css[DISPLAY] = BLOCK;
+			css[MARGIN_BOTTOM] =
+			css[MARGIN_TOP] = CSSValue(LENGTH_TYPE_EM, 1);
+			css[MARGIN_RIGHT] =
+			css[MARGIN_LEFT] = CSSValue(LENGTH_TYPE_PX, 0);
+		break;
 		case TAG_DT:
+			css[DISPLAY] = BLOCK;
+		break;
+		case TAG_EM:
+			css[FONT_STYLE] = ITALIC;
+		break;
 		case TAG_FIELDSET:
+			css[DISPLAY] = BLOCK;
+			css[MARGIN_RIGHT] =
+			css[MARGIN_LEFT] = CSSValue(LENGTH_TYPE_PX, 2);
+			css[PADDING_TOP] = CSSValue(LENGTH_TYPE_EM, 0.35);
+			css[PADDING_BOTTOM] = CSSValue(LENGTH_TYPE_EM, 0.625);
+			css[PADDING_RIGHT] =
+			css[PADDING_LEFT] = CSSValue(LENGTH_TYPE_EM, 0.75);
+			css[BORDER_LEFT_WIDTH] =
+			css[BORDER_RIGHT_WIDTH] =
+			css[BORDER_TOP_WIDTH] =
+			css[BORDER_BOTTOM_WIDTH] = CSSValue(LENGTH_TYPE_PX, 2);
+			css[BORDER_LEFT_STYLE] =
+			css[BORDER_RIGHT_STYLE] =
+			css[BORDER_TOP_STYLE] =
+			css[BORDER_BOTTOM_STYLE] = GROOVE;
+			css[BORDER_LEFT_COLOR] =
+			css[BORDER_RIGHT_COLOR] =
+			css[BORDER_TOP_COLOR] =
+			css[BORDER_BOTTOM_COLOR] = CSSValue(COLOR_TYPE_YUP, 0xFF00FF00);
+		break;
+		case TAG_FIGCAPTION:
+			css[DISPLAY] = BLOCK;
+		break;
+		case TAG_FIGURE:
+			css[DISPLAY] = BLOCK;
+			css[MARGIN_BOTTOM] =
+			css[MARGIN_TOP] = CSSValue(LENGTH_TYPE_EM, 1);
+			css[MARGIN_RIGHT] =
+			css[MARGIN_LEFT] = CSSValue(LENGTH_TYPE_PX, 40);
+		break;
+		case TAG_FOOTER:
+			css[DISPLAY] = BLOCK;
+		break;
 		case TAG_FORM:
-		case TAG_FRAME:
-		case TAG_FRAMESET:
+			css[DISPLAY] = BLOCK;
+			css[MARGIN_TOP] = CSSValue(LENGTH_TYPE_EM, 0);
+		break;
 		case TAG_H1:
+			css[DISPLAY] = BLOCK;
+			css[FONT_SIZE] = CSSValue(LENGTH_TYPE_EM, 2);
+			css[MARGIN_TOP] =
+			css[MARGIN_BOTTOM] = CSSValue(LENGTH_TYPE_EM, 0.67);
+			css[MARGIN_LEFT] =
+			css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_EM, 0);
+			css[FONT_WEIGHT] = BOLD;
+		break;
 		case TAG_H2:
+			css[DISPLAY] = BLOCK;
+			css[FONT_SIZE] = CSSValue(LENGTH_TYPE_EM, 1.5);
+			css[MARGIN_TOP] =
+			css[MARGIN_BOTTOM] = CSSValue(LENGTH_TYPE_EM, 0.83);
+			css[MARGIN_LEFT] =
+			css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_EM, 0);
+			css[FONT_WEIGHT] = BOLD;
+		break;
 		case TAG_H3:
+			css[DISPLAY] = BLOCK;
+			css[FONT_SIZE] = CSSValue(LENGTH_TYPE_EM, 1.17);
+			css[MARGIN_TOP] =
+			css[MARGIN_BOTTOM] = CSSValue(LENGTH_TYPE_EM, 1);
+			css[MARGIN_LEFT] =
+			css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_EM, 0);
+			css[FONT_WEIGHT] = BOLD;
+		break;
 		case TAG_H4:
+			css[DISPLAY] = BLOCK;
+			css[MARGIN_TOP] =
+			css[MARGIN_BOTTOM] = CSSValue(LENGTH_TYPE_EM, 1.33);
+			css[MARGIN_LEFT] =
+			css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_EM, 0);
+			css[FONT_WEIGHT] = BOLD;
+		break;
 		case TAG_H5:
+			css[DISPLAY] = BLOCK;
+			css[FONT_SIZE] = CSSValue(LENGTH_TYPE_EM, .83);
+			css[MARGIN_TOP] =
+			css[MARGIN_BOTTOM] = CSSValue(LENGTH_TYPE_EM, 1.67);
+			css[MARGIN_LEFT] =
+			css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_EM, 0);
+			css[FONT_WEIGHT] = BOLD;
+		break;
 		case TAG_H6:
-		case TAG_NOFRAMES:
-		case TAG_OL:
-		case TAG_P:
-		case TAG_UL:
-		case TAG_CENTER:
-		case TAG_DIR:
+			css[DISPLAY] = BLOCK;
+			css[FONT_SIZE] = CSSValue(LENGTH_TYPE_EM, .67);
+			css[MARGIN_TOP] =
+			css[MARGIN_BOTTOM] = CSSValue(LENGTH_TYPE_EM, 2.33);
+			css[MARGIN_LEFT] =
+			css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_EM, 0);
+			css[FONT_WEIGHT] = BOLD;
+		break;
+		case TAG_HEADER:
+			css[DISPLAY] = BLOCK;
+		break;
 		case TAG_HR:
-		case TAG_MENU:
-		case TAG_PRE:
-			cssDisplay = BLOCK;
-		break;
-	}
-	switch (this->tag)
-	{
-		case TAG_LI:		cssDisplay = LIST_ITEM; break;
-		case TAG_HEAD:		cssDisplay = NONE_DISPLAY; break;
-		case TAG_TABLE:		cssDisplay = TABLE; break;
-		case TAG_TR:		cssDisplay = TABLE_ROW; break;
-		case TAG_THEAD:		cssDisplay = TABLE_HEADER_GROUP; break;
-		case TAG_TBODY:		cssDisplay = TABLE_ROW_GROUP; break;
-		case TAG_TFOOT:		cssDisplay = TABLE_FOOTER_GROUP; break;
-		case TAG_COL:		cssDisplay = TABLE_COLUMN; break;
-		case TAG_COLGROUP:	cssDisplay = TABLE_COLUMN_GROUP; break;
-		case TAG_TD: case TAG_TH: cssDisplay = TABLE_CELL; break;
-		case TAG_CAPTION:	cssDisplay = TABLE_CAPTION; break;
-	}
-	switch (this->tag)
-	{
-		case TAG_BODY:
-			cssMarginTop.lengthType = LENGTH_TYPE_PX;
-			cssMarginTop.lengthValue = 8;
-			cssMarginLeft = cssMarginBottom = cssMarginRight = cssMarginTop;
-		break;
-		case TAG_H1:
-			cssFontSize.lengthValue = 2;
-			cssMarginTop.lengthValue = .67;
-		break;
-		case TAG_H2:
-			cssFontSize.lengthValue = 1.5;
-			cssMarginTop.lengthValue = .75;
-		break;
-		case TAG_H3:
-			cssFontSize.lengthValue = 1.17;
-			cssMarginTop.lengthValue = .83;
-		break;
-		case TAG_H4:
-		case TAG_P:
-		case TAG_BLOCKQUOTE:
-		case TAG_UL:
-		case TAG_FIELDSET:
-		case TAG_FORM:
-		case TAG_OL:
-		case TAG_DL:
-		case TAG_DIR:
-		case TAG_MENU:
-			cssMarginTop.lengthType = LENGTH_TYPE_EM;
-			cssMarginTop.lengthValue = 1.12;
-			cssMarginBottom = cssMarginTop;
-			cssMarginLeft.lengthType = LENGTH_TYPE_EM;
-			cssMarginLeft.lengthValue = 0;
-			cssMarginRight = cssMarginLeft;
-		break;
-		case TAG_H5:
-			cssFontSize.lengthValue = .83;
-			cssMarginTop.lengthValue = 1.5;
-		break;
-		case TAG_H6:
-			cssFontSize.lengthValue = .75;
-			cssMarginTop.lengthValue = 1.67;
-		break;
-		case TAG_STRONG: cssFontWeight = BOLDER; break;
-	}
-	switch (this->tag)
-	{
-		case TAG_BLOCKQUOTE:
-			cssMarginLeft.lengthType = LENGTH_TYPE_PX;
-			cssMarginLeft.lengthValue = 40;
-			cssMarginRight = cssMarginLeft;
+			css[DISPLAY] = BLOCK;
+			css[MARGIN_TOP] =
+			css[MARGIN_BOTTOM] = CSSValue(LENGTH_TYPE_EM, 0.5);
+			css[MARGIN_LEFT] =
+			css[MARGIN_RIGHT] = AUTO;
+			css[BORDER_STYLE] = INSET;
+			css[BORDER_TOP_WIDTH] =
+			css[BORDER_BOTTOM_WIDTH] =
+			css[BORDER_LEFT_WIDTH] =
+			css[BORDER_RIGHT_WIDTH] = CSSValue(LENGTH_TYPE_PX, 1);
 		break;
 		case TAG_I:
-		case TAG_CITE:
-		case TAG_EM:
-		case TAG_VAR:
-		case TAG_ADDRESS:
-			cssFontStyle = ITALIC;
+			css[FONT_STYLE] = ITALIC;
+		break;
+		case TAG_IMG:
+			css[DISPLAY] = INLINE_BLOCK;
+		break;
+		case TAG_INS:
+			css[TEXT_DECORATION_LINE] = UNDERLINE;
 		break;
 		case TAG_KBD:
-		case TAG_SAMP:
-			cssFontFamily = loadFont(ConstStr("monospace")); // TODO
+			css[FONT_FAMILY] = NULL;//loadFont("monospace");
 		break;
-		case TAG_PRE: cssWhiteSpace = PRE; break;
-		case TAG_BUTTON:
-		case TAG_TEXTAREA:
-		case TAG_INPUT:
-		case TAG_SELECT:
-			cssDisplay = INLINE_BLOCK;
+		case TAG_LABEL:
+			css[CURSOR] = DEFAULT_CURSOR;
 		break;
-		case TAG_BIG:
-			cssFontSize.lengthType = LENGTH_TYPE_EM;
-			cssFontSize.lengthValue = 1.17;
+		case TAG_LEGEND:
+			css[DISPLAY] = BLOCK;
+			css[PADDING_LEFT] =
+			css[PADDING_RIGHT] = CSSValue(LENGTH_TYPE_PX, 2);
+			// border: none;
 		break;
-		case TAG_SUB:
-			cssVerticalAlign = SUB;
-			cssFontSize.lengthType = LENGTH_TYPE_EM;
-			cssFontSize.lengthValue = .83;
+		case TAG_LI:
+			css[DISPLAY] = LIST_ITEM;
 		break;
-		case TAG_SUP:
-			cssVerticalAlign = SUPER;
-			cssFontSize.lengthType = LENGTH_TYPE_EM;
-			cssFontSize.lengthValue = .83;
+		case TAG_LINK:
+			css[DISPLAY] = NONE_DISPLAY;
 		break;
-		case TAG_SMALL:
-			cssFontSize.lengthType = LENGTH_TYPE_EM;
-			cssFontSize.lengthValue = .83;
+		case TAG_MAP:
+			css[DISPLAY] = INLINE;
 		break;
-		case TAG_TABLE:
-			cssBorderSpacing.lengthType = LENGTH_TYPE_PX;
-			cssBorderSpacing.lengthValue = 2;
+		case TAG_MARK:
+			css[BACKGROUND_COLOR] = CSSValue(COLOR_TYPE_YUP, 0xFFFF0000);
+			css[COLOR] = CSSValue(COLOR_TYPE_YUP, 0x00000000);
 		break;
-		case TAG_THEAD:
-		case TAG_TBODY:
-		case TAG_TFOOT:
-			cssVerticalAlign = MIDDLE;
+		case TAG_MENU:
+			css[DISPLAY] = BLOCK;
+			css[LIST_STYLE_TYPE] = DISC;
+			css[MARGIN_TOP] =
+			css[MARGIN_BOTTOM] = CSSValue(LENGTH_TYPE_EM, 1);
+			css[MARGIN_LEFT] =
+			css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_PX, 0);
+			css[PADDING_LEFT] = CSSValue(LENGTH_TYPE_PX, 40);
 		break;
-		case TAG_TD:
-		case TAG_TH:
-		case TAG_TR:
-			cssVerticalAlign = INHERIT;
+		case TAG_NAV:
+			css[DISPLAY] = BLOCK;
+		break;
+		case TAG_NOSCRIPT: // we aint got no scripts ;(
+			css[DISPLAY] = INLINE_BLOCK;
+		break;
+		case TAG_OL:
+			css[DISPLAY] = BLOCK;
+			css[LIST_STYLE_TYPE] = DECIMAL;
+			css[MARGIN_BOTTOM] =
+			css[MARGIN_TOP] = CSSValue(LENGTH_TYPE_EM, 1);
+			css[MARGIN_LEFT] =
+			css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_PX, 0);
+			css[PADDING_LEFT] = CSSValue(LENGTH_TYPE_PX, 40);
+		break;
+		case TAG_OUTPUT:
+			css[DISPLAY] = INLINE;
+		break;
+		case TAG_P:
+			css[DISPLAY] = BLOCK;
+			css[MARGIN_BOTTOM] =
+			css[MARGIN_TOP] = CSSValue(LENGTH_TYPE_EM, 1);
+			css[MARGIN_LEFT] =
+			css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_PX, 0);
+		break;
+		case TAG_PARAM:
+			css[DISPLAY] = NONE_DISPLAY;
+		break;
+		case TAG_PRE:
+			css[DISPLAY] = BLOCK;
+			css[FONT_FAMILY] = NULL;//loadFont("monospace");
+			//css[WHITE_SPACE] = PRE_WHITE_SPACE;
+			css[MARGIN_BOTTOM] =
+			css[MARGIN_TOP] = CSSValue(LENGTH_TYPE_EM, 1);
+			css[MARGIN_LEFT] =
+			css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_PX, 0);
+		break;
+		case TAG_Q:
+			css[DISPLAY] = INLINE;
+			// q:before { content: open-quote ; }
+			// q:after  { content: close-quote; }
+		break;
+		case TAG_RT:
+			//css[LINE_HEIGHT] = NORMAL_LINE_HEIGHT;
 		break;
 		case TAG_S:
-		case TAG_STRIKE:
-		case TAG_DEL:
-			cssTextDecorationLine = LINE_THROUGH;
+			css[TEXT_DECORATION_STYLE] = LINE_THROUGH;
 		break;
-		case TAG_HR:
-			cssBorderLeftWidth.lengthType = LENGTH_TYPE_PX;
-			cssBorderLeftWidth.lengthValue = 1;
-			cssBorderRightWidth = cssBorderTopWidth = cssBorderBottomWidth = cssBorderLeftWidth;
-			cssBorderLeftStyle = cssBorderRightStyle = cssBorderTopStyle = cssBorderBottomStyle = INSET;
+		case TAG_SAMP:
+			css[FONT_FAMILY] = NULL;//loadFont("monospace");
 		break;
-	}
-	switch (this->tag)
-	{
-		case TAG_OL:
-			cssListStyleType = DECIMAL;
-		// fall through
-		case TAG_UL:
-		case TAG_DIR:
-		case TAG_MENU:
-		case TAG_DD:
-			cssMarginLeft.lengthType = LENGTH_TYPE_PX;
-			cssMarginLeft.lengthValue = 40;
+		case TAG_SCRIPT:
+			css[DISPLAY] = NONE_DISPLAY;
+		break;
+		case TAG_SECTION:
+			css[DISPLAY] = BLOCK;
+		break;
+		case TAG_SMALL:
+			css[FONT_SIZE] = SMALLER;
+		break;
+		case TAG_STRONG:
+			css[FONT_WEIGHT] = BOLD;
+		break;
+		case TAG_STYLE:
+			css[DISPLAY] = NONE_DISPLAY;
+		break;
+		case TAG_SUB:
+			css[VERTICAL_ALIGN] = SUB;
+			css[FONT_SIZE] = SMALLER;
+		break;
+		case TAG_SUMMARY:
+			css[DISPLAY] = BLOCK;
+		break;
+		case TAG_SUP:
+			css[VERTICAL_ALIGN] = SUPER;
+			css[FONT_SIZE] = SMALLER;
+		break;
+		case TAG_TABLE:
+			css[DISPLAY] = TABLE;
+			//css[BORDER_COLLAPSE] = SEPERATE;
+			css[BORDER_SPACING] = CSSValue(LENGTH_TYPE_PX, 2);
+			css[BORDER_LEFT_COLOR] =
+			css[BORDER_RIGHT_COLOR] =
+			css[BORDER_TOP_COLOR] =
+			css[BORDER_BOTTOM_COLOR] = CSSValue(COLOR_TYPE_YUP, 0x80808000); // gray
+		break;
+		case TAG_TBODY:
+			css[DISPLAY] = TABLE_ROW_GROUP;
+			css[VERTICAL_ALIGN] = MIDDLE;
+			css[BORDER_LEFT_COLOR] =
+			css[BORDER_RIGHT_COLOR] =
+			css[BORDER_TOP_COLOR] =
+			css[BORDER_BOTTOM_COLOR] = INHERIT;
+		break;
+		case TAG_TD:
+			css[DISPLAY] = TABLE_CELL;
+			css[VERTICAL_ALIGN] = INHERIT;
+		break;
+		case TAG_TFOOT:
+			css[DISPLAY] = TABLE_FOOTER_GROUP;
+			css[VERTICAL_ALIGN] = MIDDLE;
+			css[BORDER_LEFT_COLOR] =
+			css[BORDER_RIGHT_COLOR] =
+			css[BORDER_TOP_COLOR] =
+			css[BORDER_BOTTOM_COLOR] = INHERIT;
+		break;
+		case TAG_TH:
+			css[DISPLAY] = TABLE_CELL;
+			css[VERTICAL_ALIGN] = INHERIT;
+			css[FONT_WEIGHT] = BOLD;
+			css[TEXT_ALIGN] = CENTER_TEXT_ALIGN;
+		break;
+		case TAG_THEAD:
+			css[DISPLAY] = TABLE_HEADER_GROUP;
+			css[VERTICAL_ALIGN] = MIDDLE;
+			css[BORDER_LEFT_COLOR] =
+			css[BORDER_RIGHT_COLOR] =
+			css[BORDER_TOP_COLOR] =
+			css[BORDER_BOTTOM_COLOR] = INHERIT;
+		break;
+		case TAG_TR:
+			css[DISPLAY] = TABLE_ROW;
+			css[VERTICAL_ALIGN] = INHERIT;
+			css[BORDER_LEFT_COLOR] =
+			css[BORDER_RIGHT_COLOR] =
+			css[BORDER_TOP_COLOR] =
+			css[BORDER_BOTTOM_COLOR] = INHERIT;
 		break;
 		case TAG_U:
-		case TAG_INS:
-			cssTextDecorationLine = UNDERLINE;
+			css[TEXT_DECORATION_STYLE] = UNDERLINE;
 		break;
-	}
-	switch (this->tag)
-	{
-		case TAG_H1:
-		case TAG_H2:
-		case TAG_H3:
-		case TAG_H4:
-		case TAG_H5:
-		case TAG_H6:
-			cssFontSize.lengthType = LENGTH_TYPE_EM;
-			cssMarginTop.lengthType = LENGTH_TYPE_EM;
-			cssMarginBottom = cssMarginTop;
-			cssMarginLeft.lengthType = LENGTH_TYPE_EM;
-			cssMarginLeft.lengthValue = 0;
-			cssMarginRight = cssMarginLeft;
+		case TAG_UL:
+			css[DISPLAY] = BLOCK;
+			css[LIST_STYLE_TYPE] = DISC;
+			css[MARGIN_BOTTOM] =
+			css[MARGIN_TOP] = CSSValue(LENGTH_TYPE_EM, 1);
+			css[MARGIN_LEFT] =
+			css[MARGIN_RIGHT] = CSSValue(LENGTH_TYPE_PX, 0);
+			css[PADDING_LEFT] = CSSValue(LENGTH_TYPE_PX, 40);
+		break;
+		case TAG_VAR:
+			css[FONT_STYLE] = ITALIC;
 		break;
 	}
 }

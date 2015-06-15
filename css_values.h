@@ -38,7 +38,11 @@ enum LengthType
 	LENGTH_TYPE_PT,
 	LENGTH_TYPE_UNKNOWN,
 };
-
+enum ColorType
+{
+	COLOR_TYPE_NOPE=0,
+	COLOR_TYPE_YUP,
+};
 enum CSSConstant
 {
 	NOPE=0,
@@ -46,6 +50,7 @@ enum CSSConstant
 	// Global
 	INITIAL,
 	INHERIT,
+	AUTO, // <-- pretty much global
 	
 	// border-style
 	NONE_LINE_STYLE,
@@ -236,6 +241,7 @@ enum CSSConstant
 	AUTO_CURSOR,
 	ZOOM_OUT,
 	ZOOM_IN,
+	HAND,
 	WAIT,
 	W_RESIZE,
 	VERTICAL_TEXT,
@@ -266,25 +272,92 @@ enum CSSConstant
 	CELL_CURSOR,
 	ALL_SCROLL,
 	ALIAS_CURSOR,
+	
+	// visibility
+	VISIBLE,
+	HIDDEN_VISIBILITY,
 };
 
-struct CSSValue
+class CSSValue
 {
+public:
 	TextType textType;
 	ConstStr textValue;
+	CSSConstant constant;
+	Font* font;
 	
 	LengthType lengthType;
-	double lengthValue;
-	
 	TimeType timeType;
-	double timeValue;
+	ColorType colorType;
 	
-	int colorType;	// 0 = nope, 1 = yup
-	int colorValue;
+	union
+	{
+		double lengthValue;
+		double timeValue;
+		int colorValue;
+	};
 	
-	CSSConstant constant;	// 0 = nope, ....css_values.h
 	
-	Font* font;		// 0 = nope
+	CSSValue():
+		textType(TEXT_TYPE_NOPE),
+		lengthType(LENGTH_TYPE_NOPE),
+		timeType(TIME_TYPE_NOPE),
+		colorType(COLOR_TYPE_NOPE),
+		constant(NOPE),
+		font(NULL){};
+	
+	CSSValue(CSSConstant constant):
+		textType(TEXT_TYPE_NOPE),
+		lengthType(LENGTH_TYPE_NOPE),
+		timeType(TIME_TYPE_NOPE),
+		colorType(COLOR_TYPE_NOPE),
+		constant(constant),
+		font(NULL){};
+	
+	CSSValue(Font* font):
+		textType(TEXT_TYPE_NOPE),
+		lengthType(LENGTH_TYPE_NOPE),
+		timeType(TIME_TYPE_NOPE),
+		colorType(COLOR_TYPE_NOPE),
+		constant(NOPE),
+		font(font){};
+	
+	CSSValue(TextType textType, ConstStr textValue):
+		textType(textType),
+		textValue(textValue),
+		lengthType(LENGTH_TYPE_NOPE),
+		timeType(TIME_TYPE_NOPE),
+		colorType(COLOR_TYPE_NOPE),
+		constant(NOPE),
+		font(NULL){};
+	
+	CSSValue(LengthType lengthType, double lengthValue):
+		textType(TEXT_TYPE_NOPE),
+		lengthType(lengthType),
+		lengthValue(lengthValue),
+		timeType(TIME_TYPE_NOPE),
+		colorType(COLOR_TYPE_NOPE),
+		constant(NOPE),
+		font(NULL){};
+	
+	CSSValue(TimeType timeType, double timeValue):
+		textType(TEXT_TYPE_NOPE),
+		lengthType(LENGTH_TYPE_NOPE),
+		timeType(timeType),
+		timeValue(timeValue),
+		colorType(COLOR_TYPE_NOPE),
+		constant(NOPE),
+		font(NULL){};
+	
+	CSSValue(ColorType colorType, int colorValue):
+		textType(TEXT_TYPE_NOPE),
+		lengthType(LENGTH_TYPE_NOPE),
+		timeType(TIME_TYPE_NOPE),
+		colorType(colorType),
+		colorValue(colorValue),
+		constant(NOPE),
+		font(NULL){};
+	
 };
 
 /*

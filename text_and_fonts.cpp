@@ -51,12 +51,7 @@ Font* loadFont(ConstStr name)
 	fonts.push_back(font);
 	return font;
 }
-void calculateTextSize(ConstStr text, int availableWidth, Font* font, int& widthOut, int& heightOut)
-{
-	calculateTextSize(text, availableWidth, font->fontCharWidth, font->fontCharHeight, widthOut, heightOut);
-	
-}
-void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* charHeights, int& widthOut, int& heightOut)
+void calculateTextSize(ConstStr text, int availableWidth, Font* font, int startX, int& widthOut, int& heightOut, int& newLinesOut, int& newHeightOut)
 {
 	if (text.length==0)
 	{
@@ -65,24 +60,26 @@ void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* 
 		return;
 	}
 	ConstStrIterator i = text.iterate();
-	int width = 0;
-	const int height = charHeights['|'];
+	int width = startX;
+	const int height = font->fontCharHeight['|'];
 	int lines = 0;
 	int* lineBreaks = new int[256];
 	int lastWhiteSpace = -1;
+	std::cout << "availableWidth=" << availableWidth << "\n";
 	for (; i.pos<text.length; i++)
 	{
 		char c = *i;
+		//std::cout << "c=" << c << "\n";
 		if (c==' ' || c=='\n' || c=='\r' || c=='\t')
 		{
 			lastWhiteSpace = i.pos;
 		}
-		width += charWidths[c];
+		width += font->fontCharWidth[c];
 		if (width>availableWidth)
 		{
 			if (lastWhiteSpace==-1) // cut the word
 			{
-				std::cout << "wc @"<<*i<<"\n";
+				//std::cout << "wc @"<<*i<<"\n";
 				lineBreaks[lines] = i.pos-1;
 				lines++;
 				i--;
@@ -90,6 +87,7 @@ void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* 
 			}
 			else // cut the sentence
 			{
+				std::cout << "sc\n";
 				i.jump(lastWhiteSpace);
 				lineBreaks[lines] = lastWhiteSpace + 1;
 				lines++;
@@ -99,6 +97,8 @@ void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* 
 		}
 	}
 	lineBreaks[lines] = i.pos;
+	newLinesOut = lines;
+	newHeightOut = lines*height;
 	lines++;
 	for (int j=0;j<lines;j++)
 	{
@@ -108,3 +108,14 @@ void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* 
 	widthOut = width;
 	heightOut = height*lines;
 }
+void calculateTextSize(ConstStr text, int availableWidth, Font* font, int& widthOut, int& heightOut)
+{
+	int newLines = 0, newHeight = 0;
+	calculateTextSize(text, availableWidth, font, 0, widthOut, heightOut, newLines, newHeight);
+}
+void calculateTextSize(ConstStr text, int availableWidth, Font* font, int startX, int& widthOut, int& heightOut)
+{
+	int newLines = 0, newHeight = 0;
+	calculateTextSize(text, availableWidth, font, startX, widthOut, heightOut, newLines, newHeight);
+}
+

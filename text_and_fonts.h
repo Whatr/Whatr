@@ -22,7 +22,7 @@ public:
 	int fontCharHeight[256];
 };
 void calculateTextSize(ConstStr text, int availableWidth, Font* font, int& widthOut, int& heightOut);
-void calculateTextSize(ConstStr text, int availableWidth, int* charWidths, int* charHeights, int& widthOut, int& heightOut);
+void calculateTextSize(ConstStr text, int availableWidth, Font* font, int startX, int& widthOut, int& heightOut, int& newLinesOut, int& newHeightOut);
 Font* loadFont(ConstStr name);
 extern std::vector<Font*> fonts;
 void initFontArray();

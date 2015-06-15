@@ -594,12 +594,21 @@ int main(int argc, char* argv[])
 	
 	}
 	
+	// Initialize SDL_ttf
+	if (TTF_Init()==-1)
+	{
+		printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+	}
+	Font* font = loadFont("arial.ttf");
+	
 	///////////////////////////////////
 	////// Renderer 1: HTML Transform
+	document.availableWidth  = document.width  = SCREEN_WIDTH ;
+	document.availableHeight = document.height = SCREEN_HEIGHT;
 	auto tsRenderer1Thread = std::chrono::high_resolution_clock::now();
 	{
 		rendering1 = 1;
-		renderer1Args args(&rendering1, &(document.children));
+		renderer1Args args(&rendering1, &document);
 		if (pthread_create(&renderer1Thread, NULL, renderer1ThreadFunc, &args))
 		{
 			ERROR(Failed to create renderer 1 thread!);
@@ -635,9 +644,9 @@ int main(int argc, char* argv[])
 	std::cout<<"Yacc html: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeHtmlYacc).count()<<"us\n";
 	std::cout<<"Lex css: "<<std::chrono::duration_cast<std::chrono::microseconds>(lexCssTime).count()<<"us\n";
 	std::cout<<"Yacc css: "<<std::chrono::duration_cast<std::chrono::microseconds>(yaccCssTime).count()<<"us\n";
+	std::cout<<"Apply css: "<<std::chrono::duration_cast<std::chrono::microseconds>(applyCssTime).count()<<"us\n";
 	std::cout<<"Start renderer1 thread: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeRenderer1Thread).count()<<"us\n";
 	std::cout<<"Renderer 1: "<<std::chrono::duration_cast<std::chrono::microseconds>(timeRenderer1).count()<<"us\n";
-	std::cout<<"Apply css: "<<std::chrono::duration_cast<std::chrono::microseconds>(applyCssTime).count()<<"us\n";
 	
 	auto total = teAll-tsAll;
 	
@@ -683,15 +692,9 @@ int main(int argc, char* argv[])
 				{
 					printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
 				}
-				// Initialize SDL_ttf
-				if (TTF_Init()==-1)
-				{
-					printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
-				}
 			}
 		}
 	}
-	Font* font = loadFont("arial.ttf");
 	if (font->gFont==NULL)
 	{
 		printf("Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError());
