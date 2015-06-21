@@ -98,6 +98,7 @@ void* htmlYaccThreadFunc(void* args)
 				el->type = 0;
 				el->text = currentTag->text;
 				el->parent = document;
+				el->css[DISPLAY] = INLINE;
 				HTMLElements->push_back(el);
 			}
 			else if (currentTag->type==1) // Opening tag
@@ -148,6 +149,7 @@ void* htmlYaccThreadFunc(void* args)
 					el->type = 0;
 					el->text = misplacedText;
 					el->parent = currentElement;
+					el->css[DISPLAY] = INLINE;
 					currentElement->children.push_back(el);
 				}
 			}
@@ -174,6 +176,7 @@ void* htmlYaccThreadFunc(void* args)
 					el->type = 0;
 					el->text = currentTag->text;
 					el->parent = currentElement;
+					el->css[DISPLAY] = INLINE;
 					currentElement->children.push_back(el);
 				}
 			}
