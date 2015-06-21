@@ -17,14 +17,21 @@ $noMatchReturnValue = "_TAG_CUSTOM";
 
 $strings = explode("\n", $strings);
 $lengths = array();
+$lastInclude = 0;
 for ($i=0;$i<count($strings);$i++)
 {
-	if ($i==0)
+	if ($strings[$i][0]=='#') // include
+	{
+		echo $strings[$i]."\n";
+		$lastInclude = $i;
+		continue;
+	}
+	if ($i-$lastInclude==1) // function name
 	{
 		echo $strings[$i]."\n";
 		continue;
 	}
-	if ($i==1)
+	if ($i-$lastInclude==2) // _TAG_CUSTOM
 	{
 		$noMatchReturnValue = $strings[$i];
 		continue;
@@ -41,7 +48,7 @@ ksort($lengths);
 echo "{\n";
 echo " int s = 0;\n";
 echo " ConstStrIterator i = tag.iterate();\n";
-
+echo " char c = *i;\n";
 $lengthKeys = array_keys($lengths);
 for ($i=0;$i<count($lengthKeys);$i++)
 {
@@ -52,6 +59,7 @@ for ($i=0;$i<count($lengthKeys);$i++)
 	{
 		echo "  for(;i<tag.length;i++)\n";
 		echo "  {\n";
+		echo "   c = *i;\n";
 	}
 	$states = array();
 	$stateCount = 1;
@@ -109,7 +117,7 @@ for ($i=0;$i<count($lengthKeys);$i++)
 		{
 			echo "    ";
 			if ($q!=0) echo "else ";
-			echo "if (*i == '$c') ";
+			echo "if (c == '$c') ";
 			if ($length==1)
 				echo "return ".$lengths[$length][$q][1].";\n";
 			else
@@ -148,7 +156,7 @@ for ($i=0;$i<count($lengthKeys);$i++)
 			{
 				echo "    ";
 				if ($prevChar!='#') echo "else ";
-				echo "if (*i == '$c') ";
+				echo "if (c == '$c') ";
 				if ($length!=1 && $p<count($states)-2)
 					echo "s = ".$states[$p+1][$q].";\n";
 				else

@@ -1,3 +1,6 @@
+#ifndef HTML_TAG_TYPES_INCLUDED
+#define HTML_TAG_TYPES_INCLUDED yes
+
 enum HTMLTagType
 {
 	TAG_DOCTYPE,
@@ -132,3 +135,4 @@ enum HTMLTagType
 	_TAG_CUSTOM,
 };
 
+#endif
